@@ -1,0 +1,22 @@
+syntax = "proto3";
+package fileIndex;
+//option go_package = "internals/fileIndex ";
+import "google/protobuf/descriptor.proto";
+
+
+message Table{
+  map<uint32, File> Files = 1;
+  uint32 NumberFiles= 2; // number of records
+}
+
+//message Hash{
+//  repeated Record Records=1;
+//}
+
+message File{
+  uint32 id=1 ; // id
+  uint32 firstBlock=2; // first block number
+  uint32 lastBlock=3; // last block number
+  bytes Blocks=4; // bitmap
+//  Record Next=5; // use pointer of
+}
