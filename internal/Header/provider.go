@@ -29,7 +29,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger) 
 	if size%int64(blockSize) != 0 {
 		return nil, fmt.Errorf("File size must be divisible by %v", blockSize)
 	}
-	if size < int64(blockSize*30) {
+	if size < int64(blockSize*60) {
 		return nil, fmt.Errorf("File size is too small, Minimum size is %v", blockSize*60)
 	}
 
