@@ -41,7 +41,6 @@ type FileSystem struct {
 	Cache              *lru.Cache
 	fileIndexIsFlip    bool
 	EventsHandler      Events
-	conf               configs
 	Quit               chan struct{}
 }
 
