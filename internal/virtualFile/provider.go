@@ -1,8 +1,6 @@
 package virtualFile
 
 import (
-	"behnama/stream/internal/messages/media"
-
 	"github.com/fanap-infra/log"
 )
 
@@ -30,7 +28,6 @@ func NewVirtualFile(fileName string, fileID uint32, fs FS, log *log.Logger) *Vir
 		Closed: false,
 		//blocks:         roaring.NewBitmap(),
 		allocatedBlock: make([]uint32, 0),
-		frameChunk:     &media.PacketChunk{},
 		numberOfBlocks: 0,
 		//sem:            semaphore.NewWeighted(1),
 		//maybeSync:      semaphore.NewWeighted(1),
