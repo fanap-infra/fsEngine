@@ -56,5 +56,9 @@ func (v *VirtualFile) Close() error {
 	//if err != nil {
 	//	v.log.Errorv("syncBamToDisk", "err", err.Error())
 	//}
+	if uint32(len(v.vfBuf)) > 0 {
+		_, err := v.fs.Write(v.vfBuf, v.id)
+		v.log.Errorv("Can not write to file", "err", err.Error())
+	}
 	return v.fs.Close(v.id)
 }

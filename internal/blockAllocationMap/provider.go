@@ -7,7 +7,7 @@ import (
 	"github.com/fanap-infra/log"
 )
 
-func New(log *log.Logger, listener event, size uint32) *BlockAllocationMap {
+func New(log *log.Logger, listener Events, size uint32) *BlockAllocationMap {
 	return &BlockAllocationMap{
 		size:             size,
 		log:              log,
@@ -19,7 +19,7 @@ func New(log *log.Logger, listener event, size uint32) *BlockAllocationMap {
 
 // ToDo: add block allocation map parser
 
-func Open(log *log.Logger, listener event, size uint32, lastWrittenBlock uint32, rMapByte []byte) (*BlockAllocationMap, error) {
+func Open(log *log.Logger, listener Events, size uint32, lastWrittenBlock uint32, rMapByte []byte) (*BlockAllocationMap, error) {
 	rMap := roaring.NewBitmap()
 	b := bytes.NewReader(rMapByte)
 	_, err := rMap.ReadFrom(b)

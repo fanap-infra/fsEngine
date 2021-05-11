@@ -2,6 +2,7 @@ package Header_
 
 import (
 	"behnama/stream/pkg/archiverStorageEngine/internals/virtualFS"
+	"behnama/stream/pkg/fsEngine/internal/blockAllocationMap"
 	"behnama/stream/pkg/fsEngine/internal/fileIndex"
 	"behnama/stream/pkg/fsEngine/pkg/utils"
 	"crypto/rand"
@@ -9,12 +10,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/RoaringBitmap/roaring"
 	"github.com/fanap-infra/log"
 )
 
-func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger) (*FileSystem, error) {
-	// p.log.Infov("CreateArchiver", "path", path, "size", size)
+func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, eventHandler blockAllocationMap.Events) (*HFileSystem, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -52,26 +51,17 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger) 
 		log.Warnv("Does not write completely ", "err", err.Error(), "n", n)
 	}
 
-	fs := &FileSystem{
-		file:      file,
-		size:      size,
-		version:   FileSystemVersion,
-		blocks:    uint32(size / int64(blockSize)),
-		blockSize: blockSize,
-		openFiles: make(map[uint32]*virtualFS.VirtualFile),
-		fileIndex: fileIndex.NewFileIndex(),
-		// lastWrittenBlock:   DataStartBlock,
-		blockAllocationMap: roaring.New(),
+	fs := &HFileSystem{
+		file:               file,
+		size:               size,
+		version:            FileSystemVersion,
+		blocks:             uint32(size / int64(blockSize)),
+		blockSize:          blockSize,
+		openFiles:          make(map[uint32]*virtualFS.VirtualFile),
+		fileIndex:          fileIndex.NewFileIndex(),
+		blockAllocationMap: blockAllocationMap.New(log, eventHandler, uint32(size/int64(blockSize))),
 		log:                log,
 	}
-
-	//n, err = file.WriteAt(token, int64(10*blockSize))
-	//if err != nil {
-	//	log.Warnv("write token ", "err", err.Error())
-	//}
-	//if uint32(n) != blockSize {
-	//	log.Warnv("Does not write completely ", "err", err.Error(), "n", n)
-	//}
 
 	loadConf(fs)
 
@@ -86,22 +76,10 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger) 
 		return nil, err
 	}
 
-	//// add header to Archiver file
-	//_, err = fs.writeInBlock(arc.generateArchiverHeader(), 0)
-	//if err != nil {
-	//	// p.log.Errorv("writeInBlock Header ", "err", err.Error())
-	//	return nil, err
-	//}
-	//_ = arc.SyncBamToDisk()
-	//// it's all redundant, just used for demonstration of what is
-	//// intended.
-	//arc.blockAllocationMap.AddRange(0, uint64(arc.blocks))
-	//arc.blockAllocationMap.Flip(0, uint64(arc.blocks))
-
 	return fs, nil
 }
 
-func ParseHeaderFS(path string, log *log.Logger) (*FileSystem, error) {
+func ParseHeaderFS(path string, log *log.Logger) (*HFileSystem, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -114,7 +92,7 @@ func ParseHeaderFS(path string, log *log.Logger) (*FileSystem, error) {
 		return nil, err
 	}
 
-	fs := &FileSystem{
+	fs := &HFileSystem{
 		file:      file,
 		size:      size,
 		openFiles: make(map[uint32]*virtualFS.VirtualFile),

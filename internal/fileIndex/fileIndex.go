@@ -3,8 +3,6 @@ package fileIndex
 import (
 	"fmt"
 	"sync"
-
-	"github.com/RoaringBitmap/roaring"
 )
 
 const (
@@ -16,11 +14,11 @@ type FileIndex struct {
 	rwMux sync.Mutex
 }
 
-type FileMetadata struct {
-	FirstBlock uint32
-	LastBlock  uint32
-	Blocks     *roaring.Bitmap
-}
+//type FileMetadata struct {
+//	FirstBlock uint32
+//	LastBlock  uint32
+//	Blocks     *roaring.Bitmap
+//}
 
 /*type fileIndex interface {
 	AddFile(fileId uint32) bool
@@ -38,17 +36,20 @@ type FileMetadata struct {
 //	return
 //}
 
-// AddFile
-func (i *FileIndex) AddFile(fileId uint32) error {
+func (i *FileIndex) AddFile(fileId uint32, name string) error {
 	i.rwMux.Lock()
 	defer i.rwMux.Unlock()
-	_, isExist := i.table.Files[fileId]
-	if isExist {
+	if i.CheckFileExist(fileId) {
 		return fmt.Errorf("file id %v has been added before", fileId)
 	}
 	i.table.NumberFiles++
-	i.table.Files[fileId] = &File{Id: fileId, FirstBlock: 0, LastBlock: 0}
+	i.table.Files[fileId] = &File{Id: fileId, FirstBlock: 0, LastBlock: 0, Name: name, RMapBlocks: make([]byte, 0)}
 	return nil
+}
+
+func (i *FileIndex) CheckFileExist(fileId uint32) bool {
+	_, isExist := i.table.Files[fileId]
+	return isExist
 }
 
 // RemoveFile

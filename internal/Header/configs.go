@@ -16,13 +16,21 @@ type configs struct {
 	BlockAllocationMapSize uint32
 }
 
-func loadConf(f *FileSystem) {
-	f.conf.BLOCKSIZE = f.blockSize // 1 << 19
-	f.conf.BLOCKSIZEUSABLE = f.conf.BLOCKSIZE - 20
-	f.conf.StorageMaxSize = 1 << 44
-	f.conf.BlockAllocationMapSize = uint32(f.conf.StorageMaxSize/uint64(f.conf.BLOCKSIZEUSABLE)) / 8 // Size in blocks.
-	f.conf.FileIndexReservedSize = 1 << 22
-	f.conf.FileIndexReservedSizeBlocks = (f.conf.FileIndexReservedSize / f.conf.BLOCKSIZEUSABLE) * 2 //(FileIndexReservedSize / BLOCKSIZEUSABLE) * 2
-	f.conf.DataStartBlock = (f.conf.BlockAllocationMapSize / f.conf.BLOCKSIZEUSABLE) + f.conf.FileIndexReservedSizeBlocks + 1
-	f.lastWrittenBlock = f.conf.DataStartBlock
+func loadConf(hfs *HFileSystem) {
+	hfs.conf.BLOCKSIZE = hfs.blockSize // 1 << 19
+	hfs.conf.BLOCKSIZEUSABLE = hfs.conf.BLOCKSIZE - 20
+	hfs.conf.StorageMaxSize = 1 << 44
+	hfs.conf.BlockAllocationMapSize = uint32(hfs.conf.StorageMaxSize/uint64(hfs.conf.BLOCKSIZEUSABLE)) / 8 // Size in blocks.
+	hfs.conf.FileIndexReservedSize = 1 << 22
+	hfs.conf.FileIndexReservedSizeBlocks = (hfs.conf.FileIndexReservedSize / hfs.conf.BLOCKSIZEUSABLE) * 2 //(FileIndexReservedSize / BLOCKSIZEUSABLE) * 2
+	hfs.conf.DataStartBlock = (hfs.conf.BlockAllocationMapSize / hfs.conf.BLOCKSIZEUSABLE) + hfs.conf.FileIndexReservedSizeBlocks + 1
+	hfs.lastWrittenBlock = hfs.conf.DataStartBlock
+}
+
+func (hfs *HFileSystem) GetBlockSize() uint32 {
+	return hfs.blockSize
+}
+
+func (hfs *HFileSystem) GetBlocksNumber() uint32 {
+	return hfs.blocks
 }
