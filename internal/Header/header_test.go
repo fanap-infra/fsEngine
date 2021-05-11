@@ -11,11 +11,21 @@ import (
 
 const path = "/test.beh"
 
+type EventsHandlerTest struct {
+	count uint32
+}
+
+func (eT *EventsHandlerTest) NoSpace() uint32 {
+	eT.count = eT.count + 1
+	return eT.count - 1
+}
+
 func TestStoreHeader(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, err, nil)
 	_ = utils.DeleteFile(homePath + path)
-	fs, err := CreateHeaderFS(homePath+path, BLOCKSIZE*1000, BLOCKSIZE, log.GetScope("test"))
+	eHandler := &EventsHandlerTest{}
+	fs, err := CreateHeaderFS(homePath+path, BLOCKSIZE*1000, BLOCKSIZE, log.GetScope("test"), eHandler)
 	assert.Equal(t, err, nil)
 	size := fs.size
 	version := fs.version

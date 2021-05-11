@@ -1,17 +1,23 @@
-package Header_
+package fsEngine
 
 import (
+	"behnama/stream/pkg/archiverStorageEngine/internals/fileIndex"
 	"behnama/stream/pkg/archiverStorageEngine/internals/virtualFS"
+	Header_ "behnama/stream/pkg/fsEngine/internal/Header"
 	"behnama/stream/pkg/fsEngine/internal/blockAllocationMap"
-	"behnama/stream/pkg/fsEngine/internal/fileIndex"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/fanap-infra/log"
+
+	lru "github.com/hashicorp/golang-lru"
 )
 
-type HFileSystem struct {
+// File
+type FSEngine struct {
 	file               *os.File // file handle instance
+	header             *Header_.HFileSystem
 	version            uint32
 	size               int64
 	CurrentFile        string                                 // name of the latest file to be created
@@ -21,30 +27,36 @@ type HFileSystem struct {
 	lastWrittenBlock   uint32                                 // the last block that has been written into
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
 	openFiles          map[uint32]*virtualFS.VirtualFile
-	fileIndex          *fileIndex.FileIndex
-	fileIndexSize      uint32
-	// WMux               sync.Mutex
-	// RMux               sync.Mutex
-	log *log.Logger
-	// fiMux              sync.RWMutex
-	fiChecksum uint32
-	// bamChecksum uint32
-	// fsMux              sync.Mutex
-	// rIBlockMux         sync.Mutex
-	// Cache              *lru.Cache
-	// fileIndexIsFlip    bool
-	conf configs
+	fileIndex          fileIndex.FileIndex
+	WMux               sync.Mutex
+	RMux               sync.Mutex
+	log                *log.Logger
+	fiMux              sync.RWMutex
+	fiChecksum         uint32
+	bamChecksum        uint32
+	fsMux              sync.Mutex
+	rIBlockMux         sync.Mutex
+	crudMutex          sync.Mutex
+	Cache              *lru.Cache
+	fileIndexIsFlip    bool
+	EventsHandler      Events
+	Quit               chan struct{}
 }
 
-func (hfs *HFileSystem) UpdateFSHeader() error {
-	err := hfs.updateFileIndex()
+// Close ...
+func (fse *FSEngine) Close() error {
+	err := fse.header.UpdateFSHeader()
 	if err != nil {
+		fse.log.Warnv("Can not updateHeader", "err", err.Error())
+		// ToDo: remove it
 		return err
 	}
-
-	err = hfs.updateHeader()
+	// ToDo:update file system
+	err = fse.file.Sync()
 	if err != nil {
+		fse.log.Warnv("Can not sync file", "err", err.Error())
+		// ToDo: remove it
 		return err
 	}
-	return nil
+	return fse.file.Close()
 }

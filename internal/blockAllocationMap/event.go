@@ -1,5 +1,5 @@
 package blockAllocationMap
 
-type event interface {
+type Events interface {
 	NoSpace() uint32
 }

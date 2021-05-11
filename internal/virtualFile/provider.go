@@ -1,13 +1,15 @@
 package virtualFile
 
 import (
+	"behnama/stream/pkg/fsEngine/internal/blockAllocationMap"
+
 	"github.com/fanap-infra/log"
 )
 
-func OpenVirtualFile(path string, fileID uint32, numberOfBlocks uint32, blockSize uint32, fs FS, log *log.Logger) *VirtualFile {
+func OpenVirtualFile(name string, fileID uint32, numberOfBlocks uint32, blockSize uint32, fs FS, log *log.Logger) *VirtualFile {
 	return &VirtualFile{
 		vfBuf:          nil,
-		name:           path,
+		name:           name,
 		id:             fileID,
 		Closed:         false,
 		readOnly:       true,
@@ -20,18 +22,16 @@ func OpenVirtualFile(path string, fileID uint32, numberOfBlocks uint32, blockSiz
 	}
 }
 
-func NewVirtualFile(fileName string, fileID uint32, fs FS, log *log.Logger) *VirtualFile {
+func NewVirtualFile(fileName string, fileID uint32, fs FS, eHandler blockAllocationMap.Events, log *log.Logger) *VirtualFile {
 	return &VirtualFile{
-		vfBuf:  make([]byte, 0),
-		name:   fileName,
-		id:     fileID,
-		Closed: false,
-		//blocks:         roaring.NewBitmap(),
-		allocatedBlock: make([]uint32, 0),
-		numberOfBlocks: 0,
-		//sem:            semaphore.NewWeighted(1),
-		//maybeSync:      semaphore.NewWeighted(1),
-		fs:  fs,
-		log: log,
+		vfBuf:              make([]byte, 0),
+		name:               fileName,
+		id:                 fileID,
+		Closed:             false,
+		blockAllocationMap: blockAllocationMap.New(log, eHandler, 0),
+		allocatedBlock:     make([]uint32, 0),
+		numberOfBlocks:     0,
+		fs:                 fs,
+		log:                log,
 	}
 }

@@ -13,7 +13,7 @@ type BlockAllocationMap struct {
 	LastWrittenBlock uint32
 	size             uint32
 	// numberOfAllocated uint32
-	trigger event
+	trigger Events
 	log     *log.Logger
 }
 

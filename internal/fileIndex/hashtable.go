@@ -1,10 +1,10 @@
 package fileIndex
 
-var (
-	minLoadFactor    = 0.25
-	maxLoadFactor    = 0.75
-	defaultTableSize = 128 // 32768
-)
+//var (
+//	minLoadFactor    = 0.25
+//	maxLoadFactor    = 0.75
+//	defaultTableSize = 128 // 32768
+//)
 
 /*type Record struct {
 	Key   int
