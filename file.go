@@ -1,10 +1,10 @@
 package fsEngine
 
 import (
-	"behnama/stream/pkg/archiverStorageEngine/internals/fileIndex"
-	"behnama/stream/pkg/archiverStorageEngine/internals/virtualFS"
-	Header_ "behnama/stream/pkg/fsEngine/internal/Header"
-	"behnama/stream/pkg/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/FSEngine/internal/fileIndex"
+	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
+	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 	"os"
 	"sync"
 	"time"
@@ -26,7 +26,7 @@ type FSEngine struct {
 	blockSize          uint32                                 // in bytes, size of each block
 	lastWrittenBlock   uint32                                 // the last block that has been written into
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
-	openFiles          map[uint32]*virtualFS.VirtualFile
+	openFiles          map[uint32]*virtualFile.VirtualFile
 	fileIndex          fileIndex.FileIndex
 	WMux               sync.Mutex
 	RMux               sync.Mutex

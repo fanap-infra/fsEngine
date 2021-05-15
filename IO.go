@@ -1,33 +1,23 @@
 package fsEngine
 
-// writeInBlock
-// just writes plain data in `blockIndex` Block. Just use
-// when data-block is structured.
+import (
+	"fmt"
+)
+
 func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err error) {
-	fse.rIBlockMux.Lock()
-	defer fse.rIBlockMux.Unlock()
 	if blockIndex >= fse.blocks {
 		return 0, ErrBlockIndexOutOFRange
 	}
-	if len(data) != BLOCKSIZE {
-		return 0, ErrDataBlockMismatch
-	}
 
-	n, err = fse.WriteAt(data, int64(blockIndex)*int64(fse.blockSize))
+	n, err = fse.file.WriteAt(data, int64(blockIndex)*int64(fse.blockSize))
 	if err != nil {
 		fse.log.Infov("Error Writing to file", "err", err.Error(), "file", fse.file.Name())
-		return n, err
 	}
-	// arc.setBlockAsAllocated(blockIndex)
-	//if blockIndex >= fse.conf.DataStartBlock {
-	//	fse.lastWrittenBlock = blockIndex
-	//}
+
 	return
 }
 
-func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
-	fse.rIBlockMux.Lock()
-	defer fse.rIBlockMux.Unlock()
+func (fse *FSEngine) readBlock(blockIndex uint32) ([]byte, error) {
 	if blockIndex >= fse.blocks {
 		return nil, ErrBlockIndexOutOFRange
 	}
@@ -45,11 +35,84 @@ func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
 	return buf, nil
 }
 
-func (fse *FSEngine) WriteAt(b []byte, off int64) (n int, err error) {
+func (fse *FSEngine) ReadAt(data []byte, off int64, fileID uint32) (int, error) {
+	fse.rIBlockMux.Lock()
+	defer fse.rIBlockMux.Unlock()
+}
+
+func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
+	// ToDo:  implement
+	return 0, fmt.Errorf("please impkement me")
+}
+
+func (fse *FSEngine) WriteAt(b []byte, off int64, fileID uint32) (n int, err error) {
+	// ToDo: complete it
 	n, err = fse.file.WriteAt(b, off)
 
 	//if arc.LastFiletime.IsZero() && off >= int64(arc.conf.DataStartBlock) {
 	//	arc.LastFiletime = time.Now()
 	//}
 	return
+}
+
+func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
+	fse.rIBlockMux.Lock()
+	defer fse.rIBlockMux.Unlock()
+	vf, ok := fse.openFiles[fileID]
+	if !ok {
+		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
+	}
+	n := 0
+	blocksNum := uint32(len(data) / BLOCKSIZEUSABLE)
+	for i := uint32(0); i < blocksNum; i++ {
+		previousBlock := vf.GetLastBlock()
+		blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
+		err := vf.AddBlockID(blockID)
+		if err != nil {
+			return 0, err
+		}
+		d, err := fse.prepareBlock(data, fileID, previousBlock, blockID)
+		if err != nil {
+			return 0, err
+		}
+		c, err := fse.writeInBlock(d, blockID)
+		if err != nil {
+			return 0, err
+		}
+		if c != len(d) {
+			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", c, len(d))
+		}
+		n = c + n
+	}
+
+	if len(data) != int(blocksNum*BLOCKSIZEUSABLE) {
+		previousBlock := vf.GetLastBlock()
+		blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
+		err := vf.AddBlockID(blockID)
+		if err != nil {
+			return 0, err
+		}
+		d, err := fse.prepareBlock(data, fileID, previousBlock, blockID)
+		if err != nil {
+			return 0, err
+		}
+		c, err := fse.writeInBlock(d, blockID)
+		if err != nil {
+			return 0, err
+		}
+		if c != len(d) {
+			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", c, len(d))
+		}
+		n = c + n
+	}
+
+	return 0, nil
+}
+
+type FS interface {
+	Write(data []byte, fileID uint32) (int, error)
+	WriteAt(data []byte, off int64, fileID uint32) (int, error)
+	Read(data []byte, fileID uint32) (int, error)
+	ReadAt(data []byte, off int64, fileID uint32) (int, error)
+	Close(fileID uint32) error
 }

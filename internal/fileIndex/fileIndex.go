@@ -14,32 +14,10 @@ type FileIndex struct {
 	rwMux sync.Mutex
 }
 
-//type FileMetadata struct {
-//	FirstBlock uint32
-//	LastBlock  uint32
-//	Blocks     *roaring.Bitmap
-//}
-
-/*type fileIndex interface {
-	AddFile(fileId uint32) bool
-	RemoveFile(fileId uint32) bool
-	EditFileMeta(fileId uint32, meta FileMetadata) bool
-	GenerateBinary() (data []byte, err error)
-}*/
-
-//// InitFileIndex
-//func InitFileIndex(data []byte) (fi FileIndex, err error) {
-//	hash := CreateHashTable(HashTableSize)
-//	err = proto.Unmarshal(data, &hash)
-//
-//	fi.hash = &hash
-//	return
-//}
-
 func (i *FileIndex) AddFile(fileId uint32, name string) error {
 	i.rwMux.Lock()
 	defer i.rwMux.Unlock()
-	if i.CheckFileExist(fileId) {
+	if i.checkFileExist(fileId) {
 		return fmt.Errorf("file id %v has been added before", fileId)
 	}
 	i.table.NumberFiles++
@@ -47,7 +25,14 @@ func (i *FileIndex) AddFile(fileId uint32, name string) error {
 	return nil
 }
 
-func (i *FileIndex) CheckFileExist(fileId uint32) bool {
+func (i *FileIndex) checkFileExist(fileId uint32) bool {
+	_, isExist := i.table.Files[fileId]
+	return isExist
+}
+
+func (i *FileIndex) CheckFileExistWithLock(fileId uint32) bool {
+	i.rwMux.Lock()
+	defer i.rwMux.Unlock()
 	_, isExist := i.table.Files[fileId]
 	return isExist
 }
@@ -63,6 +48,16 @@ func (i *FileIndex) RemoveFile(fileId uint32) error {
 	}
 
 	return fmt.Errorf("file id %v does not exist", fileId)
+}
+
+func (i *FileIndex) UpdateFile(fileId uint32, firstBlock uint32, lastBlock uint32, name string, blocks []byte) error {
+	i.rwMux.Lock()
+	defer i.rwMux.Unlock()
+	if !i.checkFileExist(fileId) {
+		return fmt.Errorf("file id %v does not exist", fileId)
+	}
+	i.table.Files[fileId] = &File{Id: fileId, FirstBlock: firstBlock, LastBlock: lastBlock, Name: name, RMapBlocks: blocks}
+	return nil
 }
 
 //// EditFileMeta

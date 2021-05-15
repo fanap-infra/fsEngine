@@ -17,6 +17,10 @@ type BlockAllocationMap struct {
 	log     *log.Logger
 }
 
+func (blm *BlockAllocationMap) ToArray() []uint32 {
+	return blm.rMap.ToArray()
+}
+
 func (blm *BlockAllocationMap) SetBlockAsAllocated(blockIndex uint32) error {
 	if blm.IsBlockAllocated(blockIndex) {
 		return fmt.Errorf("Block number %v is allocated before", blockIndex)
@@ -35,11 +39,6 @@ func (blm *BlockAllocationMap) IsBlockAllocated(blockIndex uint32) bool {
 }
 
 func (blm *BlockAllocationMap) FindNextFreeBlockAndAllocate() uint32 {
-	//arc.WMux.Lock()
-	//defer arc.WMux.Unlock()
-	//if arc.lastWrittenBlock < DataStartBlock {
-	//	arc.lastWrittenBlock = DataStartBlock - 1
-	//}
 	alloc := true
 	freeIndex := blm.LastWrittenBlock
 	for alloc {

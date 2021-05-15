@@ -1,7 +1,7 @@
 package virtualFile
 
 import (
-	"behnama/stream/pkg/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 
 	"github.com/fanap-infra/log"
 )
