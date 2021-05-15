@@ -1,0 +1,13 @@
+.idea/
+.vscode
+go.sum
+records/
+vendor/
+test/internal
+storage/tmp
+stream.dev.conf
+jAudio.wav
+jVideo.h264
+output.mp4
+stream
+
