@@ -1,8 +1,9 @@
 package blockAllocationMap
 
 import (
-	"behnama/stream/pkg/fsEngine/pkg/utils"
+	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"math/rand"
+	"sort"
 	"testing"
 
 	"github.com/fanap-infra/log"
@@ -74,5 +75,36 @@ func TestMarshalAndUnmarshal(t *testing.T) {
 		if !assert.Equal(t, false, bAllocationMap2.IsBlockAllocated(uint32(i))) {
 			log.Infov("Block allocated wrong", "i", i)
 		}
+	}
+}
+
+func TestBlockAllocationMap_ToArray(t *testing.T) {
+	eventTest := &EventTest{count: 0}
+	bAllocationMap := New(log.GetScope("test"), eventTest, MaxSize)
+	TestSize := 5
+	var testBlocks []uint32
+	for i := 0; i < TestSize; i++ {
+		tmp := uint32(rand.Intn(MaxSize))
+		if utils.ItemExists(testBlocks, tmp) {
+			i = i - 1
+			continue
+		}
+		testBlocks = append(testBlocks, tmp)
+		err := bAllocationMap.SetBlockAsAllocated(tmp)
+		assert.Equal(t, nil, err)
+	}
+	assert.Equal(t, TestSize, len(testBlocks))
+	blocksIndex := bAllocationMap.ToArray()
+	assert.Equal(t, TestSize, len(blocksIndex))
+	var testBlocksInt []int
+	var blocksInt []int
+	for i := 0; i < TestSize; i++ {
+		testBlocksInt = append(testBlocksInt, int(testBlocks[i]))
+		blocksInt = append(blocksInt, int(blocksIndex[i]))
+	}
+	sort.Ints(testBlocksInt)
+	sort.Ints(blocksInt)
+	for i := 0; i < TestSize; i++ {
+		assert.Equal(t, testBlocksInt[i], blocksInt[i])
 	}
 }

@@ -1,7 +1,7 @@
 package fsEngine
 
 import (
-	"behnama/stream/pkg/fsEngine/internal/virtualFile"
+	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 	"fmt"
 )
 
@@ -13,13 +13,13 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	if fse.header.CheckIDExist(id) {
 		return nil, fmt.Errorf("this ID: %v, had been taken", id)
 	}
-	// vf := virtualFile.NewVirtualFile(fileName, id, fse, fse, fse.log)
+	vf := virtualFile.NewVirtualFile(fileName, id, fse, fse, fse.log)
 	err := fse.header.AddVirtualFile(id, fileName)
 	if err != nil {
 		return nil, err
 	}
-	// return vf, nil
-	return nil, nil
+	return vf, nil
+	// return nil, nil
 }
 
 func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error) {

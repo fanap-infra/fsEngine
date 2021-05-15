@@ -1,7 +1,34 @@
 package fsEngine
 
+import (
+	"encoding/binary"
+)
+
 func (fse *FSEngine) NoSpace() uint32 {
 	return 0
+}
+
+// BlockStructure
+//	+===============+===============+===============+=======+
+//	|    				 	  BLOCK 				   		|
+//	+--------+------+--------+------+--------+------+-------+
+//	|  blockID  |   fileID 	 |	 prevBlock	 | valid Size 	|
+//	+--------+------+--------+------+--------+------+-------+
+//  |  4 byte   |   4 byte   |    4 byte     |   4 byte     |   16 Byte
+//	+--------+------+--------+------+--------+------+-------+
+// Warning It is not thread safe
+func (fse *FSEngine) prepareBlock(data []byte, fileID uint32, previousBlock uint32, blockID uint32) ([]byte, error) {
+	dataTmp := make([]byte, 0)
+
+	a := make([]byte, 16)
+	binary.BigEndian.PutUint32(a, blockID)
+	binary.BigEndian.PutUint32(a, fileID)
+	binary.BigEndian.PutUint32(a, previousBlock)
+	binary.BigEndian.PutUint32(a, uint32(len(data)))
+	dataTmp = append(dataTmp, a...)
+	dataTmp = append(dataTmp, data...)
+
+	return dataTmp, nil
 }
 
 /*
