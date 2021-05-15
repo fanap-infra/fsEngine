@@ -109,10 +109,10 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 	return 0, nil
 }
 
-type FS interface {
-	Write(data []byte, fileID uint32) (int, error)
-	WriteAt(data []byte, off int64, fileID uint32) (int, error)
-	Read(data []byte, fileID uint32) (int, error)
-	ReadAt(data []byte, off int64, fileID uint32) (int, error)
-	Close(fileID uint32) error
-}
+//type FS interface {
+//	Write(data []byte, fileID uint32) (int, error)
+//	WriteAt(data []byte, off int64, fileID uint32) (int, error)
+//	Read(data []byte, fileID uint32) (int, error)
+//	ReadAt(data []byte, off int64, fileID uint32) (int, error)
+//	Close(fileID uint32) error
+//}

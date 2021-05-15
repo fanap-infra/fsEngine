@@ -1,12 +1,12 @@
 package fsEngine
 
 import (
-	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
-	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"crypto/rand"
 	"errors"
 	"fmt"
+	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
+	"github.com/fanap-infra/FSEngine/internal/virtualFile"
+	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"os"
 	"path/filepath"
 	"strings"
