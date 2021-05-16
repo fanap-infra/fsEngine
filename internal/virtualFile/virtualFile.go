@@ -23,7 +23,7 @@ type VirtualFile struct {
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap
 	blockSize          uint32
 	size               uint64
-	numberOfBlocks     uint32
+	//numberOfBlocks     uint32
 	allocatedBlock     []uint32
 	readOnly           bool
 	// Media Structures

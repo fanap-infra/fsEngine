@@ -28,10 +28,11 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	if ok {
 		return nil, fmt.Errorf("this ID: %v is opened before", id)
 	}
-	if !fse.header.CheckIDExist(id) {
-		return nil, fmt.Errorf("this ID: %v does not exist", id)
+	fileInfo , err := fse.header.GetFileData(id)
+	if err != nil{
+		return nil, err
 	}
-	vf := virtualFile.OpenVirtualFile()
+	fileInfo, := virtualFile.OpenVirtualFile()
 	err := fse.header.AddVirtualFile(id, fileName)
 	if err != nil {
 		return nil, err

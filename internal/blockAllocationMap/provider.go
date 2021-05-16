@@ -9,7 +9,7 @@ import (
 
 func New(log *log.Logger, listener Events, maxSize uint32) *BlockAllocationMap {
 	return &BlockAllocationMap{
-		maxSize:             maxSize,
+		maxSize:          maxSize,
 		log:              log,
 		trigger:          listener,
 		LastWrittenBlock: 0,
@@ -27,7 +27,7 @@ func Open(log *log.Logger, listener Events, maxSize uint32, lastWrittenBlock uin
 		return nil, err
 	}
 	return &BlockAllocationMap{
-		maxSize:             maxSize,
+		maxSize:          maxSize,
 		log:              log,
 		trigger:          listener,
 		LastWrittenBlock: lastWrittenBlock,
