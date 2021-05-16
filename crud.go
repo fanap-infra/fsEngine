@@ -5,7 +5,6 @@ import (
 	"fmt"
 )
 
-// ToDO: completeCRUD
 
 func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.VirtualFile, error) {
 	fse.crudMutex.Lock()
@@ -18,26 +17,37 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	if err != nil {
 		return nil, err
 	}
+	fse.openFiles[id] = vf
 	return vf, nil
-	// return nil, nil
 }
 
 func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error) {
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
+	_, ok := fse.openFiles[id]
+	if ok {
+		return nil, fmt.Errorf("this ID: %v is opened before", id)
+	}
 	if !fse.header.CheckIDExist(id) {
 		return nil, fmt.Errorf("this ID: %v does not exist", id)
 	}
-	//vf := virtualFile.OpenVirtualFile()
-	//err := fse.header.AddVirtualFile(id, fileName)
-	//if err != nil {
-	//	return nil, err
-	//}
+	vf := virtualFile.OpenVirtualFile()
+	err := fse.header.AddVirtualFile(id, fileName)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 
 func (fse *FSEngine) DeleteVirtualFile(id uint32) error {
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
+	_, ok := fse.openFiles[id]
+	if ok {
+		return fmt.Errorf("virtual file id : %d is opened", id)
+	}
+	//fse.header.
 	return nil
 }
+
+

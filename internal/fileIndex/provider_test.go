@@ -1,4 +1,5 @@
 package fileIndex
+
 import (
 	"github.com/stretchr/testify/assert"
 	"math/rand"
@@ -7,7 +8,11 @@ import (
 	"testing"
 )
 
-func TestFileIndex_CRUDFileIndex(t *testing.T) {
+const TestSize  = 5
+const MaxSize = 100
+const TestByteSize  = 100
+
+func TestFileIndex_Marshal_UnMarshal(t *testing.T) {
 	fi := NewFileIndex()
 
 	testFiles := make([]File, TestSize)
@@ -32,20 +37,26 @@ func TestFileIndex_CRUDFileIndex(t *testing.T) {
 		assert.Equal(t, nil, err)
 		testFiles[i] = file
 	}
-
-	for i := 0; i < TestSize/2; i++ {
-		err := fi.RemoveFile(testFiles[i].Id)
+	for i := 0; i < TestSize; i++ {
+		err := fi.UpdateFile(testFiles[i].Id,testFiles[i].FirstBlock,testFiles[i].LastBlock,testFiles[i].Name, testFiles[i].RMapBlocks)
 		assert.Equal(t, nil, err)
 	}
 
-	for i := 0; i < TestSize; i++ {
-		checked := fi.CheckFileExistWithLock(testFiles[i].Id)
-		if i< TestSize/2 {
-			assert.Equal(t, false, checked)
-		} else {
-			assert.Equal(t, true, checked)
-		}
-	}
+	buf, err := fi.GenerateBinary()
+	assert.Equal(t, nil, err)
 
+	fiParsed  := NewFileIndex()
+	err = fiParsed.InitFromBinary(buf)
+	assert.Equal(t, nil, err)
+
+	for i := 0; i < TestSize; i++ {
+		file, ok := fiParsed.table.Files[testFiles[i].Id]
+		assert.Equal(t, true, ok)
+		assert.Equal(t, testFiles[i].Id, file.GetId())
+		assert.Equal(t, testFiles[i].Name, file.GetName())
+		assert.Equal(t, testFiles[i].LastBlock, file.GetLastBlock())
+		assert.Equal(t, testFiles[i].FirstBlock, file.GetFirstBlock())
+		assert.Equal(t, testFiles[i].RMapBlocks, file.GetRMapBlocks())
+	}
 
 }

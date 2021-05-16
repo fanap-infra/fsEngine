@@ -1,12 +1,14 @@
 package virtualFile
 
 import (
+	"github.com/fanap-infra/FSEngine/configs"
 	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 
 	"github.com/fanap-infra/log"
 )
 
-func OpenVirtualFile(name string, fileID uint32, numberOfBlocks uint32, blockSize uint32, fs FS, log *log.Logger) *VirtualFile {
+func OpenVirtualFile(name string, fileID uint32, numberOfBlocks uint32, eHandler blockAllocationMap.Events,
+	blockSize uint32, fs FS, log *log.Logger) *VirtualFile {
 	return &VirtualFile{
 		vfBuf:          nil,
 		name:           name,
@@ -14,6 +16,7 @@ func OpenVirtualFile(name string, fileID uint32, numberOfBlocks uint32, blockSiz
 		Closed:         false,
 		readOnly:       true,
 		numberOfBlocks: numberOfBlocks,
+		blockAllocationMap: blockAllocationMap.Open(log, eHandler, uint32(configs.GetMaxSizeVirtualFile())),
 		allocatedBlock: make([]uint32, 0),
 		blockSize:      blockSize,
 		size:           uint64(numberOfBlocks * blockSize),

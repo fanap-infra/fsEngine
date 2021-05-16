@@ -38,6 +38,8 @@ func (fse *FSEngine) readBlock(blockIndex uint32) ([]byte, error) {
 func (fse *FSEngine) ReadAt(data []byte, off int64, fileID uint32) (int, error) {
 	fse.rIBlockMux.Lock()
 	defer fse.rIBlockMux.Unlock()
+	// ToDo: implement it
+	return 0, nil
 }
 
 func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
@@ -109,10 +111,9 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 	return 0, nil
 }
 
-//type FS interface {
-//	Write(data []byte, fileID uint32) (int, error)
-//	WriteAt(data []byte, off int64, fileID uint32) (int, error)
-//	Read(data []byte, fileID uint32) (int, error)
-//	ReadAt(data []byte, off int64, fileID uint32) (int, error)
-//	Close(fileID uint32) error
-//}
+func (fse *FSEngine) Closed(fileID uint32) error {
+	fse.rIBlockMux.Lock()
+	defer fse.rIBlockMux.Unlock()
+	// ToDo: implement it
+	return nil
+}

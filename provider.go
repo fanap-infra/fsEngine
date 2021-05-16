@@ -24,7 +24,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 	}
 
 	if utils.FileExists(path) {
-		return nil, errors.New("File already exists")
+		return nil, errors.New("file already exists")
 	}
 	if size%int64(blockSize) != 0 {
 		return nil, fmt.Errorf("File size must be divisible by %v", blockSize)

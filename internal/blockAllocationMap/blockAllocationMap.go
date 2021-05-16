@@ -8,10 +8,12 @@ import (
 	"github.com/RoaringBitmap/roaring"
 )
 
+
+
 type BlockAllocationMap struct {
-	rMap             *roaring.Bitmap // BAM data in memory coded with roaring, to be synced later on to Disk.
+	rMap             *roaring.Bitmap
 	LastWrittenBlock uint32
-	size             uint32
+	maxSize             uint32
 	// numberOfAllocated uint32
 	trigger Events
 	log     *log.Logger
@@ -23,7 +25,7 @@ func (blm *BlockAllocationMap) ToArray() []uint32 {
 
 func (blm *BlockAllocationMap) SetBlockAsAllocated(blockIndex uint32) error {
 	if blm.IsBlockAllocated(blockIndex) {
-		return fmt.Errorf("Block number %v is allocated before", blockIndex)
+		return fmt.Errorf("block number %v is allocated before", blockIndex)
 	}
 	blm.LastWrittenBlock = blockIndex
 	blm.rMap.Add(blockIndex)
@@ -51,7 +53,7 @@ func (blm *BlockAllocationMap) FindNextFreeBlockAndAllocate() uint32 {
 			blm.UnsetBlockAsAllocated(freeIndex)
 			return freeIndex
 		}
-		if freeIndex == blm.size {
+		if freeIndex == blm.maxSize {
 			freeIndex = 0
 			continue
 		}

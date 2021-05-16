@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/FSEngine/internal/fileIndex"
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"os"
 
@@ -57,7 +56,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 		version:            FileSystemVersion,
 		blocks:             uint32(size / int64(blockSize)),
 		blockSize:          blockSize,
-		openFiles:          make(map[uint32]*virtualFile.VirtualFile),
+		//openFiles:          make(map[uint32]*virtualFile.VirtualFile),
 		fileIndex:          fileIndex.NewFileIndex(),
 		blockAllocationMap: blockAllocationMap.New(log, eventHandler, uint32(size/int64(blockSize))),
 		log:                log,
@@ -95,7 +94,7 @@ func ParseHeaderFS(path string, log *log.Logger) (*HFileSystem, error) {
 	fs := &HFileSystem{
 		file:      file,
 		size:      size,
-		openFiles: make(map[uint32]*virtualFile.VirtualFile),
+		//openFiles: make(map[uint32]*virtualFile.VirtualFile),
 		log:       log,
 	}
 

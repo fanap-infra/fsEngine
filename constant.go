@@ -36,11 +36,10 @@ const (
 	ErrFileExists           = err.Error("file already exist")
 	ErrArchiverIdentifier   = err.Error("ArchiverIdentifier is not detected")
 	ErrArchiverVersion      = err.Error("Archiver Version is not correct")
-	//BYTE                   = 1
-	//KILOBYTE               = BYTE * 1024
-	//MEGABYTE               = KILOBYTE * 1024
-	//GIGABYTE               = MEGABYTE * 1024
-	//TERABYTE               = GIGABYTE * 1024
+	BYTE                   = 1
+	KILOBYTE               = BYTE * 1024
+	MEGABYTE               = KILOBYTE * 1024
+	GIGABYTE               = MEGABYTE * 1024
 	//DefaultArchiverSize    = 20 * GIGABYTE
 	//ArchiverMinimumPadding = 250 * MEGABYTE
 	//ArchiverMaximumPadding = 5 * GIGABYTE
@@ -69,5 +68,6 @@ const (
 	//FileIndexReservedSizeBlocks = (FileIndexReservedSize / BLOCKSIZEUSABLE) * 2
 
 	// DataStartBlock = (BlockAllocationMapSize / BLOCKSIZEUSABLE) + FileIndexReservedSizeBlocks + 1
+
 
 )

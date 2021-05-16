@@ -37,7 +37,6 @@ func (i *FileIndex) CheckFileExistWithLock(fileId uint32) bool {
 	return isExist
 }
 
-// RemoveFile
 func (i *FileIndex) RemoveFile(fileId uint32) error {
 	i.rwMux.Lock()
 	defer i.rwMux.Unlock()
@@ -60,25 +59,14 @@ func (i *FileIndex) UpdateFile(fileId uint32, firstBlock uint32, lastBlock uint3
 	return nil
 }
 
-//// EditFileMeta
-//func (i *FileIndex) EditFileMeta(fileId uint32, meta FileMetadata) bool {
-//	i.rwMux.Lock()
-//	defer i.rwMux.Unlock()
-//
-//	block := bytes.Buffer{}
-//	meta.Blocks.RunOptimize()
-//	_, _ = meta.Blocks.WriteTo(&block)
-//	i.hash.Put(fileId, meta.FirstBlock, meta.LastBlock, block.Bytes())
-//	return true
-//}
-//
-//// GetFileInfo
-//func (i *FileIndex) GetFileInfo(fileId uint32) (meta *FileMetadata, err error) {
-//	ok, v := i.hash.Get(fileId)
-//	if !ok {
-//		return nil, errors.New("file info cannot be retrieved")
-//	}
-//	meta = &FileMetadata{v.FirstBlock, v.LastBlock, v.Blocks}
-//
-//	return meta, nil
-//}
+func (i *FileIndex) GetFileInfo(fileId uint32) (File, error) {
+	i.rwMux.Lock()
+	defer i.rwMux.Unlock()
+	fileInfo, isExist := i.table.Files[fileId]
+	if !isExist {
+		return File{}, fmt.Errorf("file id %v does not exist", fileId)
+	}
+
+	return File{Id: fileInfo.Id, RMapBlocks: fileInfo.RMapBlocks, FirstBlock: fileInfo.FirstBlock,
+		LastBlock: fileInfo.LastBlock, Name: fileInfo.Name}, nil
+}
