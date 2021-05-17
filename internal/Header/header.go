@@ -30,8 +30,8 @@ func (hfs *HFileSystem) generateHeader() (header []byte) {
 	binary.BigEndian.PutUint64(tmp64, uint64(hfs.blockSize))
 	header = append(header, tmp64...)
 
-	// number of blocks
-	binary.BigEndian.PutUint64(tmp64, uint64(hfs.blocks))
+	// max number of blocks
+	binary.BigEndian.PutUint64(tmp64, uint64(hfs.maxNumberOfBlocks))
 	header = append(header, tmp64...)
 
 	// last written block
@@ -111,7 +111,7 @@ func (hfs *HFileSystem) parseHeader() error {
 
 	hfs.version = binary.BigEndian.Uint32(buf[8:12])
 	hfs.blockSize = uint32(binary.BigEndian.Uint64(buf[12:20]))
-	hfs.blocks = uint32(binary.BigEndian.Uint64(buf[20:28]))
+	hfs.maxNumberOfBlocks = uint32(binary.BigEndian.Uint64(buf[20:28]))
 	hfs.lastWrittenBlock = uint32(binary.BigEndian.Uint64(buf[28:36]))
 	hfs.fileIndexSize = uint32(binary.BigEndian.Uint64(buf[36:44]))
 

@@ -32,5 +32,5 @@ func (hfs *HFileSystem) GetBlockSize() uint32 {
 }
 
 func (hfs *HFileSystem) GetBlocksNumber() uint32 {
-	return hfs.blocks
+	return hfs.maxNumberOfBlocks
 }

@@ -58,7 +58,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 		file:      file,
 		size:      size,
 		version:   FileSystemVersion,
-		blocks:    uint32(size / int64(blockSize)),
+		maxNumberOfBlocks:    uint32(size / int64(blockSize)),
 		blockSize: blockSize,
 		openFiles: make(map[uint32]*virtualFile.VirtualFile),
 		log:       log,
@@ -105,7 +105,7 @@ func ParseFileSystem(path string, log *log.Logger) (*FSEngine, error) {
 
 	fs.header = hfs
 	fs.blockSize = hfs.GetBlockSize()
-	fs.blocks = hfs.GetBlocksNumber()
+	fs.maxNumberOfBlocks = hfs.GetBlocksNumber()
 
 	return fs, nil
 }

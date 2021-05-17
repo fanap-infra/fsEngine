@@ -5,7 +5,7 @@ import (
 )
 
 func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err error) {
-	if blockIndex >= fse.blocks {
+	if blockIndex >= fse.maxNumberOfBlocks {
 		return 0, ErrBlockIndexOutOFRange
 	}
 
@@ -18,7 +18,7 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err er
 }
 
 func (fse *FSEngine) readBlock(blockIndex uint32) ([]byte, error) {
-	if blockIndex >= fse.blocks {
+	if blockIndex >= fse.maxNumberOfBlocks {
 		return nil, ErrBlockIndexOutOFRange
 	}
 
@@ -114,6 +114,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 func (fse *FSEngine) Closed(fileID uint32) error {
 	fse.rIBlockMux.Lock()
 	defer fse.rIBlockMux.Unlock()
-	// ToDo: implement it
+	// ToDo: check update file index
+	delete(fse.openFiles, fileID)
 	return nil
 }

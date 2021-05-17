@@ -13,7 +13,7 @@ import (
 type BlockAllocationMap struct {
 	rMap             *roaring.Bitmap
 	LastWrittenBlock uint32
-	maxSize             uint32
+	maxNumberOfBlocks            uint32
 	// numberOfAllocated uint32
 	trigger Events
 	log     *log.Logger
@@ -53,7 +53,7 @@ func (blm *BlockAllocationMap) FindNextFreeBlockAndAllocate() uint32 {
 			blm.UnsetBlockAsAllocated(freeIndex)
 			return freeIndex
 		}
-		if freeIndex == blm.maxSize {
+		if freeIndex == blm.maxNumberOfBlocks {
 			freeIndex = 0
 			continue
 		}
