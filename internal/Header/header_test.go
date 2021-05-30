@@ -29,7 +29,7 @@ func TestStoreHeader(t *testing.T) {
 	assert.Equal(t, err, nil)
 	size := fs.size
 	version := fs.version
-	blocks := fs.blocks
+	maxNumberOfBlocks := fs.maxNumberOfBlocks
 	blockSize := fs.blockSize
 	lastWrittenBlock := fs.lastWrittenBlock
 	err = fs.Close()
@@ -38,7 +38,7 @@ func TestStoreHeader(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, size, fs2.size)
 	assert.Equal(t, version, fs2.version)
-	assert.Equal(t, blocks, fs2.blocks)
+	assert.Equal(t, maxNumberOfBlocks, fs2.maxNumberOfBlocks)
 	assert.Equal(t, blockSize, fs2.blockSize)
 	assert.Equal(t, lastWrittenBlock, fs2.lastWrittenBlock)
 }

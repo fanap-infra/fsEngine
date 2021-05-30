@@ -58,7 +58,7 @@ func (v *VirtualFile) Close() error {
 	//}
 	if uint32(len(v.vfBuf)) > 0 {
 		_, err := v.fs.Write(v.vfBuf, v.id)
-		v.log.Errorv("Can not write to file", "err", err.Error())
+		v.log.Errorv("can not write to file", "err", err.Error())
 	}
 	return v.fs.Closed(v.id)
 	//return nil
