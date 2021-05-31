@@ -17,7 +17,7 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err er
 	return
 }
 
-func (fse *FSEngine) readBlock(blockIndex uint32) ([]byte, error) {
+func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return nil, ErrBlockIndexOutOFRange
 	}
@@ -31,8 +31,8 @@ func (fse *FSEngine) readBlock(blockIndex uint32) ([]byte, error) {
 	if n != int(fse.blockSize) {
 		return buf, ErrDataBlockMismatch
 	}
-
-	return buf, nil
+	data, err := fse.parseBlock(buf)
+	return data, nil
 }
 
 func (fse *FSEngine) ReadAt(data []byte, off int64, fileID uint32) (int, error) {
@@ -43,7 +43,13 @@ func (fse *FSEngine) ReadAt(data []byte, off int64, fileID uint32) (int, error) 
 }
 
 func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
-	// ToDo:  implement it
+	fse.rIBlockMux.Lock()
+	defer fse.rIBlockMux.Unlock()
+	vf, ok := fse.openFiles[fileID]
+	if !ok {
+		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
+	}
+	vf.
 	return 0, fmt.Errorf("please impkement me")
 }
 

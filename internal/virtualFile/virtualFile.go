@@ -9,6 +9,7 @@ import (
 // VirtualFile
 type VirtualFile struct {
 	vfBuf []byte
+	bufferSize int
 	// vfBufMux sync.Mutex
 	// sem                *semaphore.Weighted
 	// maybeSync         *semaphore.Weighted
@@ -22,14 +23,16 @@ type VirtualFile struct {
 	lastBlock          uint32
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap
 	blockSize          uint32
+	blockIndex          uint32
 	size               uint64
-	//numberOfBlocks     uint32
+
 	allocatedBlock     []uint32
 	readOnly           bool
-	// Media Structures
-	// frameChunkPosInBlock uint32
-	// fwMUX                sync.Mutex
-	// reference to parent Archiver
+
+	seekPointer int
+	bufStart int
+	bufEnd int
+
 	fs  FS
 	log *log.Logger
 }

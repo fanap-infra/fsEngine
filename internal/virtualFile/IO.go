@@ -1,6 +1,8 @@
 package virtualFile
 
-import "errors"
+import (
+	"errors"
+)
 
 // Write
 // returns int bytes of written data.
@@ -25,8 +27,51 @@ func (v *VirtualFile) WriteAt(data []byte, off uint32) (int, error) {
 
 // Read
 func (v *VirtualFile) Read(data []byte) (int, error) {
-	// panic("implement me")
-	return v.fs.Read(data, v.id)
+	n := len(data)
+	if n == 0 {
+		return 0, errors.New("data cannot be zero size")
+	}
+	counter := 0
+	for{
+		if v.seekPointer >= v.bufEnd {
+			//v.blockAllocationMap.ToArray() we refresh blocks, because
+			blocks := v.blockAllocationMap.ToArray()
+			if v.blockIndex+1 >= uint32(len(blocks)) {
+				return 0, errors.New("end of file")
+			}
+			_, err := v.ReadBlock(v.blockIndex+1)
+			if err != nil {
+				return 0, err
+			}
+			v.blockIndex = v.blockIndex+1
+		}
+
+		if v.bufEnd - v.seekPointer >= len(data)-counter {
+			copy(data[counter:len(data)],v.vfBuf[v.seekPointer: v.seekPointer+len(data)-counter])
+			counter = counter + len(data)
+		} else {
+			copy(data[counter:counter+v.bufEnd-v.seekPointer],v.vfBuf[v.seekPointer: v.seekPointer+len(data)-counter])
+			counter = counter + v.bufEnd-v.seekPointer
+		}
+
+		if counter >= n {
+			return counter, nil
+		}
+	}
+}
+
+func (v *VirtualFile) ReadBlock(blockIndex uint32) (int, error) {
+	buf, err := v.fs.ReadBlock(blockIndex)
+	if err != nil {
+		return 0, err
+	}
+	v.vfBuf = append(v.vfBuf, buf...)
+	if len(v.vfBuf) > v.bufferSize {
+		v.vfBuf = v.vfBuf[len(v.vfBuf)-v.bufferSize:]
+	}
+	v.bufEnd = v.bufEnd + len(buf)
+	v.bufStart = v.bufEnd - len(v.vfBuf)
+	return len(buf), nil
 }
 
 // ReadAt

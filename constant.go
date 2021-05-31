@@ -69,5 +69,6 @@ const (
 
 	// DataStartBlock = (BlockAllocationMapSize / BLOCKSIZEUSABLE) + FileIndexReservedSizeBlocks + 1
 
+	VirtualFileBufferBlockNumber = 5
 
 )

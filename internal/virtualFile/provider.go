@@ -8,7 +8,7 @@ import (
 )
 // name string, fileID uint32,
 func OpenVirtualFile( fileInfo fileIndex.File, blockSize uint32,
-	 fs FS, blm *blockAllocationMap.BlockAllocationMap, log *log.Logger) *VirtualFile {
+	 fs FS, blm *blockAllocationMap.BlockAllocationMap, bufferSize uint32, log *log.Logger) *VirtualFile {
 
 	return &VirtualFile{
 		vfBuf:              make([]byte, 0),
@@ -23,10 +23,16 @@ func OpenVirtualFile( fileInfo fileIndex.File, blockSize uint32,
 		//size:           uint64(numberOfBlocks * blockSize),
 		fs:             fs,
 		log:            log,
+		seekPointer: 0,
+		bufStart: 0,
+		bufEnd: 0,
+		blockIndex: 0,
+		bufferSize: bufferSize,
 	}
 }
 
-func NewVirtualFile(fileName string, fileID uint32, blockSize uint32, fs FS, blm *blockAllocationMap.BlockAllocationMap, log *log.Logger) *VirtualFile {
+func NewVirtualFile(fileName string, fileID uint32, blockSize uint32, fs FS,
+	blm *blockAllocationMap.BlockAllocationMap, bufferSize uint32, log *log.Logger) *VirtualFile {
 	return &VirtualFile{
 		vfBuf:              make([]byte, 0),
 		name:               fileName,
@@ -35,8 +41,12 @@ func NewVirtualFile(fileName string, fileID uint32, blockSize uint32, fs FS, blm
 		Closed:             false,
 		blockAllocationMap: blm,
 		allocatedBlock:     make([]uint32, 0),
-		//numberOfBlocks:     0,
 		fs:                 fs,
 		log:                log,
+		seekPointer: 0,
+		bufStart: 0,
+		bufEnd: 0,
+		blockIndex: 0,
+		bufferSize: bufferSize,
 	}
 }
