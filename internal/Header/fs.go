@@ -22,6 +22,7 @@ type HFileSystem struct {
 	//openFiles          map[uint32]*virtualFile.VirtualFile
 	fileIndex          *fileIndex.FileIndex
 	fileIndexSize      uint32
+	blmSize      uint32
 	// WMux               sync.Mutex
 	// RMux               sync.Mutex
 	log *log.Logger

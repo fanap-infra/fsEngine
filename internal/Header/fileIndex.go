@@ -39,6 +39,9 @@ func (hfs *HFileSystem) updateFileIndex() error {
 	}
 	hfs.fiChecksum = checkSum
 	hfs.fileIndexSize = uint32(len(fi))
+	if hfs.fileIndexSize > FileIndexMaxByteSize {
+		return fmt.Errorf("fileIndex size %v is too large, Max valid size: %v", hfs.fileIndexSize, FileIndexMaxByteSize)
+	}
 	n, err := hfs.file.WriteAt(fi, FileIndexByteIndex)
 	if err != nil {
 		return err
@@ -66,6 +69,11 @@ func (hfs *HFileSystem) parseFileIndex() error {
 	}
 	if n != int(hfs.fileIndexSize) {
 		return ErrDataBlockMismatch
+	}
+
+	err = hfs.fileIndex.InitFromBinary(buf)
+	if err != nil {
+		return err
 	}
 
 	return nil

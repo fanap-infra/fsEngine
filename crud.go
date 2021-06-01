@@ -15,7 +15,7 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	}
 	blm  := blockAllocationMap.New(fse.log, fse, fse.maxNumberOfBlocks)
 
-	vf := virtualFile.NewVirtualFile(fileName, id, fse.blockSize, fse, blm, fse.blockSize*VirtualFileBufferBlockNumber, fse.log)
+	vf := virtualFile.NewVirtualFile(fileName, id, fse.blockSize, fse, blm, int(fse.blockSize)*VirtualFileBufferBlockNumber, fse.log)
 	err := fse.header.AddVirtualFile(id, fileName)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	if err != nil{
 		return nil, err
 	}
-	vf := virtualFile.OpenVirtualFile(fileInfo, fse.blockSize, fse, blm, fse.blockSize*VirtualFileBufferBlockNumber, fse.log)
+	vf := virtualFile.OpenVirtualFile(fileInfo, fse.blockSize, fse, blm, int(fse.blockSize)*VirtualFileBufferBlockNumber, fse.log)
 	err = fse.header.AddVirtualFile(id, fileInfo.GetName())
 	if err != nil {
 		return nil, err

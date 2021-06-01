@@ -66,7 +66,6 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 
 	err = fs.updateFileIndex()
 	if err != nil {
-		// p.log.Errorv("updateFileIndex ", "err", err.Error())
 		return nil, err
 	}
 

@@ -43,13 +43,12 @@ func (fse *FSEngine) ReadAt(data []byte, off int64, fileID uint32) (int, error) 
 }
 
 func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
-	fse.rIBlockMux.Lock()
-	defer fse.rIBlockMux.Unlock()
-	vf, ok := fse.openFiles[fileID]
-	if !ok {
-		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
-	}
-	vf.
+	//fse.rIBlockMux.Lock()
+	//defer fse.rIBlockMux.Unlock()
+	//vf, ok := fse.openFiles[fileID]
+	//if !ok {
+	//	return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
+	//}
 	return 0, fmt.Errorf("please impkement me")
 }
 

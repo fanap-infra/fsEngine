@@ -59,7 +59,7 @@ func (hfs *HFileSystem) updateHeader() error {
 		return err
 	}
 	if n != len(dataTmp) {
-		return fmt.Errorf("Header did not write complete, header size: %v, written size: %v", len(dataTmp), n)
+		return fmt.Errorf("header did not write complete, header size: %v, written size: %v", len(dataTmp), n)
 	}
 	// ToDo:Maybe it does not be necessary
 	err = hfs.file.Sync()

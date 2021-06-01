@@ -13,9 +13,12 @@ func (v *VirtualFile) Write(data []byte) (int, error) {
 
 	v.vfBuf = append(v.vfBuf, data...)
 	if uint32(len(v.vfBuf)) > v.blockSize {
-		return v.fs.Write(v.vfBuf, v.id)
+		_, err := v.fs.Write(v.vfBuf, v.id)
+		if err != nil {
+			return 0, err
+		}
 	}
-	return 0, nil
+	return len(data), nil
 }
 
 // Write

@@ -48,14 +48,12 @@ func (fse *FSEngine) Close() error {
 	err := fse.header.UpdateFSHeader()
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())
-		// ToDo: remove it
 		return err
 	}
 	// ToDo:update file system
 	err = fse.file.Sync()
 	if err != nil {
 		fse.log.Warnv("Can not sync file", "err", err.Error())
-		// ToDo: remove it
 		return err
 	}
 	return fse.file.Close()

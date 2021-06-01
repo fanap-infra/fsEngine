@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
+	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"os"
@@ -64,13 +65,17 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 		log:       log,
 	}
 
+
+
 	fileName := filepath.Base(path)
 	headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
 	headerFS, err := Header_.CreateHeaderFS(headerPath, size, blockSize, log, fs)
 	if err != nil {
 		log.Errorv("Can not create header file ", "err", err.Error())
+		return nil, err
 	}
 
+	fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
 	fs.header = headerFS
 
 	return fs, nil
