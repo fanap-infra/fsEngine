@@ -34,6 +34,7 @@ type HFileSystem struct {
 	// Cache              *lru.Cache
 	// fileIndexIsFlip    bool
 	conf configs
+	eventHandler blockAllocationMap.Events
 }
 
 func (hfs *HFileSystem) UpdateFSHeader() error {

@@ -32,3 +32,24 @@ func (hfs *HFileSystem) updateBLM() error {
 	}
 }
 
+func (hfs *HFileSystem) parseBLM() error {
+	buf := make([]byte, hfs.blmSize)
+
+	n, err := hfs.file.ReadAt(buf, BlockAllocationMapByteIndex)
+	if err != nil {
+		return err
+	}
+
+	if n != int(hfs.blmSize) {
+		return ErrDataBlockMismatch
+	}
+
+	blm, err := blockAllocationMap.Open(hfs.log, hfs.eventHandler, hfs.maxNumberOfBlocks, hfs.lastWrittenBlock, buf)
+	if err != nil {
+		return err
+	}
+
+	hfs.blockAllocationMap = blm
+	return nil
+}
+

@@ -60,6 +60,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 		fileIndex:          fileIndex.NewFileIndex(),
 		blockAllocationMap: blockAllocationMap.New(log, eventHandler, uint32(size/int64(blockSize))),
 		log:                log,
+		eventHandler: eventHandler,
 	}
 
 	loadConf(fs)
@@ -77,7 +78,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 	return fs, nil
 }
 
-func ParseHeaderFS(path string, log *log.Logger) (*HFileSystem, error) {
+func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap.Events) (*HFileSystem, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -95,6 +96,7 @@ func ParseHeaderFS(path string, log *log.Logger) (*HFileSystem, error) {
 		size:      size,
 		//openFiles: make(map[uint32]*virtualFile.VirtualFile),
 		log:       log,
+		eventHandler: eventHandler,
 	}
 
 	err = fs.parseHeader()
