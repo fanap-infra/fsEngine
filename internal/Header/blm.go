@@ -30,6 +30,7 @@ func (hfs *HFileSystem) updateBLM() error {
 	if n != 4 {
 		return fmt.Errorf("blm did not write complete, header size: %v, written size: %v", hfs.blmSize, n)
 	}
+	return nil
 }
 
 func (hfs *HFileSystem) parseBLM() error {
@@ -53,3 +54,7 @@ func (hfs *HFileSystem) parseBLM() error {
 	return nil
 }
 
+
+func (hfs *HFileSystem) FindNextFreeBlockAndAllocate() uint32 {
+	return hfs.blockAllocationMap.FindNextFreeBlockAndAllocate()
+}

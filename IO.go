@@ -73,7 +73,8 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 	blocksNum := uint32(len(data) / BLOCKSIZEUSABLE)
 	for i := uint32(0); i < blocksNum; i++ {
 		previousBlock := vf.GetLastBlock()
-		blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
+		//blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
+		blockID := fse.header.FindNextFreeBlockAndAllocate()
 		err := vf.AddBlockID(blockID)
 		if err != nil {
 			return 0, err
@@ -94,7 +95,8 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 
 	if len(data) != int(blocksNum*BLOCKSIZEUSABLE) {
 		previousBlock := vf.GetLastBlock()
-		blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
+		blockID := fse.header.FindNextFreeBlockAndAllocate()
+		//blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
 		err := vf.AddBlockID(blockID)
 		if err != nil {
 			return 0, err

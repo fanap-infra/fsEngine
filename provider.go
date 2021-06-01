@@ -103,7 +103,7 @@ func ParseFileSystem(path string, log *log.Logger) (*FSEngine, error) {
 
 	fileName := filepath.Base(path)
 	headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
-	hfs, err := Header_.ParseHeaderFS(headerPath, log)
+	hfs, err := Header_.ParseHeaderFS(headerPath, log, fs)
 	if err != nil {
 		return nil, err
 	}
