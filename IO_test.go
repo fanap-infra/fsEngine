@@ -22,11 +22,12 @@ func TestIO_OneVirtualFile(t *testing.T) {
 
 	MaxID := 1000
 	MaxByteArraySize := int(blockSizeTest*0.5)
-	VFSize := 3*blockSizeTest
-	
-	vf, err := fse.NewVirtualFile(uint32( rand.Intn(MaxID)), "test")
+	VFSize := 1*blockSizeTest
+	vfID := uint32( rand.Intn(MaxID))
+	vf, err := fse.NewVirtualFile(vfID, "test")
 	assert.Equal(t, nil, err)
 	size := 0
+
 	for  {
 		token := make([]byte, uint32( rand.Intn(MaxByteArraySize)))
 		m, err := rand.Read(token)
@@ -42,13 +43,21 @@ func TestIO_OneVirtualFile(t *testing.T) {
 		}
 	}
 
+	err = vf.Close()
+	assert.Equal(t, nil, err)
+
+	vf, err = fse.OpenVirtualFile(vfID)
+	assert.Equal(t, nil, err)
+
 	for _, v := range bytes {
 		buf := make([]byte, len(v))
 		_, err := vf.Read(buf)
+
+		assert.Equal(t, nil, err)
 		if err != nil {
 			break
 		}
-		//assert.Equal(t, nil, err)
+
 		assert.Equal(t, v, buf)
 	}
 

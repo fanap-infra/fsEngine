@@ -8,16 +8,14 @@ import (
 
 // VirtualFile
 type VirtualFile struct {
-	vfBuf []byte
+	bufRX []byte
+	bufTX []byte
+
 	bufferSize int
-	// vfBufMux sync.Mutex
-	// sem                *semaphore.Weighted
-	// maybeSync         *semaphore.Weighted
 	currentBlock      uint32
 	currentBlockIndex uint32 // current block's index
 	name              string
 	id                uint32
-	// lastReadBlockIdx   uint32
 	firstBlock         uint32
 	Closed             bool
 	lastBlock          uint32

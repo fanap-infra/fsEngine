@@ -11,7 +11,8 @@ func OpenVirtualFile( fileInfo fileIndex.File, blockSize uint32,
 	 fs FS, blm *blockAllocationMap.BlockAllocationMap, bufferSize int, log *log.Logger) *VirtualFile {
 
 	return &VirtualFile{
-		vfBuf:              make([]byte, 0),
+		bufRX:              make([]byte, 0),
+		bufTX:              make([]byte, 0),
 		name:           fileInfo.GetName(),
 		id:             fileInfo.GetId(),
 		Closed:         false,
@@ -34,7 +35,8 @@ func OpenVirtualFile( fileInfo fileIndex.File, blockSize uint32,
 func NewVirtualFile(fileName string, fileID uint32, blockSize uint32, fs FS,
 	blm *blockAllocationMap.BlockAllocationMap, bufferSize int, log *log.Logger) *VirtualFile {
 	return &VirtualFile{
-		vfBuf:              make([]byte, 0),
+		bufRX:              make([]byte, 0),
+		bufTX:              make([]byte, 0),
 		name:               fileName,
 		id:                 fileID,
 		blockSize: blockSize,

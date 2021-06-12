@@ -75,10 +75,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 		previousBlock := vf.GetLastBlock()
 		//blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
 		blockID := fse.header.FindNextFreeBlockAndAllocate()
-		err := vf.AddBlockID(blockID)
-		if err != nil {
-			return 0, err
-		}
+
 		d, err := fse.prepareBlock(data, fileID, previousBlock, blockID)
 		if err != nil {
 			return 0, err
@@ -87,6 +84,17 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 		if err != nil {
 			return 0, err
 		}
+
+		err = vf.AddBlockID(blockID)
+		if err != nil {
+			return 0, err
+		}
+
+		err = fse.header.SetBlockAsAllocated(blockID)
+		if err != nil {
+			return 0, err
+		}
+
 		if c != len(d) {
 			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", c, len(d))
 		}

@@ -58,3 +58,7 @@ func (hfs *HFileSystem) parseBLM() error {
 func (hfs *HFileSystem) FindNextFreeBlockAndAllocate() uint32 {
 	return hfs.blockAllocationMap.FindNextFreeBlockAndAllocate()
 }
+
+func (hfs *HFileSystem) SetBlockAsAllocated(blockIndex uint32) error {
+	return hfs.blockAllocationMap.SetBlockAsAllocated(blockIndex)
+}
