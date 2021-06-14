@@ -137,9 +137,7 @@ func TestIO_WR(t *testing.T) {
 		for j, _ := range buf {
 			buf[j] = 0
 		}
-		//log.Infov("read buf ", "len(buf)", len(buf), "i",i, "" +
-		//	"fsMock.seekPointer", fsMock.seekPointer, "vf.seekPointer", vf.seekPointer,
-		//	"vf.bufStart",vf.bufStart, "vf.bufEnd",vf.bufEnd)
+
 		//if i+1 == len(byte2D) {
 		//	log.Warn("last packet")
 		//}
@@ -154,8 +152,64 @@ func TestIO_WR(t *testing.T) {
 
 	}
 
-
 	assert.Equal(t, 0,bytes.Compare(vBlocks, vf.bufRX) )
 
+}
+
+func TestIO_ReadAt(t *testing.T) {
+	fsMock := NewVBufMock()
+	blm  := blockAllocationMap.New(log.GetScope("test"), fsMock, maxNumberOfBlocks)
+	vf := NewVirtualFile("test", vfID, blockSizeTest, fsMock, blm,
+		int(blockSizeTest)*2, log.GetScope("test2"))
+	fsMock.openFiles[vfID] = vf
+
+
+	size := 0
+	VFSize := int(1.5*blockSizeTest)
+	MaxByteArraySize := int(blockSizeTest*0.5)
+	for {
+		token := make([]byte, uint32( rand.Intn(MaxByteArraySize))+1)
+		m, err := rand.Read(token)
+		assert.Equal(t, nil, err)
+		byte2D  = append(byte2D, token)
+		assert.Equal(t, m, len(token))
+		size = size + m
+		n, err := vf.Write(token)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, m, n)
+
+		if size > VFSize {
+			break
+		}
+	}
+
+	err := vf.Close()
+	assert.Equal(t, nil, err)
+
+	assert.Equal(t, size, len(fsMock.vBuf))
+	counter := 0
+	var vBlocks []byte
+	for _, v := range fsMock.vBufBlocks {
+		vBlocks = append(vBlocks, v...)
+	}
+	for _, v := range byte2D {
+		assert.Equal(t, v, vBlocks[counter:counter+len(v)])
+		counter = counter + len(v)
+	}
+
+	numberOfTest := 5
+
+	for i:=0; i< numberOfTest; i++ {
+		data := make([]byte, uint32( rand.Intn(blockSizeTest*0.3))+1)
+		assert.Equal(t, nil, err)
+		offset := rand.Intn(int(float32(size)*0.7))
+		n , err := vf.ReadAt(data, int64(offset))
+		//log.Infov("read buf ",  "i",i, "" +
+		//	"fsMock.seekPointer", fsMock.seekPointer, "vf.seekPointer", vf.seekPointer,
+		//	"vf.bufStart",vf.bufStart, "vf.bufEnd",vf.bufEnd)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, len(data), n)
+		assert.Equal(t, vBlocks[offset: offset+len(data)], data)
+	}
 
 }

@@ -27,7 +27,7 @@ func OpenVirtualFile( fileInfo fileIndex.File, blockSize uint32,
 		seekPointer: 0,
 		bufStart: 0,
 		bufEnd: 0,
-		blockIndex: 0,
+		nextBlockIndex: 0,
 		bufferSize: bufferSize,
 	}
 }
@@ -48,7 +48,7 @@ func NewVirtualFile(fileName string, fileID uint32, blockSize uint32, fs FS,
 		seekPointer: 0,
 		bufStart: 0,
 		bufEnd: 0,
-		blockIndex: 0,
+		nextBlockIndex: 0,
 		bufferSize: bufferSize,
 	}
 }

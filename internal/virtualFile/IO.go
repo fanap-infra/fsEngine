@@ -2,9 +2,9 @@ package virtualFile
 
 import (
 	"errors"
+	"fmt"
 )
 
-// Write
 // returns int bytes of written data.
 func (v *VirtualFile) Write(data []byte) (int, error) {
 	if len(data) == 0 {
@@ -18,14 +18,10 @@ func (v *VirtualFile) Write(data []byte) (int, error) {
 			return 0, err
 		}
 		v.bufTX = v.bufTX[len(v.bufTX) - (len(v.bufTX)%int(v.blockSize)):]
-		//if err != nil {
-		//	return 0, err
-		//}
 	}
 	return len(data), nil
 }
 
-// Write
 // returns int bytes of written data.
 func (v *VirtualFile) WriteAt(data []byte, off uint32) (int, error) {
 	// ToDo: implement this
@@ -42,17 +38,15 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 	counter := 0
 	for{
 		if v.seekPointer >= v.bufEnd {
-			//v.blockAllocationMap.ToArray() we refresh blocks, because
+			//v.blockAllocationMap.ToArray() we refresh blocks, when simultaneously reading and writing
 			blocks := v.blockAllocationMap.ToArray()
-			if v.blockIndex >= uint32(len(blocks)) {
-				return 0, errors.New("end of file")
+			if v.nextBlockIndex >= uint32(len(blocks)) {
+				return counter, errors.New("end of file")
 			}
-			_, err := v.ReadBlock(blocks[v.blockIndex])
+			_, err := v.readBlock(blocks[v.nextBlockIndex])
 			if err != nil {
 				return 0, err
 			}
-			v.blockIndex = v.blockIndex + 1
-
 		}
 
 		if v.bufEnd - v.seekPointer >= len(data)-counter {
@@ -63,7 +57,6 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 			copy(data[counter:counter+v.bufEnd-v.seekPointer],v.bufRX[v.seekPointer-v.bufStart: v.bufEnd-v.bufStart])
 			counter = counter + v.bufEnd-v.seekPointer
 			v.seekPointer = v.bufEnd
-
 		}
 
 		if counter >= n {
@@ -75,7 +68,7 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 	}
 }
 
-func (v *VirtualFile) ReadBlock(blockIndex uint32) (int, error) {
+func (v *VirtualFile) readBlock(blockIndex uint32) (int, error) {
 	buf, err := v.fs.ReadBlock(blockIndex)
 	if err != nil {
 		return 0, err
@@ -84,39 +77,39 @@ func (v *VirtualFile) ReadBlock(blockIndex uint32) (int, error) {
 	if len(v.bufRX) > v.bufferSize {
 		v.bufRX = v.bufRX[len(v.bufRX)-v.bufferSize:]
 	}
+	//v.log.Infov("read block", "len(v.bufRX)", len(v.bufRX),
+	//	"len(buf)", len(buf), "blockIndex", blockIndex)
 	v.bufEnd = v.bufEnd + len(buf)
 	v.bufStart = v.bufEnd - len(v.bufRX)
-
+	v.nextBlockIndex = blockIndex + 1
 	return len(buf), nil
 }
 
 // ReadAt
 func (v *VirtualFile) ReadAt(data []byte, off int64) (int, error) {
-	return v.fs.ReadAt(data, off, v.id)
+	blocks := v.blockAllocationMap.ToArray()
+	maxSize := int64(len(blocks) * int(v.blockSize))
+	if off >= maxSize {
+		return 0, fmt.Errorf("offset is more than size of file")
+	}
+	blockIndex := uint32(off*int64(len(blocks))/maxSize)
+	v.bufRX = v.bufRX[:0]
+	//v.log.Infov("read at ", "blockIndex",blockIndex, "v.bufStart",v.bufStart,
+	//	"bufEnd",v.bufEnd, "len(v.bufRX)",len(v.bufRX), "v.seekPointer", v.seekPointer, "off", off,
+	//	"len(data)",len(data))
+	v.bufStart = int(blockIndex*v.blockSize)
+	v.bufEnd = int(blockIndex*v.blockSize)
+	_, err := v.readBlock(blockIndex)
+	if err != nil {
+		return 0, err
+	}
+	v.seekPointer = int(off)
+
+	return v.Read(data)
 }
 
 // Close
 func (v *VirtualFile) Close() error {
-	//if !v.readOnly {
-	//	b, _ := generateFrameChunk(v.frameChunk)
-	//	_, _ = v.Write(b)
-	//}
-	//v.Closed = true
-	//if !v.readOnly {
-	//	err := v.Fsync(true)
-	//	if err != nil {
-	//		v.log.Errorv("FSYNC", "err", err.Error())
-	//	}
-	//}
-	//
-	//err := v.Arc.UpdateFileIndex()
-	//if err != nil {
-	//	v.log.Errorv("updateFileIndex", "err", err.Error())
-	//}
-	//err = v.Arc.SyncBamToDisk()
-	//if err != nil {
-	//	v.log.Errorv("syncBamToDisk", "err", err.Error())
-	//}
 	if uint32(len(v.bufTX)) > 0 {
 		_, err := v.fs.Write(v.bufTX, v.id)
 		if err != nil {
@@ -124,8 +117,8 @@ func (v *VirtualFile) Close() error {
 		}
 	}
 
-	v.bufTX = v.bufTX[:]
-	v.bufRX = v.bufRX[:]
+	v.bufTX = v.bufTX[:0]
+	v.bufRX = v.bufRX[:0]
 
 	return v.fs.Closed(v.id)
 }
