@@ -4,13 +4,14 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
 	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
 	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 	"github.com/fanap-infra/FSEngine/pkg/utils"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/fanap-infra/log"
 )
@@ -56,16 +57,14 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 	}
 
 	fs := &FSEngine{
-		file:      file,
-		size:      size,
-		version:   FileSystemVersion,
-		maxNumberOfBlocks:    uint32(size / int64(blockSize)),
-		blockSize: blockSize,
-		openFiles: make(map[uint32]*virtualFile.VirtualFile),
-		log:       log,
+		file:              file,
+		size:              size,
+		version:           FileSystemVersion,
+		maxNumberOfBlocks: uint32(size / int64(blockSize)),
+		blockSize:         blockSize,
+		openFiles:         make(map[uint32]*virtualFile.VirtualFile),
+		log:               log,
 	}
-
-
 
 	fileName := filepath.Base(path)
 	headerPath := strings.Replace(path, fileName, "Header.Beh", 1)

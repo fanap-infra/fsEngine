@@ -1,10 +1,11 @@
 package blockAllocationMap
 
 import (
-	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"math/rand"
 	"sort"
 	"testing"
+
+	"github.com/fanap-infra/FSEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"
 	"github.com/stretchr/testify/assert"
@@ -68,7 +69,7 @@ func TestMarshalAndUnmarshal(t *testing.T) {
 	}
 	log.Infov("data test", "testBlocks", testBlocks)
 	for i := 0; i < MaxSize; i++ {
-		if utils.ItemExists(testBlocks, i) {
+		if utils.ItemExists(testBlocks, uint32(i)) {
 			log.Infov("Skip this item", "i", i)
 			continue
 		}

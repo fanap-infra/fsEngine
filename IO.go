@@ -70,17 +70,26 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
 	}
 	n := 0
+	var err error
 	blocksNum := uint32(len(data) / BLOCKSIZEUSABLE)
 	for i := uint32(0); i < blocksNum; i++ {
 		previousBlock := vf.GetLastBlock()
-		//blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
+		// blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
 		blockID := fse.header.FindNextFreeBlockAndAllocate()
-
-		d, err := fse.prepareBlock(data, fileID, previousBlock, blockID)
-		if err != nil {
-			return 0, err
+		var d []byte
+		if i == (blocksNum - 1) {
+			d, err = fse.prepareBlock(data[i*BLOCKSIZEUSABLE:(i+1)*BLOCKSIZEUSABLE], fileID, previousBlock, blockID)
+			if err != nil {
+				return 0, err
+			}
+		} else {
+			d, err = fse.prepareBlock(data[i*BLOCKSIZEUSABLE:], fileID, previousBlock, blockID)
+			if err != nil {
+				return 0, err
+			}
 		}
-		c, err := fse.writeInBlock(d, blockID)
+
+		m, err := fse.writeInBlock(d, blockID)
 		if err != nil {
 			return 0, err
 		}
@@ -95,41 +104,29 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 			return 0, err
 		}
 
-		if c != len(d) {
-			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", c, len(d))
+		if m != len(d) {
+			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", m, len(d))
 		}
-		n = c + n
+		n = m + n
 	}
 
-	if len(data) != int(blocksNum*BLOCKSIZEUSABLE) {
-		previousBlock := vf.GetLastBlock()
-		blockID := fse.header.FindNextFreeBlockAndAllocate()
-		//blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
-		err := vf.AddBlockID(blockID)
-		if err != nil {
-			return 0, err
-		}
-		d, err := fse.prepareBlock(data, fileID, previousBlock, blockID)
-		if err != nil {
-			return 0, err
-		}
-		c, err := fse.writeInBlock(d, blockID)
-		if err != nil {
-			return 0, err
-		}
-		if c != len(d) {
-			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", c, len(d))
-		}
-		n = c + n
-	}
-
-	return 0, nil
+	return n, nil
 }
 
+// It is event handler
 func (fse *FSEngine) Closed(fileID uint32) error {
 	fse.rIBlockMux.Lock()
 	defer fse.rIBlockMux.Unlock()
-	// ToDo: check update file index
 	delete(fse.openFiles, fileID)
+
+	err := fse.header.UpdateFSHeader()
+	if err != nil {
+		fse.log.Warnv("Can not updateHeader", "err", err.Error())
+	}
+	err = fse.file.Sync()
+	if err != nil {
+		fse.log.Warnv("Can not sync file", "err", err.Error())
+	}
+
 	return nil
 }

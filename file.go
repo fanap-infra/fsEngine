@@ -1,13 +1,14 @@
 package fsEngine
 
 import (
-	"github.com/fanap-infra/FSEngine/internal/fileIndex"
-	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 	"os"
 	"sync"
 	"time"
+
+	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
+	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/FSEngine/internal/fileIndex"
+	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 
 	"github.com/fanap-infra/log"
 
@@ -22,7 +23,7 @@ type FSEngine struct {
 	size               int64
 	CurrentFile        string                                 // name of the latest file to be created
 	LastFiletime       time.Time                              // time where the first data of the file has been written
-	maxNumberOfBlocks             uint32                                 // total number of blocks in Archiver
+	maxNumberOfBlocks  uint32                                 // total number of blocks in Archiver
 	blockSize          uint32                                 // in bytes, size of each block
 	lastWrittenBlock   uint32                                 // the last block that has been written into
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.

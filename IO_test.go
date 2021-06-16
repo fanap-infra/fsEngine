@@ -1,12 +1,13 @@
 package fsEngine
 
 import (
-	"github.com/fanap-infra/FSEngine/pkg/utils"
-	"github.com/fanap-infra/log"
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"os"
 	"testing"
+
+	"github.com/fanap-infra/FSEngine/pkg/utils"
+	"github.com/fanap-infra/log"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIO_OneVirtualFile(t *testing.T) {
@@ -21,20 +22,20 @@ func TestIO_OneVirtualFile(t *testing.T) {
 	var bytes [][]byte
 
 	MaxID := 1000
-	MaxByteArraySize := int(blockSizeTest*0.5)
-	VFSize := 1*blockSizeTest
-	vfID := uint32( rand.Intn(MaxID))
+	MaxByteArraySize := int(blockSizeTest * 0.5)
+	VFSize := int(1.5 * blockSizeTest)
+	vfID := uint32(rand.Intn(MaxID))
 	vf, err := fse.NewVirtualFile(vfID, "test")
 	assert.Equal(t, nil, err)
 	size := 0
 
-	for  {
-		token := make([]byte, uint32( rand.Intn(MaxByteArraySize)))
+	for {
+		token := make([]byte, uint32(rand.Intn(MaxByteArraySize)))
 		m, err := rand.Read(token)
 		assert.Equal(t, nil, err)
-		bytes  = append(bytes, token)
+		bytes = append(bytes, token)
 		size = size + m
-		n,err := vf.Write(token)
+		n, err := vf.Write(token)
 		assert.Equal(t, nil, err)
 		assert.Equal(t, m, n)
 
@@ -66,5 +67,3 @@ func TestIO_OneVirtualFile(t *testing.T) {
 	_ = utils.DeleteFile(homePath + fsPathTest)
 	_ = utils.DeleteFile(homePath + headerPathTest)
 }
-
-

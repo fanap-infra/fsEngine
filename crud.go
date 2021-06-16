@@ -2,6 +2,7 @@ package fsEngine
 
 import (
 	"fmt"
+
 	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/FSEngine/internal/virtualFile"
 )
@@ -13,9 +14,10 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	if fse.header.CheckIDExist(id) {
 		return nil, fmt.Errorf("this ID: %v, had been taken", id)
 	}
-	blm  := blockAllocationMap.New(fse.log, fse, fse.maxNumberOfBlocks)
+	blm := blockAllocationMap.New(fse.log, fse, fse.maxNumberOfBlocks)
 
-	vf := virtualFile.NewVirtualFile(fileName, id, fse.blockSize, fse, blm, int(fse.blockSize)*VirtualFileBufferBlockNumber, fse.log)
+	vf := virtualFile.NewVirtualFile(fileName, id, fse.blockSize-BlockHeaderSize, fse, blm,
+		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
 	err := fse.header.AddVirtualFile(id, fileName)
 	if err != nil {
 		return nil, err
@@ -31,19 +33,21 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	if ok {
 		return nil, fmt.Errorf("this ID: %v is opened before", id)
 	}
-	fileInfo , err := fse.header.GetFileData(id)
-	if err != nil{
-		return nil, err
-	}
-	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(), fileInfo.GetRMapBlocks())
-	if err != nil{
-		return nil, err
-	}
-	vf := virtualFile.OpenVirtualFile(fileInfo, fse.blockSize, fse, blm, int(fse.blockSize)*VirtualFileBufferBlockNumber, fse.log)
-	err = fse.header.AddVirtualFile(id, fileInfo.GetName())
+	fileInfo, err := fse.header.GetFileData(id)
 	if err != nil {
 		return nil, err
 	}
+	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
+		fileInfo.GetRMapBlocks())
+	if err != nil {
+		return nil, err
+	}
+	vf := virtualFile.OpenVirtualFile(fileInfo, fse.blockSize-BlockHeaderSize, fse, blm,
+		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
+	//err = fse.header.AddVirtualFile(id, fileInfo.GetName())
+	//if err != nil {
+	//	return nil, err
+	//}
 	return vf, nil
 }
 
@@ -56,5 +60,3 @@ func (fse *FSEngine) RemoveVirtualFile(id uint32) error {
 	}
 	return nil
 }
-
-

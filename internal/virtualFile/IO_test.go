@@ -204,9 +204,7 @@ func TestIO_ReadAt(t *testing.T) {
 		assert.Equal(t, nil, err)
 		offset := rand.Intn(int(float32(size)*0.7))
 		n , err := vf.ReadAt(data, int64(offset))
-		//log.Infov("read buf ",  "i",i, "" +
-		//	"fsMock.seekPointer", fsMock.seekPointer, "vf.seekPointer", vf.seekPointer,
-		//	"vf.bufStart",vf.bufStart, "vf.bufEnd",vf.bufEnd)
+
 		assert.Equal(t, nil, err)
 		assert.Equal(t, len(data), n)
 		assert.Equal(t, vBlocks[offset: offset+len(data)], data)
