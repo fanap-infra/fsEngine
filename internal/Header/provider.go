@@ -4,10 +4,11 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/FSEngine/internal/fileIndex"
 	"github.com/fanap-infra/FSEngine/pkg/utils"
-	"os"
 
 	"github.com/fanap-infra/log"
 )
@@ -54,13 +55,12 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 		file:               file,
 		size:               size,
 		version:            FileSystemVersion,
-		maxNumberOfBlocks:             uint32(size / int64(blockSize)),
+		maxNumberOfBlocks:  uint32(size / int64(blockSize)),
 		blockSize:          blockSize,
-		//openFiles:          make(map[uint32]*virtualFile.VirtualFile),
 		fileIndex:          fileIndex.NewFileIndex(),
 		blockAllocationMap: blockAllocationMap.New(log, eventHandler, uint32(size/int64(blockSize))),
 		log:                log,
-		eventHandler: eventHandler,
+		eventHandler:       eventHandler,
 	}
 
 	loadConf(fs)
@@ -99,24 +99,25 @@ func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap
 	hfs := &HFileSystem{
 		file:      file,
 		size:      size,
-		//openFiles: make(map[uint32]*virtualFile.VirtualFile),
-		log:       log,
+		fileIndex: fileIndex.NewFileIndex(),
+		// openFiles: make(map[uint32]*virtualFile.VirtualFile),
+		log:          log,
 		eventHandler: eventHandler,
 	}
 
 	err = hfs.parseHeader()
 	if err != nil {
-		return nil, err
+		return hfs, err
 	}
 
 	err = hfs.parseFileIndex()
 	if err != nil {
-		return nil, err
+		return hfs, err
 	}
 
 	err = hfs.parseBLM()
 	if err != nil {
-		return nil, err
+		return hfs, err
 	}
 
 	return hfs, nil

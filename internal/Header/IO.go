@@ -11,9 +11,8 @@ func (hfs *HFileSystem) writeAt(b []byte, off int64) (n int, err error) {
 
 // Close ...
 func (hfs *HFileSystem) Close() error {
-
 	defer func() {
-		err :=hfs.file.Close()
+		err := hfs.file.Close()
 		if err != nil {
 			hfs.log.Warnv("can not close file", "err", err.Error())
 		}
@@ -21,7 +20,7 @@ func (hfs *HFileSystem) Close() error {
 
 	err := hfs.updateFileIndex()
 	if err != nil {
-		return  err
+		return err
 	}
 
 	err = hfs.updateBLM()
@@ -35,13 +34,15 @@ func (hfs *HFileSystem) Close() error {
 		// ToDo: remove it
 		return err
 	}
+
 	// ToDo:update file system
-	err = hfs.file.Sync()
-	if err != nil {
-		hfs.log.Warnv("Can not sync file", "err", err.Error())
-		// ToDo: remove it
-		return err
-	}
+	//err = hfs.file.Sync()
+	//if err != nil {
+	//	hfs.log.Warnv("Can not sync file", "err", err.Error())
+	//	// ToDo: remove it
+	//	return err
+	//}
+
 	return nil
 }
 

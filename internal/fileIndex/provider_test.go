@@ -1,16 +1,19 @@
 package fileIndex
 
 import (
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-const TestSize  = 5
-const MaxSize = 100
-const TestByteSize  = 100
+const (
+	TestSize     = 5
+	MaxSize      = 100
+	TestByteSize = 100
+)
 
 func TestFileIndex_Marshal_UnMarshal(t *testing.T) {
 	fi := NewFileIndex()
@@ -22,7 +25,8 @@ func TestFileIndex_Marshal_UnMarshal(t *testing.T) {
 		assert.Equal(t, TestByteSize, n)
 		assert.Equal(t, nil, err)
 
-		file := File{Name:"test"+strconv.Itoa(i),
+		file := File{
+			Name:      "test" + strconv.Itoa(i),
 			LastBlock: uint32(rand.Intn(MaxSize)), FirstBlock: uint32(rand.Intn(MaxSize)), Id: uint32(rand.Intn(MaxSize)),
 			RMapBlocks: testBytes,
 		}
@@ -38,14 +42,14 @@ func TestFileIndex_Marshal_UnMarshal(t *testing.T) {
 		testFiles[i] = file
 	}
 	for i := 0; i < TestSize; i++ {
-		err := fi.UpdateFile(testFiles[i].Id,testFiles[i].FirstBlock,testFiles[i].LastBlock,testFiles[i].Name, testFiles[i].RMapBlocks)
+		err := fi.UpdateFile(testFiles[i].Id, testFiles[i].FirstBlock, testFiles[i].LastBlock, testFiles[i].Name, testFiles[i].RMapBlocks)
 		assert.Equal(t, nil, err)
 	}
 
 	buf, err := fi.GenerateBinary()
 	assert.Equal(t, nil, err)
 
-	fiParsed  := NewFileIndex()
+	fiParsed := NewFileIndex()
 	err = fiParsed.InitFromBinary(buf)
 	assert.Equal(t, nil, err)
 
@@ -58,5 +62,4 @@ func TestFileIndex_Marshal_UnMarshal(t *testing.T) {
 		assert.Equal(t, testFiles[i].FirstBlock, file.GetFirstBlock())
 		assert.Equal(t, testFiles[i].RMapBlocks, file.GetRMapBlocks())
 	}
-
 }

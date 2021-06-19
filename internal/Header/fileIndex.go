@@ -1,8 +1,6 @@
 package Header_
 
 import (
-	"bytes"
-	"compress/gzip"
 	"fmt"
 	"hash/crc32"
 )
@@ -12,18 +10,18 @@ func (hfs *HFileSystem) generateFileIndex() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	pw := bytes.Buffer{}
-
-	zw, err := gzip.NewWriterLevel(&pw, 2)
-	if err != nil {
-		return nil, err
-	}
-	_, _ = zw.Write(bin)
-	err = zw.Close()
-	if err != nil {
-		return nil, err
-	}
-	bin = pw.Bytes()
+	//pw := bytes.Buffer{}
+	//
+	//zw, err := gzip.NewWriterLevel(&pw, 2)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//_, _ = zw.Write(bin)
+	//err = zw.Close()
+	//if err != nil {
+	//	return nil, err
+	//}
+	//bin = pw.Bytes()
 	return bin, nil
 }
 
@@ -43,6 +41,7 @@ func (hfs *HFileSystem) updateFileIndex() error {
 		return fmt.Errorf("fileIndex size %v is too large, Max valid size: %v",
 			hfs.fileIndexSize, FileIndexMaxByteSize)
 	}
+
 	n, err := hfs.file.WriteAt(fi, FileIndexByteIndex)
 	if err != nil {
 		return err
@@ -71,6 +70,25 @@ func (hfs *HFileSystem) parseFileIndex() error {
 	if n != int(hfs.fileIndexSize) {
 		return ErrDataBlockMismatch
 	}
+
+	//in := bytes.NewReader(buf)
+	//
+	//gz, err := gzip.NewReader(in)
+	//if err != nil {
+	//	return err
+	//}
+	//b := new(bytes.Buffer)
+	//_, err = io.Copy(b, gz)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//binary := b.Bytes()
+	//err = gz.Close()
+	//
+	//if err != nil {
+	//	return err
+	//}
 
 	err = hfs.fileIndex.InitFromBinary(buf)
 	if err != nil {

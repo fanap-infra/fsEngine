@@ -2,6 +2,7 @@ package Header_
 
 import (
 	"fmt"
+
 	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 )
 
@@ -27,9 +28,11 @@ func (hfs *HFileSystem) updateBLM() error {
 	if err != nil {
 		return err
 	}
+
 	if n != 4 {
 		return fmt.Errorf("blm did not write complete, header size: %v, written size: %v", hfs.blmSize, n)
 	}
+
 	return nil
 }
 
@@ -53,7 +56,6 @@ func (hfs *HFileSystem) parseBLM() error {
 	hfs.blockAllocationMap = blm
 	return nil
 }
-
 
 func (hfs *HFileSystem) FindNextFreeBlockAndAllocate() uint32 {
 	return hfs.blockAllocationMap.FindNextFreeBlockAndAllocate()

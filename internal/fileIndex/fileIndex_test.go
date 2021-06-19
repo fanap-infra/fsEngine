@@ -1,10 +1,12 @@
 package fileIndex
+
 import (
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFileIndex_CRUDFileIndex(t *testing.T) {
@@ -17,7 +19,8 @@ func TestFileIndex_CRUDFileIndex(t *testing.T) {
 		assert.Equal(t, TestByteSize, n)
 		assert.Equal(t, nil, err)
 
-		file := File{Name:"test"+strconv.Itoa(i),
+		file := File{
+			Name:      "test" + strconv.Itoa(i),
 			LastBlock: uint32(rand.Intn(MaxSize)), FirstBlock: uint32(rand.Intn(MaxSize)), Id: uint32(rand.Intn(MaxSize)),
 			RMapBlocks: testBytes,
 		}
@@ -40,12 +43,10 @@ func TestFileIndex_CRUDFileIndex(t *testing.T) {
 
 	for i := 0; i < TestSize; i++ {
 		checked := fi.CheckFileExistWithLock(testFiles[i].Id)
-		if i< TestSize/2 {
+		if i < TestSize/2 {
 			assert.Equal(t, false, checked)
 		} else {
 			assert.Equal(t, true, checked)
 		}
 	}
-
-
 }

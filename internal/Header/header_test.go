@@ -1,9 +1,10 @@
 package Header_
 
 import (
-	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"os"
 	"testing"
+
+	"github.com/fanap-infra/FSEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"
 	"github.com/stretchr/testify/assert"
@@ -32,15 +33,27 @@ func TestStoreHeader(t *testing.T) {
 	maxNumberOfBlocks := fs.maxNumberOfBlocks
 	blockSize := fs.blockSize
 	lastWrittenBlock := fs.lastWrittenBlock
+
+	buf := make([]byte, fs.blmSize)
+
+	m, err := fs.file.ReadAt(buf, BlockAllocationMapByteIndex)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, fs.blmSize, uint32(m))
+
 	err = fs.Close()
 	assert.Equal(t, err, nil)
-	fs2, err := ParseHeaderFS(homePath+path, log.GetScope("test2"))
-	assert.Equal(t, err, nil)
+
+	fs2, err := ParseHeaderFS(homePath+path, log.GetScope("test2"), eHandler)
+	if !assert.Equal(t, err, nil) {
+		return
+	}
 	assert.Equal(t, size, fs2.size)
 	assert.Equal(t, version, fs2.version)
 	assert.Equal(t, maxNumberOfBlocks, fs2.maxNumberOfBlocks)
 	assert.Equal(t, blockSize, fs2.blockSize)
 	assert.Equal(t, lastWrittenBlock, fs2.lastWrittenBlock)
+
+	_ = utils.DeleteFile(homePath + path)
 }
 
 //func TestHeaderParsing(t *testing.T) {
