@@ -67,6 +67,18 @@ func (i *FileIndex) GetFileInfo(fileId uint32) (File, error) {
 		return File{}, fmt.Errorf("file id %v does not exist", fileId)
 	}
 
-	return File{Id: fileInfo.Id, RMapBlocks: fileInfo.RMapBlocks, FirstBlock: fileInfo.FirstBlock,
-		LastBlock: fileInfo.LastBlock, Name: fileInfo.Name}, nil
+	return File{
+		Id: fileInfo.Id, RMapBlocks: fileInfo.RMapBlocks, FirstBlock: fileInfo.FirstBlock,
+		LastBlock: fileInfo.LastBlock, Name: fileInfo.Name,
+	}, nil
+}
+
+func (i *FileIndex) UpdateBAM(fileId uint32, bam []byte) error {
+	i.rwMux.Lock()
+	defer i.rwMux.Unlock()
+	if !i.checkFileExist(fileId) {
+		return fmt.Errorf("file id %v does not exist", fileId)
+	}
+	i.table.Files[fileId].RMapBlocks = bam
+	return nil
 }

@@ -3,6 +3,8 @@ package virtualFile
 import (
 	"errors"
 	"fmt"
+
+	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
 )
 
 // returns int bytes of written data.
@@ -117,5 +119,10 @@ func (v *VirtualFile) Close() error {
 	}
 	v.bufTX = v.bufTX[:0]
 	v.bufRX = v.bufRX[:0]
+	data, err := blockAllocationMap.Marshal(v.blockAllocationMap)
+	if err != nil {
+		v.log.Errorv("can not update bam", "err", err.Error())
+	}
+	v.fs.BAMUpdated(v.id, data)
 	return v.fs.Closed(v.id)
 }

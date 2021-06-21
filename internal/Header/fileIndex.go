@@ -97,3 +97,8 @@ func (hfs *HFileSystem) parseFileIndex() error {
 
 	return nil
 }
+
+// ToDo:update blm binaries
+func (hfs *HFileSystem) UpdateBAM(fileID uint32, data []byte) error {
+	return hfs.fileIndex.UpdateBAM(fileID, data)
+}

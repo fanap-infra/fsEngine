@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func assertFetal(check bool) {
-	panic("Assert failed")
-}
+//func assertFetal(check bool) {
+//	panic("Assert failed")
+//}
 
 func TestVirtualFile_Remove(t *testing.T) {
 	homePath, err := os.UserHomeDir()
@@ -92,7 +92,7 @@ func TestVirtualFile_Open(t *testing.T) {
 	var testIDs []uint32
 	var testNames []string
 
-	TestSize := 5
+	TestSize := 1
 	MaxID := 1000
 	var vfs []*virtualFile.VirtualFile
 	for i := 0; i < TestSize; i++ {

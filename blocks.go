@@ -41,6 +41,13 @@ func (fse *FSEngine) parseBlock(data []byte) ([]byte, error) {
 	return data[16 : dataSize+16], nil
 }
 
+func (fse *FSEngine) BAMUpdated(fileID uint32, bam []byte) error {
+	// ToDo: because of file index,we use mutex
+	fse.crudMutex.Lock()
+	defer fse.crudMutex.Unlock()
+	return fse.header.UpdateBAM(fileID, bam)
+}
+
 /*
 var byteOrder = binary.BigEndian
 
