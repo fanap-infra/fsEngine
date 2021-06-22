@@ -47,18 +47,19 @@ func TestIO_OneVirtualFile(t *testing.T) {
 	err = vf.Close()
 	assert.Equal(t, nil, err)
 
-	vf, err = fse.OpenVirtualFile(vfID)
+	vf2, err := fse.OpenVirtualFile(vfID)
 	assert.Equal(t, nil, err)
 
 	for _, v := range bytes {
 		buf := make([]byte, len(v))
-		_, err := vf.Read(buf)
+		m, err := vf2.Read(buf)
 
 		assert.Equal(t, nil, err)
 		if err != nil {
 			break
 		}
 
+		assert.Equal(t, len(v), m)
 		assert.Equal(t, v, buf)
 	}
 

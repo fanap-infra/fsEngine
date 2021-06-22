@@ -15,9 +15,13 @@ func (v *VirtualFile) Write(data []byte) (int, error) {
 
 	v.bufTX = append(v.bufTX, data...)
 	if uint32(len(v.bufTX)) > v.blockSize {
-		_, err := v.fs.Write(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))], v.id)
+		m, err := v.fs.Write(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))], v.id)
 		if err != nil {
 			return 0, err
+		}
+		if m != len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)) {
+			v.log.Errorv("did not write data completely",
+				"data size", len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)), "written size", m)
 		}
 		v.bufTX = v.bufTX[len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)):]
 	}

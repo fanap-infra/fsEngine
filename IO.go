@@ -5,6 +5,8 @@ import (
 )
 
 func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err error) {
+	fse.log.Infov("write in block", "blockIndex", blockIndex,
+		"maxNumberOfBlocks", fse.maxNumberOfBlocks, "len(data)", len(data))
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return 0, ErrBlockIndexOutOFRange
 	}
@@ -18,6 +20,7 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err er
 }
 
 func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
+	fse.log.Infov("read in block", "blockIndex", blockIndex)
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return nil, ErrBlockIndexOutOFRange
 	}
@@ -32,6 +35,9 @@ func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
 		return buf, ErrDataBlockMismatch
 	}
 	data, err := fse.parseBlock(buf)
+	if err != nil {
+		return nil, err
+	}
 	return data, nil
 }
 
@@ -65,25 +71,30 @@ func (fse *FSEngine) WriteAt(b []byte, off int64, fileID uint32) (n int, err err
 func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 	fse.rIBlockMux.Lock()
 	defer fse.rIBlockMux.Unlock()
+	dataSize := len(data)
+	if dataSize == 0 {
+		return 0, fmt.Errorf("data siz is zero, file ID: %v ", fileID)
+	}
 	vf, ok := fse.openFiles[fileID]
 	if !ok {
 		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
 	}
 	n := 0
 	var err error
-	blocksNum := uint32(len(data) / BLOCKSIZEUSABLE)
-	for i := uint32(0); i < blocksNum; i++ {
+	for {
+		if n >= dataSize {
+			return n, nil
+		}
 		previousBlock := vf.GetLastBlock()
-		// blockID := fse.blockAllocationMap.FindNextFreeBlockAndAllocate()
 		blockID := fse.header.FindNextFreeBlockAndAllocate()
 		var d []byte
-		if i == (blocksNum - 1) {
-			d, err = fse.prepareBlock(data[i*BLOCKSIZEUSABLE:(i+1)*BLOCKSIZEUSABLE], fileID, previousBlock, blockID)
+		if dataSize >= n+int(fse.blockSizeUsable) {
+			d, err = fse.prepareBlock(data[n:n+int(fse.blockSizeUsable)], fileID, previousBlock, blockID)
 			if err != nil {
 				return 0, err
 			}
 		} else {
-			d, err = fse.prepareBlock(data[i*BLOCKSIZEUSABLE:], fileID, previousBlock, blockID)
+			d, err = fse.prepareBlock(data[n:], fileID, previousBlock, blockID)
 			if err != nil {
 				return 0, err
 			}
@@ -107,10 +118,8 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 		if m != len(d) {
 			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", m, len(d))
 		}
-		n = m + n
+		n = m - BlockHeaderSize + n
 	}
-
-	return n, nil
 }
 
 // It is event handler
