@@ -15,6 +15,7 @@ import "github.com/fanap-infra/FSEngine/pkg/err"
 const (
 	FileSystemIdentifier = "BehFS;P "
 	FileSystemVersion    = 1
+	BlockHeaderSize      = 16
 	// In this version,we allocate constant space for each part
 	HeaderBlockIndex = 0 // BackUp is last block
 	HeaderByteSize   = 36
@@ -36,11 +37,10 @@ const (
 	ErrFileExists           = err.Error("file already exist")
 	ErrArchiverIdentifier   = err.Error("ArchiverIdentifier is not detected")
 	ErrArchiverVersion      = err.Error("Archiver Version is not correct")
-	//BYTE                   = 1
-	//KILOBYTE               = BYTE * 1024
-	//MEGABYTE               = KILOBYTE * 1024
-	//GIGABYTE               = MEGABYTE * 1024
-	//TERABYTE               = GIGABYTE * 1024
+	BYTE                    = 1
+	KILOBYTE                = BYTE * 1024
+	MEGABYTE                = KILOBYTE * 1024
+	GIGABYTE                = MEGABYTE * 1024
 	//DefaultArchiverSize    = 20 * GIGABYTE
 	//ArchiverMinimumPadding = 250 * MEGABYTE
 	//ArchiverMaximumPadding = 5 * GIGABYTE
@@ -70,4 +70,5 @@ const (
 
 	// DataStartBlock = (BlockAllocationMapSize / BLOCKSIZEUSABLE) + FileIndexReservedSizeBlocks + 1
 
+	VirtualFileBufferBlockNumber = 5
 )

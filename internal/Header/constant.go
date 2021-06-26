@@ -20,8 +20,8 @@ const (
 	FileIndexByteIndex   = 50 // BackUp Size - 1 - FileIndexBlockSize
 	FileIndexMaxByteSize = 100000
 
-	AllocationMapBlockIndex = FileIndexByteIndex + FileIndexMaxByteSize // BackUp Size - 1 - FileIndexBlockSize - AllocationMapBlockSize
-	AllocationMaxByteSize   = 100000
+	BlockAllocationMapByteIndex = FileIndexByteIndex + FileIndexMaxByteSize // BackUp Size - 1 - FileIndexBlockSize - AllocationMapBlockSize
+	BlockAllocationMaxByteSize   = 100000
 
 	//MaxArchiverTime     = 3600 * time.Second
 	//ArchiverCheckerIter = 60 * time.Second

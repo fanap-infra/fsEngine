@@ -4,12 +4,14 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
-	"github.com/fanap-infra/FSEngine/pkg/utils"
 	"os"
 	"path/filepath"
 	"strings"
+
+	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
+	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/FSEngine/internal/virtualFile"
+	"github.com/fanap-infra/FSEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"
 )
@@ -24,7 +26,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 	}
 
 	if utils.FileExists(path) {
-		return nil, errors.New("File already exists")
+		return nil, errors.New("file already exists")
 	}
 	if size%int64(blockSize) != 0 {
 		return nil, fmt.Errorf("File size must be divisible by %v", blockSize)
@@ -55,13 +57,13 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 	}
 
 	fs := &FSEngine{
-		file:      file,
-		size:      size,
-		version:   FileSystemVersion,
-		blocks:    uint32(size / int64(blockSize)),
-		blockSize: blockSize,
-		openFiles: make(map[uint32]*virtualFile.VirtualFile),
-		log:       log,
+		file:              file,
+		size:              size,
+		version:           FileSystemVersion,
+		maxNumberOfBlocks: uint32(size / int64(blockSize)),
+		blockSize:         blockSize,
+		openFiles:         make(map[uint32]*virtualFile.VirtualFile),
+		log:               log,
 	}
 
 	fileName := filepath.Base(path)
@@ -69,8 +71,10 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 	headerFS, err := Header_.CreateHeaderFS(headerPath, size, blockSize, log, fs)
 	if err != nil {
 		log.Errorv("Can not create header file ", "err", err.Error())
+		return nil, err
 	}
 
+	fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
 	fs.header = headerFS
 
 	return fs, nil
@@ -98,14 +102,14 @@ func ParseFileSystem(path string, log *log.Logger) (*FSEngine, error) {
 
 	fileName := filepath.Base(path)
 	headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
-	hfs, err := Header_.ParseHeaderFS(headerPath, log)
+	hfs, err := Header_.ParseHeaderFS(headerPath, log, fs)
 	if err != nil {
 		return nil, err
 	}
 
 	fs.header = hfs
 	fs.blockSize = hfs.GetBlockSize()
-	fs.blocks = hfs.GetBlocksNumber()
+	fs.maxNumberOfBlocks = hfs.GetBlocksNumber()
 
 	return fs, nil
 }

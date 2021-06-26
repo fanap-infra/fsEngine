@@ -14,7 +14,6 @@ func (i *FileIndex) GenerateBinary() (data []byte, err error) {
 	return
 }
 
-func (i *FileIndex) InitFromBinary(data []byte) (err error) {
-	err = proto.Unmarshal(data, i.table)
-	return err
+func (i *FileIndex) InitFromBinary(data []byte) error {
+	return proto.Unmarshal(data, i.table)
 }

@@ -2,6 +2,7 @@ package fsEngine
 
 import (
 	"encoding/binary"
+	"fmt"
 )
 
 func (fse *FSEngine) NoSpace() uint32 {
@@ -20,7 +21,7 @@ func (fse *FSEngine) NoSpace() uint32 {
 func (fse *FSEngine) prepareBlock(data []byte, fileID uint32, previousBlock uint32, blockID uint32) ([]byte, error) {
 	dataTmp := make([]byte, 0)
 
-	a := make([]byte, 16)
+	a := make([]byte, BlockHeaderSize)
 	binary.BigEndian.PutUint32(a, blockID)
 	binary.BigEndian.PutUint32(a, fileID)
 	binary.BigEndian.PutUint32(a, previousBlock)
@@ -29,6 +30,22 @@ func (fse *FSEngine) prepareBlock(data []byte, fileID uint32, previousBlock uint
 	dataTmp = append(dataTmp, data...)
 
 	return dataTmp, nil
+}
+
+func (fse *FSEngine) parseBlock(data []byte) ([]byte, error) {
+	dataSize := binary.BigEndian.Uint32(data[12:16])
+	if dataSize > fse.blockSize-16 {
+		return nil, fmt.Errorf("blockd ata size is too large, dataSize: %v", dataSize)
+	}
+
+	return data[16 : dataSize+16], nil
+}
+
+func (fse *FSEngine) BAMUpdated(fileID uint32, bam []byte) error {
+	// ToDo: because of file index,we use mutex
+	fse.crudMutex.Lock()
+	defer fse.crudMutex.Unlock()
+	return fse.header.UpdateBAM(fileID, bam)
 }
 
 /*

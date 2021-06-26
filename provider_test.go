@@ -1,9 +1,10 @@
 package fsEngine
 
 import (
-	"behnama/stream/pkg/fsEngine/pkg/utils"
 	"os"
 	"testing"
+
+	"github.com/fanap-infra/FSEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"
 
@@ -13,7 +14,7 @@ import (
 const (
 	fsPathTest     = "/fsTest.beh"
 	headerPathTest = "/Header.Beh"
-	blockSizeTest  = 512000
+	blockSizeTest  = 5120
 	fileSizeTest   = blockSizeTest * 128
 )
 
@@ -42,5 +43,5 @@ func TestParseFS(t *testing.T) {
 	fs, err := ParseFileSystem(homePath+fsPathTest, log.GetScope("test"))
 	assert.Equal(t, nil, err)
 	assert.Equal(t, fs.blockSize, uint32(blockSizeTest))
-	assert.Equal(t, fs.blocks, uint32(fileSizeTest/blockSizeTest))
+	assert.Equal(t, fs.maxNumberOfBlocks, uint32(fileSizeTest/blockSizeTest))
 }

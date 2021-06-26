@@ -8,28 +8,29 @@ import (
 
 // VirtualFile
 type VirtualFile struct {
-	vfBuf []byte
-	// vfBufMux sync.Mutex
-	// sem                *semaphore.Weighted
-	// maybeSync         *semaphore.Weighted
-	currentBlock      uint32
-	currentBlockIndex uint32 // current block's index
-	name              string
-	id                uint32
-	// lastReadBlockIdx   uint32
+	bufRX []byte
+	bufTX []byte
+
+	bufferSize         int
+	currentBlock       uint32
+	currentBlockIndex  uint32 // current block's index
+	name               string
+	id                 uint32
 	firstBlock         uint32
 	Closed             bool
 	lastBlock          uint32
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap
 	blockSize          uint32
+	nextBlockIndex     uint32
 	size               uint64
-	numberOfBlocks     uint32
-	allocatedBlock     []uint32
-	readOnly           bool
-	// Media Structures
-	// frameChunkPosInBlock uint32
-	// fwMUX                sync.Mutex
-	// reference to parent Archiver
+
+	allocatedBlock []uint32
+	readOnly       bool
+
+	seekPointer int
+	bufStart    int
+	bufEnd      int
+
 	fs  FS
 	log *log.Logger
 }
