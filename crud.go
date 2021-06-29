@@ -42,7 +42,7 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	if err != nil {
 		return nil, err
 	}
-	vf := virtualFile.OpenVirtualFile(fileInfo, fse.blockSize-BlockHeaderSize, fse, blm,
+	vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-BlockHeaderSize, fse, blm,
 		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
 	//err = fse.header.AddVirtualFile(id, fileInfo.GetName())
 	//if err != nil {

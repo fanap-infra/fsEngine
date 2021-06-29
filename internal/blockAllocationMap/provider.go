@@ -9,11 +9,11 @@ import (
 
 func New(log *log.Logger, listener Events, maxNumberOfBlocks uint32) *BlockAllocationMap {
 	return &BlockAllocationMap{
-		maxNumberOfBlocks:          maxNumberOfBlocks,
-		log:              log,
-		trigger:          listener,
-		LastWrittenBlock: 0,
-		rMap:             roaring.NewBitmap(),
+		maxNumberOfBlocks: maxNumberOfBlocks,
+		log:               log,
+		trigger:           listener,
+		LastWrittenBlock:  0,
+		rMap:              roaring.NewBitmap(),
 	}
 }
 
@@ -27,11 +27,11 @@ func Open(log *log.Logger, listener Events, maxNumberOfBlocks uint32, lastWritte
 		return nil, err
 	}
 	return &BlockAllocationMap{
-		maxNumberOfBlocks:          maxNumberOfBlocks,
-		log:              log,
-		trigger:          listener,
-		LastWrittenBlock: lastWrittenBlock,
-		rMap:             rMap,
+		maxNumberOfBlocks: maxNumberOfBlocks,
+		log:               log,
+		trigger:           listener,
+		LastWrittenBlock:  lastWrittenBlock,
+		rMap:              rMap,
 	}, nil
 }
 

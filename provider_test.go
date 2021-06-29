@@ -24,6 +24,7 @@ func TestCreateFS(t *testing.T) {
 	_ = utils.DeleteFile(homePath + fsPathTest)
 	_ = utils.DeleteFile(homePath + headerPathTest)
 	_, err = CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, log.GetScope("test"))
+	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
 	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
 	size, err := utils.FileSize(homePath + fsPathTest)

@@ -21,12 +21,15 @@ func (fse *FSEngine) NoSpace() uint32 {
 func (fse *FSEngine) prepareBlock(data []byte, fileID uint32, previousBlock uint32, blockID uint32) ([]byte, error) {
 	dataTmp := make([]byte, 0)
 
-	a := make([]byte, BlockHeaderSize)
-	binary.BigEndian.PutUint32(a, blockID)
-	binary.BigEndian.PutUint32(a, fileID)
-	binary.BigEndian.PutUint32(a, previousBlock)
-	binary.BigEndian.PutUint32(a, uint32(len(data)))
-	dataTmp = append(dataTmp, a...)
+	headerTmp := make([]byte, 4)
+	binary.BigEndian.PutUint32(headerTmp, blockID)
+	dataTmp = append(dataTmp, headerTmp...)
+	binary.BigEndian.PutUint32(headerTmp, fileID)
+	dataTmp = append(dataTmp, headerTmp...)
+	binary.BigEndian.PutUint32(headerTmp, previousBlock)
+	dataTmp = append(dataTmp, headerTmp...)
+	binary.BigEndian.PutUint32(headerTmp, uint32(len(data)))
+	dataTmp = append(dataTmp, headerTmp...)
 	dataTmp = append(dataTmp, data...)
 
 	return dataTmp, nil

@@ -8,12 +8,10 @@ import (
 	"github.com/RoaringBitmap/roaring"
 )
 
-
-
 type BlockAllocationMap struct {
-	rMap             *roaring.Bitmap
-	LastWrittenBlock uint32
-	maxNumberOfBlocks            uint32
+	rMap              *roaring.Bitmap
+	LastWrittenBlock  uint32
+	maxNumberOfBlocks uint32
 	// numberOfAllocated uint32
 	trigger Events
 	log     *log.Logger
@@ -41,24 +39,29 @@ func (blm *BlockAllocationMap) IsBlockAllocated(blockIndex uint32) bool {
 }
 
 func (blm *BlockAllocationMap) FindNextFreeBlockAndAllocate() uint32 {
-	alloc := true
-	freeIndex := blm.LastWrittenBlock
-	for alloc {
-		// iterate
-		freeIndex += 1
-		// ToDo: check full space by size
+	// first block is one, last block that written is zero
+	freeIndex := blm.LastWrittenBlock + 1
+	//counter := 0
+	//defer func() {
+	//	blm.log.Infov("number of running in loop", "counter", counter)
+	//}()
+	for {
+		// counter++
+		if freeIndex == blm.maxNumberOfBlocks {
+			freeIndex = 0
+		}
+		if !blm.IsBlockAllocated(freeIndex) {
+			return freeIndex
+		}
+
 		if freeIndex == blm.LastWrittenBlock {
-			blm.log.Warnv("There is no space", "freeIndex", freeIndex, "LastWrittenBlock", blm.LastWrittenBlock)
+			blm.log.Warnv("There is no space", "freeIndex", freeIndex,
+				"LastWrittenBlock", blm.LastWrittenBlock)
 			freeIndex = blm.trigger.NoSpace()
 			blm.UnsetBlockAsAllocated(freeIndex)
 			return freeIndex
 		}
-		if freeIndex == blm.maxNumberOfBlocks {
-			freeIndex = 0
-			continue
-		}
-		alloc = blm.IsBlockAllocated(freeIndex)
-	}
 
-	return freeIndex
+		freeIndex++
+	}
 }

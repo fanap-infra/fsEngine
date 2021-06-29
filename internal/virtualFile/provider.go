@@ -8,7 +8,7 @@ import (
 )
 
 // name string, fileID uint32,
-func OpenVirtualFile(fileInfo fileIndex.File, blockSize uint32,
+func OpenVirtualFile(fileInfo *fileIndex.File, blockSize uint32,
 	fs FS, blm *blockAllocationMap.BlockAllocationMap, bufferSize int, log *log.Logger) *VirtualFile {
 	return &VirtualFile{
 		bufRX:    make([]byte, 0),
