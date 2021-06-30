@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/FSEngine/internal/fileIndex"
-	"github.com/fanap-infra/FSEngine/pkg/utils"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/fileIndex"
+	"github.com/fanap-infra/fsEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"
 )

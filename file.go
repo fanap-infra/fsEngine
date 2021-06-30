@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
+	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/virtualFile"
 
 	"github.com/fanap-infra/log"
 

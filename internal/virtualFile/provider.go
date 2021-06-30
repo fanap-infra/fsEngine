@@ -1,8 +1,8 @@
 package virtualFile
 
 import (
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/FSEngine/internal/fileIndex"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/fileIndex"
 
 	"github.com/fanap-infra/log"
 )
