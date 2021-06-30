@@ -24,6 +24,7 @@ type FSEngine struct {
 	LastFiletime      time.Time // time where the first data of the file has been written
 	maxNumberOfBlocks uint32    // total number of blocks in Archiver
 	blockSize         uint32    // in bytes, size of each block
+	blockSizeUsable   uint32
 	// lastWrittenBlock   uint32                                 // the last block that has been written into
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
 	openFiles          map[uint32]*virtualFile.VirtualFile
@@ -32,7 +33,7 @@ type FSEngine struct {
 	RMux sync.Mutex
 	log  *log.Logger
 	// fiMux      sync.RWMutex
-	fiChecksum uint32
+	// fiChecksum uint32
 	// bamChecksum        uint32
 	// fsMux           sync.Mutex
 	rIBlockMux sync.Mutex

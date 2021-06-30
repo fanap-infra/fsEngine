@@ -25,7 +25,7 @@ type FSMock struct {
 	openFiles   map[uint32]*VirtualFile
 }
 
-func (fsMock *FSMock) Write(data []byte, fileID uint) (int, error) {
+func (fsMock *FSMock) Write(data []byte, fileID uint32) (int, error) {
 	if bytes.Compare(data, byte2D[len(byte2D)-1]) == 0 {
 		log.Errorv("fsMock data is not equal", "len(data)", len(data),
 			"len(byte2D)", byte2D[len(byte2D)-1])
@@ -61,18 +61,18 @@ func (fsMock *FSMock) Write(data []byte, fileID uint) (int, error) {
 	}
 }
 
-func (fsMock *FSMock) WriteAt(data []byte, off int64, fileID uint) (int, error) {
+func (fsMock *FSMock) WriteAt(data []byte, off int64, fileID uint32) (int, error) {
 	fsMock.vBuf = append(fsMock.vBuf, data...)
 	return len(data), nil
 }
 
-func (fsMock *FSMock) Read(data []byte, fileID uint) (int, error) {
+func (fsMock *FSMock) Read(data []byte, fileID uint32) (int, error) {
 	data = fsMock.vBuf[fsMock.seekPointer : fsMock.seekPointer+len(data)]
 	fsMock.seekPointer = fsMock.seekPointer + len(data)
 	return len(data), nil
 }
 
-func (fsMock *FSMock) ReadAt(data []byte, off int64, fileID uint) (int, error) {
+func (fsMock *FSMock) ReadAt(data []byte, off int64, fileID uint32) (int, error) {
 	return len(data), nil
 }
 
@@ -80,12 +80,16 @@ func (fsMock *FSMock) ReadBlock(blockIndex uint32) ([]byte, error) {
 	return fsMock.vBufBlocks[blockIndex], nil
 }
 
-func (fsMock *FSMock) Closed(fileID uint) error {
+func (fsMock *FSMock) Closed(fileID uint32) error {
 	return nil
 }
 
 func (fsMock *FSMock) NoSpace() uint32 {
 	return 0
+}
+
+func (fsMock *FSMock) BAMUpdated(fileID uint32, bam []byte) error {
+	return nil
 }
 
 func NewVBufMock() *FSMock {

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	MaxSize = 100
+	MaxSize = 10
 	Path    = "/test.beh"
 )
 
@@ -20,14 +20,14 @@ type EventTest struct {
 	count uint32
 }
 
-func (eT EventTest) NoSpace() uint32 {
+func (eT *EventTest) NoSpace() uint32 {
 	eT.count = eT.count + 1
 	return eT.count - 1
 }
 
 func TestAddingAndReadAll(t *testing.T) {
-	evetTest := &EventTest{count: 0}
-	bAllocationMap := New(log.GetScope("test"), evetTest, MaxSize)
+	eventTest := &EventTest{count: 0}
+	bAllocationMap := New(log.GetScope("test"), eventTest, MaxSize)
 	for i := 0; i < MaxSize; i++ {
 		err := bAllocationMap.SetBlockAsAllocated(uint32(i))
 		assert.Equal(t, nil, err)
@@ -107,5 +107,31 @@ func TestBlockAllocationMap_ToArray(t *testing.T) {
 	sort.Ints(blocksInt)
 	for i := 0; i < TestSize; i++ {
 		assert.Equal(t, testBlocksInt[i], blocksInt[i])
+	}
+}
+
+func TestFullState(t *testing.T) {
+	eventTest := &EventTest{count: 0}
+	bAllocationMap := New(log.GetScope("test"), eventTest, MaxSize)
+	for i := 0; i < MaxSize; i++ {
+		blockIndex := bAllocationMap.FindNextFreeBlockAndAllocate()
+		err := bAllocationMap.SetBlockAsAllocated(blockIndex)
+		if i == MaxSize-1 {
+			// last written block is zero
+			assert.Equal(t, uint32(0), blockIndex)
+			assert.Equal(t, uint32(0), bAllocationMap.LastWrittenBlock)
+		} else {
+			assert.Equal(t, uint32(i+1), blockIndex)
+			assert.Equal(t, uint32(i+1), bAllocationMap.LastWrittenBlock)
+		}
+		assert.Equal(t, nil, err)
+	}
+	eventTest.count = 0
+	for i := 0; i < MaxSize; i++ {
+		blockIndex := bAllocationMap.FindNextFreeBlockAndAllocate()
+		err := bAllocationMap.SetBlockAsAllocated(blockIndex)
+		assert.Equal(t, uint32(i), blockIndex)
+		assert.Equal(t, uint32(i), bAllocationMap.LastWrittenBlock)
+		assert.Equal(t, nil, err)
 	}
 }

@@ -15,9 +15,13 @@ func (v *VirtualFile) Write(data []byte) (int, error) {
 
 	v.bufTX = append(v.bufTX, data...)
 	if uint32(len(v.bufTX)) > v.blockSize {
-		_, err := v.fs.Write(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))], v.id)
+		m, err := v.fs.Write(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))], v.id)
 		if err != nil {
 			return 0, err
+		}
+		if m != len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)) {
+			v.log.Errorv("did not write data completely",
+				"data size", len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)), "written size", m)
 		}
 		v.bufTX = v.bufTX[len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)):]
 	}
@@ -49,10 +53,11 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 			if err != nil {
 				return 0, err
 			}
+			v.nextBlockIndex = v.nextBlockIndex + 1
 		}
 
 		if v.bufEnd-v.seekPointer >= len(data)-counter {
-			copy(data[counter:len(data)], v.bufRX[v.seekPointer-v.bufStart:v.seekPointer-v.bufStart+len(data)-counter])
+			copy(data[counter:], v.bufRX[v.seekPointer-v.bufStart:v.seekPointer-v.bufStart+len(data)-counter])
 			v.seekPointer = v.seekPointer + len(data) - counter
 			counter = len(data)
 		} else {
@@ -83,7 +88,7 @@ func (v *VirtualFile) readBlock(blockIndex uint32) (int, error) {
 	//	"len(buf)", len(buf), "blockIndex", blockIndex)
 	v.bufEnd = v.bufEnd + len(buf)
 	v.bufStart = v.bufEnd - len(v.bufRX)
-	v.nextBlockIndex = blockIndex + 1
+
 	return len(buf), nil
 }
 
@@ -121,8 +126,11 @@ func (v *VirtualFile) Close() error {
 	v.bufRX = v.bufRX[:0]
 	data, err := blockAllocationMap.Marshal(v.blockAllocationMap)
 	if err != nil {
+		v.log.Errorv("can not marshal bam", "err", err.Error())
+	}
+	err = v.fs.BAMUpdated(v.id, data)
+	if err != nil {
 		v.log.Errorv("can not update bam", "err", err.Error())
 	}
-	v.fs.BAMUpdated(v.id, data)
 	return v.fs.Closed(v.id)
 }

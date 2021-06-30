@@ -4,9 +4,9 @@ import "sync"
 
 var configs = struct {
 	MaxSizeVirtualFile uint64
-	mutex sync.Mutex
+	mutex              sync.Mutex
 }{
-	MaxSizeVirtualFile: 10*1024*1024*1024,  // 10 GB
+	MaxSizeVirtualFile: 10 * 1024 * 1024 * 1024, // 10 GB
 }
 
 func SetConfigs(maxSizeVirtualFile uint64) {
@@ -20,5 +20,3 @@ func GetMaxSizeVirtualFile() uint64 {
 	defer configs.mutex.Unlock()
 	return configs.MaxSizeVirtualFile
 }
-
-
