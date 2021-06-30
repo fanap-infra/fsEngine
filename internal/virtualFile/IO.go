@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 )
 
 // returns int bytes of written data.
@@ -53,10 +53,11 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 			if err != nil {
 				return 0, err
 			}
+			v.nextBlockIndex = v.nextBlockIndex + 1
 		}
 
 		if v.bufEnd-v.seekPointer >= len(data)-counter {
-			copy(data[counter:len(data)], v.bufRX[v.seekPointer-v.bufStart:v.seekPointer-v.bufStart+len(data)-counter])
+			copy(data[counter:], v.bufRX[v.seekPointer-v.bufStart:v.seekPointer-v.bufStart+len(data)-counter])
 			v.seekPointer = v.seekPointer + len(data) - counter
 			counter = len(data)
 		} else {
@@ -87,7 +88,7 @@ func (v *VirtualFile) readBlock(blockIndex uint32) (int, error) {
 	//	"len(buf)", len(buf), "blockIndex", blockIndex)
 	v.bufEnd = v.bufEnd + len(buf)
 	v.bufStart = v.bufEnd - len(v.bufRX)
-	v.nextBlockIndex = blockIndex + 1
+
 	return len(buf), nil
 }
 

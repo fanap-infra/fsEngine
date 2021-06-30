@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/fanap-infra/FSEngine/pkg/utils"
+	"github.com/fanap-infra/fsEngine/pkg/utils"
 	"github.com/fanap-infra/log"
 	"github.com/stretchr/testify/assert"
 )

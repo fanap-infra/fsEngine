@@ -1,4 +1,4 @@
-module github.com/fanap-infra/FSEngine
+module github.com/fanap-infra/fsEngine
 
 go 1.16
 

@@ -3,7 +3,7 @@ package Header_
 import (
 	"fmt"
 
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 )
 
 func (hfs *HFileSystem) updateBLM() error {

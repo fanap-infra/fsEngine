@@ -1,6 +1,6 @@
 package Header_
 
-import "github.com/fanap-infra/FSEngine/internal/fileIndex"
+import "github.com/fanap-infra/fsEngine/internal/fileIndex"
 
 func (hfs *HFileSystem) CheckIDExist(id uint32) bool {
 	return hfs.fileIndex.CheckFileExistWithLock(id)

@@ -1,6 +1,6 @@
 package Header_
 
-import "github.com/fanap-infra/FSEngine/pkg/err"
+import "github.com/fanap-infra/fsEngine/pkg/err"
 
 // Storage Shape
 //	+---------+---------------+---------+--------------+
@@ -21,7 +21,7 @@ const (
 	FileIndexMaxByteSize = 100000
 
 	BlockAllocationMapByteIndex = FileIndexByteIndex + FileIndexMaxByteSize // BackUp Size - 1 - FileIndexBlockSize - AllocationMapBlockSize
-	BlockAllocationMaxByteSize   = 100000
+	BlockAllocationMaxByteSize  = 100000
 
 	//MaxArchiverTime     = 3600 * time.Second
 	//ArchiverCheckerIter = 60 * time.Second

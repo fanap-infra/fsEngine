@@ -5,8 +5,8 @@ import (
 )
 
 func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err error) {
-	fse.log.Infov("write in block", "blockIndex", blockIndex,
-		"maxNumberOfBlocks", fse.maxNumberOfBlocks, "len(data)", len(data))
+	// fse.log.Infov("write in block", "blockIndex", blockIndex,
+	//	"maxNumberOfBlocks", fse.maxNumberOfBlocks, "len(data)", len(data))
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return 0, ErrBlockIndexOutOFRange
 	}
@@ -20,7 +20,7 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err er
 }
 
 func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
-	fse.log.Infov("read in block", "blockIndex", blockIndex)
+	// fse.log.Infov("read in block", "blockIndex", blockIndex)
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return nil, ErrBlockIndexOutOFRange
 	}
