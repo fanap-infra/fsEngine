@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/log"
 	"github.com/stretchr/testify/assert"
 )

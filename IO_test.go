@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
+	"github.com/fanap-infra/fsEngine/internal/virtualFile"
 
-	"github.com/fanap-infra/FSEngine/pkg/utils"
+	"github.com/fanap-infra/fsEngine/pkg/utils"
 	"github.com/fanap-infra/log"
 	"github.com/stretchr/testify/assert"
 )

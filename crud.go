@@ -3,8 +3,8 @@ package fsEngine
 import (
 	"fmt"
 
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/virtualFile"
 )
 
 // Create new virtual file and add opened files

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 )
 
 // returns int bytes of written data.

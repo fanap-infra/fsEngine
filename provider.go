@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	Header_ "github.com/fanap-infra/FSEngine/internal/Header"
-	"github.com/fanap-infra/FSEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/FSEngine/internal/virtualFile"
-	"github.com/fanap-infra/FSEngine/pkg/utils"
+	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
+	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/internal/virtualFile"
+	"github.com/fanap-infra/fsEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"
 )
