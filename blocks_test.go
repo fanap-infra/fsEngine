@@ -19,8 +19,8 @@ type EventsListener struct {
 }
 
 func (el *EventsListener) VirtualFileDeleted(fileID uint32, message string) {
-	log.Infov("VirtualFileDeleted event", "fileID", fileID, "message", message,
-		"first fileID", el.fileID)
+	// log.Infov("VirtualFileDeleted event", "fileID", fileID, "message", message,
+	//	"first fileID", el.fileID)
 	assert.Equal(el.t, el.fileID, fileID)
 }
 
@@ -105,8 +105,6 @@ func TestFSEngine_NoSpace(t *testing.T) {
 			assert.Equal(t, m, n)
 
 			if size > VFSize {
-				log.Infov("size of virtual file gets big enough ",
-					"file size", size, "VFSize", VFSize)
 				break
 			}
 		}

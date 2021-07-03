@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
-	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/fsEngine/internal/virtualFile"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
 
@@ -76,7 +75,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32, eventsHandler E
 		return nil, err
 	}
 
-	fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
+	// fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
 	fs.header = headerFS
 
 	return fs, nil

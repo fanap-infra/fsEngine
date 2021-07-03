@@ -172,7 +172,7 @@ func TestVirtualFile_RemoveUnsetBlocks(t *testing.T) {
 				break
 			}
 		}
-		blocksIndexes = append(blocksIndexes, fse.blockAllocationMap.ToArray())
+		blocksIndexes = append(blocksIndexes, fse.header.GetBLMArray())
 		err = vf.Close()
 		assert.Equal(t, nil, err)
 	}
@@ -181,7 +181,7 @@ func TestVirtualFile_RemoveUnsetBlocks(t *testing.T) {
 		err := fse.RemoveVirtualFile(testIDs[i])
 		assert.Equal(t, nil, err)
 		for j := 0; j < len(blocksIndexes[i]); j++ {
-			assert.Equal(t, false, fse.blockAllocationMap.IsBlockAllocated(blocksIndexes[i][j]))
+			assert.Equal(t, false, fse.header.IsBlockAllocated(blocksIndexes[i][j]))
 		}
 	}
 
