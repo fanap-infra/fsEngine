@@ -3,6 +3,8 @@ package Header_
 import (
 	"fmt"
 	"hash/crc32"
+
+	"github.com/fanap-infra/fsEngine/internal/fileIndex"
 )
 
 func (hfs *HFileSystem) generateFileIndex() ([]byte, error) {
@@ -98,7 +100,14 @@ func (hfs *HFileSystem) parseFileIndex() error {
 	return nil
 }
 
-// ToDo:update blm binaries
 func (hfs *HFileSystem) UpdateBAM(fileID uint32, data []byte) error {
 	return hfs.fileIndex.UpdateBAM(fileID, data)
+}
+
+func (hfs *HFileSystem) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlock uint32) error {
+	return hfs.fileIndex.UpdateFileIndexes(fileID, firstBlock, lastBlock)
+}
+
+func (hfs *HFileSystem) FindOldestFile() (*fileIndex.File, error) {
+	return hfs.fileIndex.FindOldestFile()
 }

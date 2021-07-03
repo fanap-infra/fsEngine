@@ -58,5 +58,19 @@ func (fse *FSEngine) RemoveVirtualFile(id uint32) error {
 	if ok {
 		return fmt.Errorf("virtual file id : %d is opened", id)
 	}
-	return nil
+
+	fileInfo, err := fse.header.GetFileData(id)
+	if err != nil {
+		return err
+	}
+	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
+		fileInfo.GetRMapBlocks())
+	if err != nil {
+		return err
+	}
+	blocks := blm.ToArray()
+	for _, bIndex := range blocks {
+		fse.blockAllocationMap.UnsetBlockAsAllocated(bIndex)
+	}
+	return fse.header.RemoveVirtualFile(id)
 }

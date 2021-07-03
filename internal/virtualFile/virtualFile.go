@@ -19,6 +19,7 @@ type VirtualFile struct {
 	// firstBlock         uint32
 	Closed             bool
 	lastBlock          uint32
+	firstBlockIndex    uint32
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap
 	blockSize          uint32
 	nextBlockIndex     uint32

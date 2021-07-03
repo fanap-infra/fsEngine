@@ -6,7 +6,20 @@ import (
 )
 
 func (fse *FSEngine) NoSpace() uint32 {
-	return 0
+	fileIndex, err := fse.header.FindOldestFile()
+	if err != nil {
+		fse.log.Errorv("can not find oldest file", "err", err.Error())
+		return 0
+	}
+	blockIndex := fileIndex.FirstBlock
+	err = fse.RemoveVirtualFile(fileIndex.Id)
+	if err != nil {
+		fse.log.Errorv("can not remove virtual file", "id", fileIndex.Id,
+			"err", err.Error())
+		return 0
+	}
+	fse.EventsHandler.DeleteFile(fileIndex.Id)
+	return blockIndex
 }
 
 // BlockStructure
@@ -45,10 +58,15 @@ func (fse *FSEngine) parseBlock(data []byte) ([]byte, error) {
 }
 
 func (fse *FSEngine) BAMUpdated(fileID uint32, bam []byte) error {
-	// ToDo: because of file index,we use mutex
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
 	return fse.header.UpdateBAM(fileID, bam)
+}
+
+func (fse *FSEngine) FileIndexesUpdated(fileID uint32, firstBlock uint32, lastBlock uint32) error {
+	fse.crudMutex.Lock()
+	defer fse.crudMutex.Unlock()
+	return fse.header.UpdateFileIndexes(fileID, firstBlock, lastBlock)
 }
 
 /*

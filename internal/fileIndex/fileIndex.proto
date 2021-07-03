@@ -2,7 +2,7 @@ syntax = "proto3";
 package fileIndex;
 //option go_package = "internals/fileIndex ";
 import "google/protobuf/descriptor.proto";
-
+import "google/protobuf/timestamp.proto";
 
 message Table{
   map<uint32, File> Files = 1;
@@ -19,5 +19,6 @@ message File{
   uint32 lastBlock = 3; // last block number
   bytes rMapBlocks = 4; // roaring bitmap
   string name = 5;
-//  Record Next=5; // use pointer of
+  google.protobuf.Timestamp createdTime = 6;
+  //  Record Next=5; // use pointer of
 }

@@ -100,9 +100,7 @@ func (v *VirtualFile) ReadAt(data []byte, off int64) (int, error) {
 	}
 	blockIndex := uint32(off * int64(len(blocks)) / maxSize)
 	v.bufRX = v.bufRX[:0]
-	// v.log.Infov("read at ", "blockIndex",blockIndex, "v.bufStart",v.bufStart,
-	//	"bufEnd",v.bufEnd, "len(v.bufRX)",len(v.bufRX), "v.seekPointer", v.seekPointer, "off", off,
-	//	"len(data)",len(data))
+
 	v.bufStart = int(blockIndex * v.blockSize)
 	v.bufEnd = int(blockIndex * v.blockSize)
 	_, err := v.readBlock(blockIndex)
