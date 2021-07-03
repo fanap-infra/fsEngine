@@ -18,7 +18,8 @@ func TestIO_OneVirtualFile(t *testing.T) {
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + fsPathTest)
 	_ = utils.DeleteFile(homePath + headerPathTest)
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, log.GetScope("test"))
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
 	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
@@ -77,7 +78,8 @@ func TestIO_MultipleVirtualFileConsecutively(t *testing.T) {
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + fsPathTest)
 	_ = utils.DeleteFile(homePath + headerPathTest)
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, log.GetScope("test"))
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
 	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
@@ -156,7 +158,8 @@ func TestIO_MultipleVirtualFile(t *testing.T) {
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + fsPathTest)
 	_ = utils.DeleteFile(homePath + headerPathTest)
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, log.GetScope("test"))
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
 	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))

@@ -18,7 +18,7 @@ func (fse *FSEngine) NoSpace() uint32 {
 			"err", err.Error())
 		return 0
 	}
-	fse.EventsHandler.DeleteFile(fileIndex.Id)
+	fse.eventsHandler.VirtualFileDeleted(fileIndex.Id, "file deleted due to space requirements")
 	return blockIndex
 }
 

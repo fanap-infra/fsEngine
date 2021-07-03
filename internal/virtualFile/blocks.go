@@ -3,7 +3,7 @@ package virtualFile
 func (v *VirtualFile) AddBlockID(blockIndex uint32) error {
 	if len(v.blockAllocationMap.ToArray()) == 0 {
 		v.firstBlockIndex = blockIndex
-		err := v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock)
+		err := v.fs.FileIndexesUpdated(v.id, v.firstBlockIndex, v.lastBlock)
 		if err != nil {
 			return err
 		}

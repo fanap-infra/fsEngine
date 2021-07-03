@@ -92,6 +92,10 @@ func (fsMock *FSMock) BAMUpdated(fileID uint32, bam []byte) error {
 	return nil
 }
 
+func (fsMock *FSMock) FileIndexesUpdated(fileID uint32, firstBlock uint32, lastBlock uint32) error {
+	return nil
+}
+
 func NewVBufMock() *FSMock {
 	return &FSMock{seekPointer: 0, openFiles: make(map[uint32]*VirtualFile)}
 }
