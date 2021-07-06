@@ -9,14 +9,14 @@ import (
 	"strings"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
-	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/fsEngine/internal/virtualFile"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"
 )
 
-func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger) (*FSEngine, error) {
+func CreateFileSystem(path string, size int64, blockSize uint32,
+	eventsHandler Events, log *log.Logger) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -64,6 +64,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 		blockSize:         blockSize,
 		blockSizeUsable:   blockSize - BlockHeaderSize,
 		openFiles:         make(map[uint32]*virtualFile.VirtualFile),
+		eventsHandler:     eventsHandler,
 		log:               log,
 	}
 
@@ -75,13 +76,13 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 		return nil, err
 	}
 
-	fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
+	// fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
 	fs.header = headerFS
 
 	return fs, nil
 }
 
-func ParseFileSystem(path string, log *log.Logger) (*FSEngine, error) {
+func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -95,10 +96,11 @@ func ParseFileSystem(path string, log *log.Logger) (*FSEngine, error) {
 	}
 
 	fs := &FSEngine{
-		file:      file,
-		size:      size,
-		openFiles: make(map[uint32]*virtualFile.VirtualFile),
-		log:       log,
+		file:          file,
+		size:          size,
+		openFiles:     make(map[uint32]*virtualFile.VirtualFile),
+		log:           log,
+		eventsHandler: eventsHandler,
 	}
 
 	fileName := filepath.Base(path)
