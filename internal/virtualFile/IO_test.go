@@ -23,13 +23,10 @@ type FSMock struct {
 	seekPointer int
 	vBufBlocks  [][]byte
 	openFiles   map[uint32]*VirtualFile
+	tst         *testing.T
 }
 
 func (fsMock *FSMock) Write(data []byte, fileID uint32) (int, error) {
-	if bytes.Compare(data, byte2D[len(byte2D)-1]) == 0 {
-		log.Errorv("fsMock data is not equal", "len(data)", len(data),
-			"len(byte2D)", byte2D[len(byte2D)-1])
-	}
 	fsMock.vBuf = append(fsMock.vBuf, data...)
 	counter := 0
 	for {
@@ -96,12 +93,16 @@ func (fsMock *FSMock) FileIndexesUpdated(fileID uint32, firstBlock uint32, lastB
 	return nil
 }
 
-func NewVBufMock() *FSMock {
-	return &FSMock{seekPointer: 0, openFiles: make(map[uint32]*VirtualFile)}
+func NewVBufMock(t *testing.T) *FSMock {
+	return &FSMock{
+		seekPointer: 0,
+		openFiles:   make(map[uint32]*VirtualFile),
+		tst:         t,
+	}
 }
 
 func TestIO_WR(t *testing.T) {
-	fsMock := NewVBufMock()
+	fsMock := NewVBufMock(t)
 	blm := blockAllocationMap.New(log.GetScope("test"), fsMock, maxNumberOfBlocks)
 	vf := NewVirtualFile("test", vfID, blockSizeTest, fsMock, blm,
 		int(blockSizeTest)*2, log.GetScope("test2"))
@@ -166,7 +167,7 @@ func TestIO_WR(t *testing.T) {
 }
 
 func TestIO_ReadAt(t *testing.T) {
-	fsMock := NewVBufMock()
+	fsMock := NewVBufMock(t)
 	blm := blockAllocationMap.New(log.GetScope("test"), fsMock, maxNumberOfBlocks)
 	vf := NewVirtualFile("test", vfID, blockSizeTest, fsMock, blm,
 		int(blockSizeTest)*2, log.GetScope("test2"))
