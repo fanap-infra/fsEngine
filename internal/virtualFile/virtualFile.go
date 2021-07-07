@@ -11,18 +11,19 @@ type VirtualFile struct {
 	bufRX []byte
 	bufTX []byte
 
-	bufferSize   int
-	currentBlock uint32
+	bufferSize int
+	// currentBlock uint32
 	// currentBlockIndex  uint32 // current block's index
 	name string
 	id   uint32
 	// firstBlock         uint32
 	Closed             bool
 	lastBlock          uint32
+	firstBlockIndex    uint32
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap
 	blockSize          uint32
 	nextBlockIndex     uint32
-	size               uint64
+	// size               uint64
 
 	allocatedBlock []uint32
 	readOnly       bool

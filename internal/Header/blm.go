@@ -64,3 +64,15 @@ func (hfs *HFileSystem) FindNextFreeBlockAndAllocate() uint32 {
 func (hfs *HFileSystem) SetBlockAsAllocated(blockIndex uint32) error {
 	return hfs.blockAllocationMap.SetBlockAsAllocated(blockIndex)
 }
+
+func (hfs *HFileSystem) UnsetBlockAsAllocated(blockIndex uint32) {
+	hfs.blockAllocationMap.UnsetBlockAsAllocated(blockIndex)
+}
+
+func (hfs *HFileSystem) GetBLMArray() []uint32 {
+	return hfs.blockAllocationMap.ToArray()
+}
+
+func (hfs *HFileSystem) IsBlockAllocated(blockIndex uint32) bool {
+	return hfs.blockAllocationMap.IsBlockAllocated(blockIndex)
+}
