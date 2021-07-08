@@ -84,7 +84,4 @@ This is the barebone definition for using FSEngine, however, to store objects yo
     }
 ```
 
-[comment]: <> (TODO: Complete readFile section)
-[comment]: <> (## Reading an object from storage)
-
-[comment]: <> (To read an object from storage, Open )
+Objects are stored by their corresponding IDs provided by the client, to retrive object from storage, ID of the object stored. To retrieve an object use the sample code below.
