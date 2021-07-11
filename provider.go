@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
-	"github.com/fanap-infra/fsEngine/internal/virtualFile"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
+	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 
 	"github.com/fanap-infra/log"
 )

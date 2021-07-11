@@ -30,6 +30,7 @@ func OpenVirtualFile(fileInfo *fileIndex.File, blockSize uint32,
 		nextBlockIndex:  0,
 		firstBlockIndex: fileInfo.FirstBlock,
 		bufferSize:      bufferSize,
+		fileSize:        fileInfo.GetFileSize(),
 	}
 }
 
@@ -52,5 +53,6 @@ func NewVirtualFile(fileName string, fileID uint32, blockSize uint32, fs FS,
 		nextBlockIndex:     0,
 		firstBlockIndex:    0,
 		bufferSize:         bufferSize,
+		fileSize:           0,
 	}
 }
