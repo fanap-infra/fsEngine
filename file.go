@@ -46,6 +46,14 @@ type FSEngine struct {
 
 // Close ...
 func (fse *FSEngine) Close() error {
+	for _, vf := range fse.openFiles {
+		err := vf.Close()
+		if err != nil {
+			fse.log.Warnv("Can not close virtual file", "err", err.Error())
+			return err
+		}
+	}
+
 	err := fse.header.UpdateFSHeader()
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())
