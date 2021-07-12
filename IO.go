@@ -131,6 +131,14 @@ func (fse *FSEngine) Closed(fileID uint32) error {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())
 	}
 
+	for _, vf := range fse.openFiles {
+		err := vf.Close()
+		if err != nil {
+			fse.log.Warnv("Can not close virtual file", "err", err.Error())
+			return err
+		}
+	}
+
 	delete(fse.openFiles, fileID)
 
 	err = fse.file.Sync()
