@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/fsEngine/internal/virtualFile"
+	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 )
 
 // Create new virtual file and add opened files
