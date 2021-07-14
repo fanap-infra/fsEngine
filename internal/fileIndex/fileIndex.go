@@ -121,7 +121,7 @@ func (i *FileIndex) UpdateBAM(fileId uint32, bam []byte) error {
 	return nil
 }
 
-func (i *FileIndex) UpdateFileIndexes(fileId uint32, firstBlock uint32, lastBlock uint32) error {
+func (i *FileIndex) UpdateFileIndexes(fileId uint32, firstBlock uint32, lastBlock uint32, fileSize uint32) error {
 	i.rwMux.Lock()
 	defer i.rwMux.Unlock()
 	if !i.checkFileExist(fileId) {
@@ -129,5 +129,6 @@ func (i *FileIndex) UpdateFileIndexes(fileId uint32, firstBlock uint32, lastBloc
 	}
 	i.table.Files[fileId].FirstBlock = firstBlock
 	i.table.Files[fileId].LastBlock = lastBlock
+	i.table.Files[fileId].FileSize = fileSize
 	return nil
 }

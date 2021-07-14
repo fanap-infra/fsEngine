@@ -105,8 +105,8 @@ func (hfs *HFileSystem) UpdateBAM(fileID uint32, data []byte) error {
 	return hfs.fileIndex.UpdateBAM(fileID, data)
 }
 
-func (hfs *HFileSystem) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlock uint32) error {
-	return hfs.fileIndex.UpdateFileIndexes(fileID, firstBlock, lastBlock)
+func (hfs *HFileSystem) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlock uint32, fileSize uint32) error {
+	return hfs.fileIndex.UpdateFileIndexes(fileID, firstBlock, lastBlock, fileSize)
 }
 
 func (hfs *HFileSystem) FindOldestFile() (*fileIndex.File, error) {
