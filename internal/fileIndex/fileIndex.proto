@@ -20,5 +20,5 @@ message File{
   bytes rMapBlocks = 4; // roaring bitmap
   string name = 5;
   google.protobuf.Timestamp createdTime = 6;
-//  Record Next=5; // use pointer of
+  uint32 fileSize = 7;
 }

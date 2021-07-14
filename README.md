@@ -29,21 +29,17 @@ First you need to establish storage location on local system and initialize stor
 
 ```go
 package main
-
 import (
 	"github.com/fanap-infra/fsEngine"
 	"github.com/fanap-infra/log"
 )
-
 type EventsTrigger struct {
 	fileID uint32
 }
-
 func main() {
 	// define storage location and size
 	const storagePath = "/var/fsEngine/volume1"
 	const storageSize = 1 << 32 // 4GB volume
-
 	fileSystem, err := fsEngine.CreateFileSystem(storagePath, storageSize,
 		fsEngine.BLOCKSIZE, &EventsTrigger{}, log.GetScope("Example"))
 	if err != nil {
@@ -52,7 +48,6 @@ func main() {
 	
 	return
 }
-
 // VirtualFileDeleted 
 // Implement event listener.
 func (e EventsTrigger) VirtualFileDeleted(fileID uint32, message string) {

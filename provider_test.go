@@ -49,4 +49,6 @@ func TestParseFS(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.Equal(t, fs.blockSize, uint32(blockSizeTest))
 	assert.Equal(t, fs.maxNumberOfBlocks, uint32(fileSizeTest/blockSizeTest))
+	_ = utils.DeleteFile(homePath + fsPathTest)
+	_ = utils.DeleteFile(homePath + headerPathTest)
 }
