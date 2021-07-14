@@ -40,7 +40,7 @@ type FSEngine struct {
 	crudMutex  sync.Mutex
 	Cache      *lru.Cache
 	// fileIndexIsFlip bool
-	EventsHandler Events
+	eventsHandler Events
 	Quit          chan struct{}
 }
 
