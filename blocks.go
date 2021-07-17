@@ -70,6 +70,12 @@ func (fse *FSEngine) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlo
 	return fse.header.UpdateFileIndexes(fileID, firstBlock, lastBlock, fileSize)
 }
 
+func (fse *FSEngine) UpdateFileOptionalData(fileId uint32, info []byte) error {
+	fse.crudMutex.Lock()
+	defer fse.crudMutex.Unlock()
+	return fse.header.UpdateFileOptionalData(fileId, info)
+}
+
 /*
 var byteOrder = binary.BigEndian
 

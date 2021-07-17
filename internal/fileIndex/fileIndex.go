@@ -132,3 +132,14 @@ func (i *FileIndex) UpdateFileIndexes(fileId uint32, firstBlock uint32, lastBloc
 	i.table.Files[fileId].FileSize = fileSize
 	return nil
 }
+
+func (i *FileIndex) UpdateFileOptionalData(fileId uint32, info []byte) error {
+	i.rwMux.Lock()
+	defer i.rwMux.Unlock()
+	if !i.checkFileExist(fileId) {
+		return fmt.Errorf("file id %v does not exist", fileId)
+	}
+	i.table.Files[fileId].Optional = info
+
+	return nil
+}
