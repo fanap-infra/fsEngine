@@ -66,3 +66,7 @@ func (fse *FSEngine) Close() error {
 	}
 	return fse.file.Close()
 }
+
+func (fse *FSEngine) GetFilePath() string {
+	return fse.file.Name()
+}

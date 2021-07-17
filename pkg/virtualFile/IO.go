@@ -140,3 +140,7 @@ func (v *VirtualFile) Close() error {
 	}
 	return v.fs.Closed(v.id)
 }
+
+func (v *VirtualFile) UpdateFileOptionalData(fileId uint32, info []byte) error {
+	return v.fs.UpdateFileOptionalData(fileId, info)
+}
