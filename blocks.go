@@ -75,3 +75,9 @@ func (fse *FSEngine) UpdateFileOptionalData(fileId uint32, info []byte) error {
 	defer fse.crudMutex.Unlock()
 	return fse.header.UpdateFileOptionalData(fileId, info)
 }
+
+func (fse *FSEngine) GetFileOptionalData(fileId uint32) ([]byte, error) {
+	fse.crudMutex.Lock()
+	defer fse.crudMutex.Unlock()
+	return fse.header.UpdateFileOptionalData(fileId, info)
+}

@@ -8,9 +8,9 @@ import (
 
 // VirtualFile
 type VirtualFile struct {
-	bufRX []byte
-	bufTX []byte
-
+	bufRX              []byte
+	bufTX              []byte
+	optionalData       []byte
 	bufferSize         int
 	name               string
 	id                 uint32
@@ -40,6 +40,10 @@ func (v *VirtualFile) GetSeek() int {
 	return v.seekPointer
 }
 
-func (v *VirtualFile) GetFileSize() int {
-	return v.seekPointer
+func (v *VirtualFile) GetFileSize() uint32 {
+	return v.fileSize
+}
+
+func (v *VirtualFile) GetOptionalData() []byte {
+	return v.optionalData
 }

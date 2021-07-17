@@ -107,7 +107,7 @@ func (i *FileIndex) GetFileInfo(fileId uint32) (File, error) {
 
 	return File{
 		Id: fileInfo.Id, RMapBlocks: fileInfo.RMapBlocks, FirstBlock: fileInfo.FirstBlock,
-		LastBlock: fileInfo.LastBlock, Name: fileInfo.Name,
+		LastBlock: fileInfo.LastBlock, Name: fileInfo.Name, Optional: fileInfo.Optional,
 	}, nil
 }
 
@@ -143,3 +143,13 @@ func (i *FileIndex) UpdateFileOptionalData(fileId uint32, info []byte) error {
 
 	return nil
 }
+
+//func (i *FileIndex) GetFileOptionalData(fileId uint32) ([]byte, error) {
+//	i.rwMux.Lock()
+//	defer i.rwMux.Unlock()
+//	if !i.checkFileExist(fileId) {
+//		return nil, fmt.Errorf("file id %v does not exist", fileId)
+//	}
+//
+//	return nil
+//}
