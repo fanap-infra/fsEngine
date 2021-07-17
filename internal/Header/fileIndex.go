@@ -112,3 +112,11 @@ func (hfs *HFileSystem) UpdateFileIndexes(fileID uint32, firstBlock uint32, last
 func (hfs *HFileSystem) FindOldestFile() (*fileIndex.File, error) {
 	return hfs.fileIndex.FindOldestFile()
 }
+
+func (hfs *HFileSystem) UpdateFileOptionalData(fileId uint32, info []byte) error {
+	return hfs.fileIndex.UpdateFileOptionalData(fileId, info)
+}
+
+//func (hfs *HFileSystem) GetFileOptionalData(fileId uint32) ([]byte, error) {
+//	return hfs.fileIndex.
+//}

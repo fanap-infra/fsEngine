@@ -21,4 +21,5 @@ message File{
   string name = 5;
   google.protobuf.Timestamp createdTime = 6;
   uint32 fileSize = 7;
+  bytes optional = 8;
 }
