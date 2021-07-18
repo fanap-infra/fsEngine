@@ -108,7 +108,7 @@ func main() {
 	return
 }
 ```
-PS: 
+An object is stored and read sequentially, but it can be read from a certain point by `ReadAt` function.
 
 [comment]: <> (TODO: Complete readFile section)
 [comment]: <> (## Reading an object from storage)
