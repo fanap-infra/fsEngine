@@ -99,12 +99,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	data := make(byte, virtualFile.Size())
+	data := make([]byte, virtualFile.Size())
 	virtualFile.Read(data, fileID)
 	return
 }
 ```
-
+PS: 
 
 [comment]: <> (TODO: Complete readFile section)
 [comment]: <> (## Reading an object from storage)
