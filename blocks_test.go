@@ -27,13 +27,13 @@ func (el *EventsListener) VirtualFileDeleted(fileID uint32, message string) {
 func TestPrepareAndParseBlock(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 
 	numberOfTests := 5
 	blockID := 0
@@ -56,13 +56,13 @@ func TestPrepareAndParseBlock(t *testing.T) {
 func TestFSEngine_NoSpace(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 
 	MaxID := 1000
 	numberOfVFs := 5
@@ -114,6 +114,6 @@ func TestFSEngine_NoSpace(t *testing.T) {
 
 	err = fse.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
