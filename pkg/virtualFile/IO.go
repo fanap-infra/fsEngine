@@ -99,6 +99,9 @@ func (v *VirtualFile) ReadAt(data []byte, off int64) (int, error) {
 	if off >= maxSize {
 		return 0, fmt.Errorf("offset is more than size of file")
 	}
+	if off < 0 {
+		return 0, fmt.Errorf("negative offset : %v is not acceptable", off)
+	}
 	blockIndex := uint32(off * int64(len(blocks)) / maxSize)
 	v.bufRX = v.bufRX[:0]
 	// v.log.Infov("read at ", "blockIndex",blockIndex, "v.bufStart",v.bufStart,
