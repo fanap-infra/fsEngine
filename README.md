@@ -35,17 +35,13 @@ import (
 	"github.com/fanap-infra/log"
 )
 
-type EventsTrigger struct {
-	fileID uint32
-}
-
 func main() {
 	// define storage location and size
 	const storagePath = "/var/fsEngine/volume1"
 	const storageSize = 1 << 32 // 4GB volume
 
 	fileSystem, err := fsEngine.CreateFileSystem(storagePath, storageSize,
-		fsEngine.BLOCKSIZE, &EventsTrigger{}, log.GetScope("Example"))
+		fsEngine.BLOCKSIZE, log.GetScope("Example"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,12 +49,7 @@ func main() {
 	return
 }
 
-// VirtualFileDeleted 
-// Implement event listener.
-func (e EventsTrigger) VirtualFileDeleted(fileID uint32, message string) {
-	log.Warnf("File with ID:%v, deleted: %s", fileID, message)
-	return
-}
+
 ```
 
 This is the barebone definition for using FSEngine, however, to store objects you have to create a virtual identity for the object which here is called a `virtualFile`.
@@ -83,6 +74,37 @@ This is the barebone definition for using FSEngine, however, to store objects yo
         log.Fatal(err)
     }
 ```
+## Reading Object
+
+To read object from storage you first need to open the archiver which is internally a `Singleton` object and once initialized, returns the main object. For retrieving an object, provide `object-ID` and use the code bellow.
+```go
+package main
+
+import (
+	"github.com/fanap-infra/fsEngine"
+	"github.com/fanap-infra/log"
+)
+
+func main() {
+	// define storage location and size
+	const storagePath = "/var/fsEngine/volume1"
+	const fileID = 68 // Some random fileID
+
+	fileSystem, err := fsEngine.ParseFileSystem(storagePath, log.GetScope("Example"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	virtualFile, err := fileSystem.OpenVirtualFile(fileID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	data := make(byte, virtualFile.Size())
+	virtualFile.Read(data, fileID)
+	return
+}
+```
+
 
 [comment]: <> (TODO: Complete readFile section)
 [comment]: <> (## Reading an object from storage)
