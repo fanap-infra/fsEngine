@@ -19,13 +19,13 @@ import (
 func TestVirtualFile_Remove(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 	var testIDs []uint32
 	var testNames []string
 
@@ -77,21 +77,21 @@ func TestVirtualFile_Remove(t *testing.T) {
 
 	err = fse.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
 
 func TestVirtualFile_Open(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	var eventListener EventsListener
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener,
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener,
 		log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 	var testIDs []uint32
 	var testNames []string
 
@@ -123,20 +123,20 @@ func TestVirtualFile_Open(t *testing.T) {
 
 	err = fse.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
 
 func TestVirtualFile_RemoveUnsetBlocks(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 	var testIDs []uint32
 	var testNames []string
 	blocksIndexes := make([][]uint32, 0)
@@ -188,6 +188,6 @@ func TestVirtualFile_RemoveUnsetBlocks(t *testing.T) {
 
 	err = fse.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
