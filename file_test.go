@@ -12,15 +12,15 @@ import (
 func TestFSEngine_GetFilePath(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eventListener := EventsListener{t: t}
-	fs, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest,
+	fs, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest,
 		&eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, homePath+fsPathTest, fs.GetFilePath())
+	assert.Equal(t, homePath+"/"+fsPath, fs.GetFilePath())
 	err = fs.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
