@@ -100,7 +100,11 @@ func main() {
 		log.Fatal(err)
 	}
 	data := make([]byte, virtualFile.Size())
-	virtualFile.Read(data, fileID)
+	_, err = virtualFile.Read(data, fileID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return
 }
 ```
