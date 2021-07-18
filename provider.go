@@ -24,7 +24,8 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 	if blockSize < HeaderByteSize {
 		return nil, fmt.Errorf("Block size must be greater than %v", blockSize)
 	}
-
+	filePath := path + "/" + fsPath
+	headerPath := path + "/" + headerPath
 	if utils.FileExists(path) {
 		return nil, errors.New("file already exists")
 	}
@@ -35,7 +36,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 		return nil, fmt.Errorf("File size is too small, Minimum size is %v", blockSize*60)
 	}
 
-	file, err := utils.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o777)
+	file, err := utils.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0o777)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +69,8 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 		log:               log,
 	}
 
-	fileName := filepath.Base(path)
-	headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
+	// fileName := filepath.Base(path)
+	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
 	headerFS, err := Header_.CreateHeaderFS(headerPath, size, blockSize, log, fs)
 	if err != nil {
 		log.Errorv("Can not create header file ", "err", err.Error())
