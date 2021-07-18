@@ -13,6 +13,8 @@ import "github.com/fanap-infra/fsEngine/pkg/err"
 //
 
 const (
+	fsPath               = "fsTest.beh"
+	headerPath           = "Header.Beh"
 	FileSystemIdentifier = "BehFS;P "
 	FileSystemVersion    = 1
 	BlockHeaderSize      = 16
