@@ -6,8 +6,7 @@ import (
 	"time"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
-	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/fsEngine/internal/virtualFile"
+	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 
 	"github.com/fanap-infra/log"
 
@@ -26,8 +25,8 @@ type FSEngine struct {
 	blockSize         uint32    // in bytes, size of each block
 	blockSizeUsable   uint32
 	// lastWrittenBlock   uint32                                 // the last block that has been written into
-	blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
-	openFiles          map[uint32]*virtualFile.VirtualFile
+	// blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
+	openFiles map[uint32]*virtualFile.VirtualFile
 	// fileIndex          fileIndex.FileIndex
 	WMux sync.Mutex
 	RMux sync.Mutex
@@ -40,12 +39,20 @@ type FSEngine struct {
 	crudMutex  sync.Mutex
 	Cache      *lru.Cache
 	// fileIndexIsFlip bool
-	EventsHandler Events
+	eventsHandler Events
 	Quit          chan struct{}
 }
 
 // Close ...
 func (fse *FSEngine) Close() error {
+	for _, vf := range fse.openFiles {
+		err := vf.Close()
+		if err != nil {
+			fse.log.Warnv("Can not close virtual file", "err", err.Error())
+			return err
+		}
+	}
+
 	err := fse.header.UpdateFSHeader()
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())
@@ -58,4 +65,8 @@ func (fse *FSEngine) Close() error {
 		return err
 	}
 	return fse.file.Close()
+}
+
+func (fse *FSEngine) GetFilePath() string {
+	return fse.file.Name()
 }

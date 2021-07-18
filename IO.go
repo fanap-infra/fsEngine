@@ -126,7 +126,6 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 func (fse *FSEngine) Closed(fileID uint32) error {
 	fse.rIBlockMux.Lock()
 	defer fse.rIBlockMux.Unlock()
-
 	err := fse.header.UpdateFSHeader()
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())

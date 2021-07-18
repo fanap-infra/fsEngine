@@ -9,14 +9,14 @@ import (
 	"strings"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
-	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/fsEngine/internal/virtualFile"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
+	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 
 	"github.com/fanap-infra/log"
 )
 
-func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger) (*FSEngine, error) {
+func CreateFileSystem(path string, size int64, blockSize uint32,
+	eventsHandler Events, log *log.Logger) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -24,7 +24,8 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 	if blockSize < HeaderByteSize {
 		return nil, fmt.Errorf("Block size must be greater than %v", blockSize)
 	}
-
+	filePath := path + "/" + fsPath
+	headerPath := path + "/" + headerPath
 	if utils.FileExists(path) {
 		return nil, errors.New("file already exists")
 	}
@@ -35,7 +36,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 		return nil, fmt.Errorf("File size is too small, Minimum size is %v", blockSize*60)
 	}
 
-	file, err := utils.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o777)
+	file, err := utils.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0o777)
 	if err != nil {
 		return nil, err
 	}
@@ -64,24 +65,25 @@ func CreateFileSystem(path string, size int64, blockSize uint32, log *log.Logger
 		blockSize:         blockSize,
 		blockSizeUsable:   blockSize - BlockHeaderSize,
 		openFiles:         make(map[uint32]*virtualFile.VirtualFile),
+		eventsHandler:     eventsHandler,
 		log:               log,
 	}
 
-	fileName := filepath.Base(path)
-	headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
+	// fileName := filepath.Base(path)
+	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
 	headerFS, err := Header_.CreateHeaderFS(headerPath, size, blockSize, log, fs)
 	if err != nil {
 		log.Errorv("Can not create header file ", "err", err.Error())
 		return nil, err
 	}
 
-	fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
+	// fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
 	fs.header = headerFS
 
 	return fs, nil
 }
 
-func ParseFileSystem(path string, log *log.Logger) (*FSEngine, error) {
+func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -95,10 +97,11 @@ func ParseFileSystem(path string, log *log.Logger) (*FSEngine, error) {
 	}
 
 	fs := &FSEngine{
-		file:      file,
-		size:      size,
-		openFiles: make(map[uint32]*virtualFile.VirtualFile),
-		log:       log,
+		file:          file,
+		size:          size,
+		openFiles:     make(map[uint32]*virtualFile.VirtualFile),
+		log:           log,
+		eventsHandler: eventsHandler,
 	}
 
 	fileName := filepath.Base(path)

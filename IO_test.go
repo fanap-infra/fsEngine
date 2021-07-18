@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/fanap-infra/fsEngine/internal/virtualFile"
+	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 
 	"github.com/fanap-infra/fsEngine/pkg/utils"
 	"github.com/fanap-infra/log"
@@ -16,12 +16,13 @@ import (
 func TestIO_OneVirtualFile(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, log.GetScope("test"))
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 	var bytes [][]byte
 
 	MaxID := 1000
@@ -68,19 +69,20 @@ func TestIO_OneVirtualFile(t *testing.T) {
 
 	err = fse.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
 
 func TestIO_MultipleVirtualFileConsecutively(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, log.GetScope("test"))
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 
 	MaxID := 1000
 	MaxByteArraySize := int(blockSizeTest * 0.5)
@@ -146,20 +148,21 @@ func TestIO_MultipleVirtualFileConsecutively(t *testing.T) {
 
 	err = fse.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
 
 // ToDo: make it to write virtual file without any sort
 func TestIO_MultipleVirtualFile(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
-	fse, err := CreateFileSystem(homePath+fsPathTest, fileSizeTest, blockSizeTest, log.GetScope("test"))
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	assert.Equal(t, true, utils.FileExists(homePath+fsPathTest))
-	assert.Equal(t, true, utils.FileExists(homePath+headerPathTest))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
 
 	MaxID := 1000
 	MaxByteArraySize := int(blockSizeTest * 0.5)
@@ -225,6 +228,6 @@ func TestIO_MultipleVirtualFile(t *testing.T) {
 
 	err = fse.Close()
 	assert.Equal(t, nil, err)
-	_ = utils.DeleteFile(homePath + fsPathTest)
-	_ = utils.DeleteFile(homePath + headerPathTest)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }

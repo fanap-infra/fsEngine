@@ -1,6 +1,5 @@
 package fsEngine
 
 type Events interface {
-	DeleteFile(fileID uint32)
-	DeleteFileByArchiver(archiverFile string)
+	VirtualFileDeleted(fileID uint32, message string)
 }

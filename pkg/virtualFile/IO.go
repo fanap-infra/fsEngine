@@ -19,6 +19,7 @@ func (v *VirtualFile) Write(data []byte) (int, error) {
 		if err != nil {
 			return 0, err
 		}
+		v.fileSize = v.fileSize + uint32(len(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))]))
 		if m != len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)) {
 			v.log.Errorv("did not write data completely",
 				"data size", len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)), "written size", m)
@@ -98,6 +99,9 @@ func (v *VirtualFile) ReadAt(data []byte, off int64) (int, error) {
 	if off >= maxSize {
 		return 0, fmt.Errorf("offset is more than size of file")
 	}
+	if off < 0 {
+		return 0, fmt.Errorf("negative offset : %v is not acceptable", off)
+	}
 	blockIndex := uint32(off * int64(len(blocks)) / maxSize)
 	v.bufRX = v.bufRX[:0]
 	// v.log.Infov("read at ", "blockIndex",blockIndex, "v.bufStart",v.bufStart,
@@ -121,6 +125,7 @@ func (v *VirtualFile) Close() error {
 		if err != nil {
 			v.log.Errorv("can not write to file", "err", err.Error())
 		}
+		v.fileSize = v.fileSize + uint32(len(v.bufTX))
 	}
 	v.bufTX = v.bufTX[:0]
 	v.bufRX = v.bufRX[:0]
@@ -128,9 +133,18 @@ func (v *VirtualFile) Close() error {
 	if err != nil {
 		v.log.Errorv("can not marshal bam", "err", err.Error())
 	}
+	err = v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize)
+	if err != nil {
+		v.log.Errorv("can not update file indexes", "err", err.Error())
+	}
 	err = v.fs.BAMUpdated(v.id, data)
 	if err != nil {
 		v.log.Errorv("can not update bam", "err", err.Error())
 	}
 	return v.fs.Closed(v.id)
+}
+
+func (v *VirtualFile) UpdateFileOptionalData(info []byte) error {
+	v.optionalData = info
+	return v.fs.UpdateFileOptionalData(v.id, info)
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/fsEngine/internal/virtualFile"
+	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 )
 
 // Create new virtual file and add opened files
@@ -44,6 +44,7 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	}
 	vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-BlockHeaderSize, fse, blm,
 		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
+	fse.openFiles[id] = vf
 	//err = fse.header.AddVirtualFile(id, fileInfo.GetName())
 	//if err != nil {
 	//	return nil, err
@@ -58,5 +59,23 @@ func (fse *FSEngine) RemoveVirtualFile(id uint32) error {
 	if ok {
 		return fmt.Errorf("virtual file id : %d is opened", id)
 	}
-	return nil
+
+	fileInfo, err := fse.header.GetFileData(id)
+	if err != nil {
+		return err
+	}
+	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
+		fileInfo.GetRMapBlocks())
+	if err != nil {
+		return err
+	}
+	blocks := blm.ToArray()
+	// fse.log.Infov("blm length",
+	//	"fse blocks length", len(fse.header.GetBlocksNumber().ToArray()), "blocks length", len(blocks))
+	for _, bIndex := range blocks {
+		fse.header.UnsetBlockAsAllocated(bIndex)
+	}
+	// fse.log.Infov("blm length",
+	//	"fse blocks length", len(fse.blockAllocationMap.ToArray()))
+	return fse.header.RemoveVirtualFile(id)
 }
