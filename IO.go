@@ -5,7 +5,7 @@ import (
 )
 
 func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err error) {
-	// fse.log.Infov("write in block", "blockIndex", blockIndex,
+	// fse.log.Infov("FSEngine write in block", "blockIndex", blockIndex,
 	//	"maxNumberOfBlocks", fse.maxNumberOfBlocks, "len(data)", len(data))
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return 0, ErrBlockIndexOutOFRange
@@ -13,14 +13,15 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err er
 
 	n, err = fse.file.WriteAt(data, int64(blockIndex)*int64(fse.blockSize))
 	if err != nil {
-		fse.log.Infov("Error Writing to file", "err", err.Error(), "file", fse.file.Name())
+		fse.log.Infov("Error Writing to file", "err", err.Error(),
+			"file", fse.file.Name(), "blockIndex", blockIndex)
 	}
 
 	return
 }
 
 func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
-	// fse.log.Infov("read in block", "blockIndex", blockIndex)
+	// fse.log.Infov("FSEngine read in block", "blockIndex", blockIndex)
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return nil, ErrBlockIndexOutOFRange
 	}
@@ -75,7 +76,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 	if dataSize == 0 {
 		return 0, fmt.Errorf("data siz is zero, file ID: %v ", fileID)
 	}
-	vf, ok := fse.openFiles[fileID]
+	vfs, ok := fse.openFiles[fileID]
 	if !ok {
 		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
 	}
@@ -85,7 +86,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 		if n >= dataSize {
 			return n, nil
 		}
-		previousBlock := vf.GetLastBlock()
+		previousBlock := vfs[0].GetLastBlock()
 		blockID := fse.header.FindNextFreeBlockAndAllocate()
 		var d []byte
 		if dataSize >= n+int(fse.blockSizeUsable) {
@@ -105,7 +106,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 			return 0, err
 		}
 
-		err = vf.AddBlockID(blockID)
+		err = vfs[0].AddBlockID(blockID)
 		if err != nil {
 			return 0, err
 		}

@@ -43,7 +43,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 	if err != nil {
 		log.Errorv("generate rand token ", "err", err.Error())
 	}
-	n, err := file.WriteAt(token, size-int64(blockSize))
+	n, err := file.WriteAt(token, HeaderByteSize+FileIndexMaxByteSize+BlockAllocationMaxByteSize)
 	if err != nil {
 		log.Warnv("write token ", "err", err.Error())
 	}

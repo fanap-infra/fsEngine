@@ -10,7 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const path = "/test.beh"
+const (
+	fsPath     = "fs.beh"
+	headerPath = "Header.Beh"
+)
 
 type EventsHandlerTest struct {
 	count uint32
@@ -24,9 +27,10 @@ func (eT *EventsHandlerTest) NoSpace() uint32 {
 func TestStoreHeader(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, err, nil)
-	_ = utils.DeleteFile(homePath + path)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eHandler := &EventsHandlerTest{}
-	fs, err := CreateHeaderFS(homePath+path, BLOCKSIZE*1000, BLOCKSIZE, log.GetScope("test"), eHandler)
+	fs, err := CreateHeaderFS(homePath+"/"+headerPath, BLOCKSIZE*1000, BLOCKSIZE, log.GetScope("test"), eHandler)
 	assert.Equal(t, err, nil)
 	size := fs.size
 	version := fs.version
@@ -43,7 +47,7 @@ func TestStoreHeader(t *testing.T) {
 	err = fs.Close()
 	assert.Equal(t, err, nil)
 
-	fs2, err := ParseHeaderFS(homePath+path, log.GetScope("test2"), eHandler)
+	fs2, err := ParseHeaderFS(homePath+"/"+headerPath, log.GetScope("test2"), eHandler)
 	if !assert.Equal(t, err, nil) {
 		return
 	}
@@ -53,7 +57,8 @@ func TestStoreHeader(t *testing.T) {
 	assert.Equal(t, blockSize, fs2.blockSize)
 	assert.Equal(t, lastWrittenBlock, fs2.lastWrittenBlock)
 
-	_ = utils.DeleteFile(homePath + path)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
 
 //func TestHeaderParsing(t *testing.T) {

@@ -43,7 +43,7 @@ func TestParseFS(t *testing.T) {
 	_, err = CreateFileSystem(homePath, fileSizeTest, blockSizeTest,
 		&eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
-	fs, err := ParseFileSystem(homePath+"/"+fsPath, &eventListener, log.GetScope("test"))
+	fs, err := ParseFileSystem(homePath, &eventListener, log.GetScope("test"))
 	assert.Equal(t, nil, err)
 	assert.Equal(t, fs.blockSize, uint32(blockSizeTest))
 	assert.Equal(t, fs.maxNumberOfBlocks, uint32(fileSizeTest/blockSizeTest))
