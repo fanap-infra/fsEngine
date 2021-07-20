@@ -5,7 +5,10 @@ import (
 	"fmt"
 
 	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	errPackage "github.com/fanap-infra/fsEngine/pkg/err"
 )
+
+const EndOfFile = errPackage.Error("end of file")
 
 // returns int bytes of written data.
 func (v *VirtualFile) Write(data []byte) (int, error) {
@@ -48,7 +51,7 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 			// v.blockAllocationMap.ToArray() we refresh blocks, when simultaneously reading and writing
 			blocks := v.blockAllocationMap.ToArray()
 			if v.nextBlockIndex >= uint32(len(blocks)) {
-				return counter, errors.New("end of file")
+				return counter, EndOfFile
 			}
 			_, err := v.readBlock(blocks[v.nextBlockIndex])
 			if err != nil {
@@ -85,7 +88,7 @@ func (v *VirtualFile) readBlock(blockIndex uint32) (int, error) {
 	if len(v.bufRX) > v.bufferSize {
 		v.bufRX = v.bufRX[len(v.bufRX)-v.bufferSize:]
 	}
-	// v.log.Infov("read block", "len(v.bufRX)", len(v.bufRX),
+	// v.log.Infov("VirtualFile read block", "len(v.bufRX)", len(v.bufRX),
 	//	"len(buf)", len(buf), "blockIndex", blockIndex)
 	v.bufEnd = v.bufEnd + len(buf)
 	v.bufStart = v.bufEnd - len(v.bufRX)
@@ -109,13 +112,38 @@ func (v *VirtualFile) ReadAt(data []byte, off int64) (int, error) {
 	//	"len(data)",len(data))
 	v.bufStart = int(blockIndex * v.blockSize)
 	v.bufEnd = int(blockIndex * v.blockSize)
-	_, err := v.readBlock(blockIndex)
+	_, err := v.readBlock(blocks[blockIndex])
 	if err != nil {
 		return 0, err
 	}
 	v.seekPointer = int(off)
 
 	return v.Read(data)
+}
+
+func (v *VirtualFile) ChangeSeekPointer(off int64) error {
+	blocks := v.blockAllocationMap.ToArray()
+	maxSize := int64(len(blocks) * int(v.blockSize))
+	if off >= maxSize {
+		return fmt.Errorf("offset is more than size of file")
+	}
+	if off < 0 {
+		return fmt.Errorf("negative offset : %v is not acceptable", off)
+	}
+	blockIndex := uint32(off * int64(len(blocks)) / maxSize)
+	v.bufRX = v.bufRX[:0]
+	// v.log.Infov("read at ", "blockIndex",blockIndex, "v.bufStart",v.bufStart,
+	//	"bufEnd",v.bufEnd, "len(v.bufRX)",len(v.bufRX), "v.seekPointer", v.seekPointer, "off", off,
+	//	"len(data)",len(data))
+	v.bufStart = int(blockIndex * v.blockSize)
+	v.bufEnd = int(blockIndex * v.blockSize)
+	_, err := v.readBlock(blocks[blockIndex])
+	if err != nil {
+		return err
+	}
+	v.seekPointer = int(off)
+
+	return nil
 }
 
 // Close

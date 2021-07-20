@@ -119,5 +119,6 @@ func (hfs *HFileSystem) parseHeader() error {
 	hfs.fileIndexSize = binary.BigEndian.Uint32(buf[24:28])
 	hfs.blmSize = binary.BigEndian.Uint32(buf[28:32])
 
+	hfs.size = int64(hfs.maxNumberOfBlocks * hfs.blockSize)
 	return nil
 }
