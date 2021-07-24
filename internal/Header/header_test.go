@@ -30,13 +30,15 @@ func TestStoreHeader(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + fsPath)
 	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eHandler := &EventsHandlerTest{}
-	fs, err := CreateHeaderFS(homePath+"/"+headerPath, BLOCKSIZE*1000, BLOCKSIZE, log.GetScope("test"), eHandler)
+	fs, err := CreateHeaderFS(homePath+"/"+headerPath, fileSizeTest, blockSizeTest, log.GetScope("test"), eHandler)
 	assert.Equal(t, err, nil)
 	size := fs.size
 	version := fs.version
 	maxNumberOfBlocks := fs.maxNumberOfBlocks
 	blockSize := fs.blockSize
 	lastWrittenBlock := fs.lastWrittenBlock
+	assert.Equal(t, blockSize, uint32(blockSizeTest))
+	assert.Equal(t, size, int64(fileSizeTest))
 
 	buf := make([]byte, fs.blmSize)
 

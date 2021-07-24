@@ -9,13 +9,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	blockSizeTest = 5120
+	fileSizeTest  = blockSizeTest * 128
+)
+
 func TestFileIndex(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, err, nil)
 	_ = utils.DeleteFile(homePath + "/" + fsPath)
 	_ = utils.DeleteFile(homePath + "/" + headerPath)
 	eHandler := &EventsHandlerTest{}
-	fs, err := CreateHeaderFS(homePath+"/"+headerPath, BLOCKSIZE*1000, BLOCKSIZE, log.GetScope("test"), eHandler)
+	fs, err := CreateHeaderFS(homePath+"/"+headerPath, fileSizeTest, blockSizeTest, log.GetScope("test"), eHandler)
 	assert.Equal(t, err, nil)
 
 	err = fs.Close()
