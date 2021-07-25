@@ -108,6 +108,7 @@ func (i *FileIndex) GetFileInfo(fileId uint32) (File, error) {
 	return File{
 		Id: fileInfo.Id, RMapBlocks: fileInfo.RMapBlocks, FirstBlock: fileInfo.FirstBlock,
 		LastBlock: fileInfo.LastBlock, Name: fileInfo.Name, Optional: fileInfo.Optional,
+		FileSize: fileInfo.GetFileSize(),
 	}, nil
 }
 

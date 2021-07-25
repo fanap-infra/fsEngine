@@ -142,7 +142,7 @@ func (v *VirtualFile) ChangeSeekPointer(off int64) error {
 		return err
 	}
 	v.seekPointer = int(off)
-
+	v.nextBlockIndex = blockIndex + 1
 	return nil
 }
 
