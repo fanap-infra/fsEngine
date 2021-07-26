@@ -1,4 +1,4 @@
-.idea/
+.idea/*
 .vscode
 go.sum
 records/
