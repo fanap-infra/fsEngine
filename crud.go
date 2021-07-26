@@ -22,17 +22,17 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	if err != nil {
 		return nil, err
 	}
-	fse.openFiles[id] = vf
+	fse.openFiles[id] = append(fse.openFiles[id], vf)
 	return vf, nil
 }
 
 func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error) {
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
-	_, ok := fse.openFiles[id]
-	if ok {
-		return nil, fmt.Errorf("this ID: %v is opened before", id)
-	}
+	//_, ok := fse.openFiles[id]
+	//if ok {
+	//	return nil, fmt.Errorf("this ID: %v is opened before", id)
+	//}
 	fileInfo, err := fse.header.GetFileData(id)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,8 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	}
 	vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-BlockHeaderSize, fse, blm,
 		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
-	fse.openFiles[id] = vf
+	// fse.openFiles[id] = vf
+	fse.openFiles[id] = append(fse.openFiles[id], vf)
 	//err = fse.header.AddVirtualFile(id, fileInfo.GetName())
 	//if err != nil {
 	//	return nil, err
