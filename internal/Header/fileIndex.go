@@ -32,13 +32,18 @@ func (hfs *HFileSystem) updateFileIndex() error {
 	if err != nil {
 		return err
 	}
-
+	hfs.fileIndexSize = uint32(len(fi))
 	checkSum := crc32.ChecksumIEEE(fi)
-	if hfs.fiChecksum == crc32.ChecksumIEEE(fi) {
+	if hfs.fiChecksum == checkSum {
 		return nil
 	}
 	hfs.fiChecksum = checkSum
-	hfs.fileIndexSize = uint32(len(fi))
+
+	if hfs.fileIndexSize == 0 {
+		hfs.log.Warn("file indexes size is zero")
+		// return fmt.Errorf("fileIndex size %v is Zero",
+		//	hfs.fileIndexSize)
+	}
 	if hfs.fileIndexSize > FileIndexMaxByteSize {
 		return fmt.Errorf("fileIndex size %v is too large, Max valid size: %v",
 			hfs.fileIndexSize, FileIndexMaxByteSize)
@@ -65,6 +70,10 @@ func (hfs *HFileSystem) updateFileIndex() error {
 func (hfs *HFileSystem) parseFileIndex() error {
 	buf := make([]byte, hfs.fileIndexSize)
 
+	if hfs.fileIndexSize == 0 {
+		hfs.log.Warnv("file index size is zero", "fileIndexSize", hfs.fileIndexSize)
+		return nil
+	}
 	n, err := hfs.file.ReadAt(buf, FileIndexByteIndex)
 	if err != nil {
 		return err

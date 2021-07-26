@@ -26,7 +26,7 @@ type FSEngine struct {
 	blockSizeUsable   uint32
 	// lastWrittenBlock   uint32                                 // the last block that has been written into
 	// blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
-	openFiles map[uint32]*virtualFile.VirtualFile
+	openFiles map[uint32][]*virtualFile.VirtualFile
 	// fileIndex          fileIndex.FileIndex
 	WMux sync.Mutex
 	RMux sync.Mutex
@@ -45,11 +45,13 @@ type FSEngine struct {
 
 // Close ...
 func (fse *FSEngine) Close() error {
-	for _, vf := range fse.openFiles {
-		err := vf.Close()
-		if err != nil {
-			fse.log.Warnv("Can not close virtual file", "err", err.Error())
-			return err
+	for _, vfs := range fse.openFiles {
+		for _, vf := range vfs {
+			err := vf.Close()
+			if err != nil {
+				fse.log.Warnv("Can not close virtual file", "err", err.Error())
+				return err
+			}
 		}
 	}
 
@@ -69,4 +71,8 @@ func (fse *FSEngine) Close() error {
 
 func (fse *FSEngine) GetFilePath() string {
 	return fse.file.Name()
+}
+
+func (fse *FSEngine) GetBlockSize() uint32 {
+	return fse.header.GetBlockSize()
 }
