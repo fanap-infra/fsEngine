@@ -231,3 +231,70 @@ func TestIO_MultipleVirtualFile(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + fsPath)
 	_ = utils.DeleteFile(homePath + "/" + headerPath)
 }
+
+func TestIO_ChangeSeekPointer(t *testing.T) {
+	homePath, err := os.UserHomeDir()
+	assert.Equal(t, nil, err)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	assert.Equal(t, nil, err)
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+fsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+headerPath))
+	var bytes []byte
+
+	MaxID := 1000
+	MaxByteArraySize := int(blockSizeTest * 0.5)
+	VFSize := int(3.5 * blockSizeTest)
+	vfID := uint32(rand.Intn(MaxID))
+	vf, err := fse.NewVirtualFile(vfID, "test")
+	assert.Equal(t, nil, err)
+	size := 0
+
+	for {
+		token := make([]byte, uint32(rand.Intn(MaxByteArraySize)))
+		m, err := rand.Read(token)
+		assert.Equal(t, nil, err)
+		bytes = append(bytes, token...)
+		size = size + m
+		n, err := vf.Write(token)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, m, n)
+
+		if size > VFSize {
+			break
+		}
+	}
+
+	err = vf.Close()
+	assert.Equal(t, nil, err)
+
+	vf2, err := fse.OpenVirtualFile(vfID)
+	assert.Equal(t, nil, err)
+	segmentSize := int(blockSizeTest * 0.1)
+	// segmentSize = 10
+	testCounter := 0
+
+	for {
+		token := make([]byte, segmentSize)
+		seekTest := uint32(rand.Intn(size - segmentSize))
+		err := vf2.ChangeSeekPointer(int64(seekTest))
+		assert.Equal(t, nil, err)
+		n, err := vf2.Read(token)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, n, segmentSize)
+		assert.Equal(t, int(seekTest)+n, vf2.GetSeek())
+		assert.Equal(t, token, bytes[seekTest:int(seekTest)+n])
+		testCounter++
+		if testCounter == 5 {
+			break
+		}
+	}
+	err = vf2.Close()
+	assert.Equal(t, nil, err)
+	err = fse.Close()
+	assert.Equal(t, nil, err)
+	_ = utils.DeleteFile(homePath + "/" + fsPath)
+	_ = utils.DeleteFile(homePath + "/" + headerPath)
+}
