@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
@@ -28,6 +26,9 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 	headerPath := path + "/" + headerPath
 	if utils.FileExists(path) {
 		return nil, errors.New("file already exists")
+	}
+	if utils.FileExists(headerPath) {
+		return nil, errors.New("header file already exists")
 	}
 	if size%int64(blockSize) != 0 {
 		return nil, fmt.Errorf("File size must be divisible by %v", blockSize)
@@ -59,12 +60,12 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 
 	fs := &FSEngine{
 		file:              file,
-		size:              size,
+		size:              int64(uint32(size/int64(blockSize)) * blockSize),
 		version:           FileSystemVersion,
 		maxNumberOfBlocks: uint32(size / int64(blockSize)),
 		blockSize:         blockSize,
 		blockSizeUsable:   blockSize - BlockHeaderSize,
-		openFiles:         make(map[uint32]*virtualFile.VirtualFile),
+		openFiles:         make(map[uint32][]*virtualFile.VirtualFile),
 		eventsHandler:     eventsHandler,
 		log:               log,
 	}
@@ -87,11 +88,13 @@ func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEng
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
-	size, err := utils.FileSize(path)
+	filePath := path + "/" + fsPath
+	headerPath := path + "/" + headerPath
+	size, err := utils.FileSize(filePath)
 	if err != nil {
 		return nil, err
 	}
-	file, err := utils.OpenFile(path, os.O_RDWR, 0o777)
+	file, err := utils.OpenFile(filePath, os.O_RDWR, 0o777)
 	if err != nil {
 		return nil, err
 	}
@@ -99,13 +102,13 @@ func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEng
 	fs := &FSEngine{
 		file:          file,
 		size:          size,
-		openFiles:     make(map[uint32]*virtualFile.VirtualFile),
+		openFiles:     make(map[uint32][]*virtualFile.VirtualFile),
 		log:           log,
 		eventsHandler: eventsHandler,
 	}
 
-	fileName := filepath.Base(path)
-	headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
+	// fileName := filepath.Base(path)
+	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
 	hfs, err := Header_.ParseHeaderFS(headerPath, log, fs)
 	if err != nil {
 		return nil, err
