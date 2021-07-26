@@ -272,20 +272,8 @@ func TestIO_ChangeSeekPointer(t *testing.T) {
 
 	vf2, err := fse.OpenVirtualFile(vfID)
 	assert.Equal(t, nil, err)
-	segmentSize := 10
-	readedSize := 0
-	for {
-		token := make([]byte, segmentSize)
-		n, err := vf2.Read(token)
-
-		assert.Equal(t, false, err != nil && n == 0)
-		assert.Equal(t, token[:n], bytes[readedSize:readedSize+n])
-		readedSize = readedSize + n
-		if readedSize == size {
-			break
-		}
-	}
-
+	segmentSize := int(blockSizeTest * 0.1)
+	// segmentSize = 10
 	testCounter := 0
 
 	for {
@@ -303,7 +291,8 @@ func TestIO_ChangeSeekPointer(t *testing.T) {
 			break
 		}
 	}
-
+	err = vf2.Close()
+	assert.Equal(t, nil, err)
 	err = fse.Close()
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + "/" + fsPath)
