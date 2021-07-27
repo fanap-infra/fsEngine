@@ -161,18 +161,22 @@ func (v *VirtualFile) Close() error {
 	if err != nil {
 		v.log.Errorv("can not marshal bam", "err", err.Error())
 	}
-	err = v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize)
+	err = v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize, data, v.optionalData)
 	if err != nil {
 		v.log.Errorv("can not update file indexes", "err", err.Error())
 	}
-	err = v.fs.BAMUpdated(v.id, data)
-	if err != nil {
-		v.log.Errorv("can not update bam", "err", err.Error())
-	}
+	//err = v.fs.BAMUpdated(v.id, data)
+	//if err != nil {
+	//	v.log.Errorv("can not update bam", "err", err.Error())
+	//}
 	return v.fs.Closed(v.id)
 }
 
 func (v *VirtualFile) UpdateFileOptionalData(info []byte) error {
 	v.optionalData = info
-	return v.fs.UpdateFileOptionalData(v.id, info)
+	data, err := blockAllocationMap.Marshal(v.blockAllocationMap)
+	if err != nil {
+		v.log.Errorv("can not marshal bam", "err", err.Error())
+	}
+	return v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize, data, v.optionalData)
 }

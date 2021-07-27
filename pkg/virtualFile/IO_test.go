@@ -89,7 +89,8 @@ func (fsMock *FSMock) BAMUpdated(fileID uint32, bam []byte) error {
 	return nil
 }
 
-func (fsMock *FSMock) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlock uint32, fileSize uint32) error {
+func (fsMock *FSMock) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlock uint32,
+	fileSize uint32, bam []byte, info []byte) error {
 	return nil
 }
 
