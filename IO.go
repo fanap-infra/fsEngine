@@ -76,7 +76,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 	if dataSize == 0 {
 		return 0, fmt.Errorf("data siz is zero, file ID: %v ", fileID)
 	}
-	vfs, ok := fse.openFiles[fileID]
+	vfInfo, ok := fse.openFiles[fileID]
 	if !ok {
 		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
 	}
@@ -86,7 +86,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 		if n >= dataSize {
 			return n, nil
 		}
-		previousBlock := vfs[0].GetLastBlock()
+		previousBlock := vfInfo.vfs[0].GetLastBlock()
 		blockID := fse.header.FindNextFreeBlockAndAllocate()
 		var d []byte
 		if dataSize >= n+int(fse.blockSizeUsable) {
@@ -106,7 +106,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 			return 0, err
 		}
 
-		err = vfs[0].AddBlockID(blockID)
+		err = vfInfo.vfs[0].AddBlockID(blockID)
 		if err != nil {
 			return 0, err
 		}
@@ -131,8 +131,14 @@ func (fse *FSEngine) Closed(fileID uint32) error {
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())
 	}
-
-	delete(fse.openFiles, fileID)
+	vfInfo, ok := fse.openFiles[fileID]
+	if !ok {
+		return fmt.Errorf("this file ID: %v did not opened", fileID)
+	}
+	vfInfo.numberOfOpened = vfInfo.numberOfOpened - 1
+	if vfInfo.numberOfOpened == 0 {
+		delete(fse.openFiles, fileID)
+	}
 
 	err = fse.file.Sync()
 	if err != nil {

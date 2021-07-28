@@ -64,10 +64,11 @@ func (fse *FSEngine) BAMUpdated(fileID uint32, bam []byte) error {
 	return fse.header.UpdateBAM(fileID, bam)
 }
 
-func (fse *FSEngine) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlock uint32, fileSize uint32) error {
+func (fse *FSEngine) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlock uint32,
+	fileSize uint32, bam []byte, info []byte) error {
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
-	return fse.header.UpdateFileIndexes(fileID, firstBlock, lastBlock, fileSize)
+	return fse.header.UpdateFileIndexes(fileID, firstBlock, lastBlock, fileSize, bam, info)
 }
 
 func (fse *FSEngine) UpdateFileOptionalData(fileId uint32, info []byte) error {

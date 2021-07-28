@@ -22,17 +22,29 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	if err != nil {
 		return nil, err
 	}
-	fse.openFiles[id] = append(fse.openFiles[id], vf)
+
+	vfInfo := &VFInfo{id: id, blm: blm, numberOfOpened: 1}
+	vfInfo.vfs = append(vfInfo.vfs, vf)
+	fse.openFiles[id] = vfInfo
 	return vf, nil
 }
 
 func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error) {
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
-	//_, ok := fse.openFiles[id]
-	//if ok {
-	//	return nil, fmt.Errorf("this ID: %v is opened before", id)
-	//}
+	vfInfo, ok := fse.openFiles[id]
+	if ok {
+		// ToDo: make file info updatable
+		fileInfo, err := fse.header.GetFileData(id)
+		if err != nil {
+			return nil, err
+		}
+		vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-BlockHeaderSize, fse, vfInfo.blm,
+			int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
+		vfInfo.numberOfOpened = vfInfo.numberOfOpened + 1
+		return vf, nil
+	}
+
 	fileInfo, err := fse.header.GetFileData(id)
 	if err != nil {
 		return nil, err
@@ -44,12 +56,11 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	}
 	vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-BlockHeaderSize, fse, blm,
 		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
-	// fse.openFiles[id] = vf
-	fse.openFiles[id] = append(fse.openFiles[id], vf)
-	//err = fse.header.AddVirtualFile(id, fileInfo.GetName())
-	//if err != nil {
-	//	return nil, err
-	//}
+
+	vfInfo = &VFInfo{id: id, blm: blm, numberOfOpened: 1}
+	vfInfo.vfs = append(vfInfo.vfs, vf)
+	fse.openFiles[id] = vfInfo
+
 	return vf, nil
 }
 

@@ -8,8 +8,6 @@ import (
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
-	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
-
 	"github.com/fanap-infra/log"
 )
 
@@ -65,7 +63,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 		maxNumberOfBlocks: uint32(size / int64(blockSize)),
 		blockSize:         blockSize,
 		blockSizeUsable:   blockSize - BlockHeaderSize,
-		openFiles:         make(map[uint32][]*virtualFile.VirtualFile),
+		openFiles:         make(map[uint32]*VFInfo),
 		eventsHandler:     eventsHandler,
 		log:               log,
 	}
@@ -102,7 +100,7 @@ func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEng
 	fs := &FSEngine{
 		file:          file,
 		size:          size,
-		openFiles:     make(map[uint32][]*virtualFile.VirtualFile),
+		openFiles:     make(map[uint32]*VFInfo),
 		log:           log,
 		eventsHandler: eventsHandler,
 	}

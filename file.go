@@ -6,7 +6,6 @@ import (
 	"time"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
-	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 
 	"github.com/fanap-infra/log"
 
@@ -24,29 +23,22 @@ type FSEngine struct {
 	maxNumberOfBlocks uint32    // total number of blocks in Archiver
 	blockSize         uint32    // in bytes, size of each block
 	blockSizeUsable   uint32
-	// lastWrittenBlock   uint32                                 // the last block that has been written into
-	// blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
-	openFiles map[uint32][]*virtualFile.VirtualFile
-	// fileIndex          fileIndex.FileIndex
-	WMux sync.Mutex
-	RMux sync.Mutex
-	log  *log.Logger
-	// fiMux      sync.RWMutex
-	// fiChecksum uint32
-	// bamChecksum        uint32
-	// fsMux           sync.Mutex
-	rIBlockMux sync.Mutex
-	crudMutex  sync.Mutex
-	Cache      *lru.Cache
-	// fileIndexIsFlip bool
+	openFiles         map[uint32]*VFInfo
+	WMux              sync.Mutex
+	RMux              sync.Mutex
+	log               *log.Logger
+
+	rIBlockMux    sync.Mutex
+	crudMutex     sync.Mutex
+	Cache         *lru.Cache
 	eventsHandler Events
 	Quit          chan struct{}
 }
 
 // Close ...
 func (fse *FSEngine) Close() error {
-	for _, vfs := range fse.openFiles {
-		for _, vf := range vfs {
+	for _, vfInfo := range fse.openFiles {
+		for _, vf := range vfInfo.vfs {
 			err := vf.Close()
 			if err != nil {
 				fse.log.Warnv("Can not close virtual file", "err", err.Error())

@@ -2,6 +2,7 @@ package blockAllocationMap
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/fanap-infra/log"
 
@@ -12,12 +13,14 @@ type BlockAllocationMap struct {
 	rMap              *roaring.Bitmap
 	LastWrittenBlock  uint32
 	maxNumberOfBlocks uint32
-	// numberOfAllocated uint32
-	trigger Events
-	log     *log.Logger
+	mu                sync.Mutex
+	trigger           Events
+	log               *log.Logger
 }
 
 func (blm *BlockAllocationMap) ToArray() []uint32 {
+	blm.mu.Lock()
+	defer blm.mu.Unlock()
 	return blm.rMap.ToArray()
 }
 
@@ -25,16 +28,23 @@ func (blm *BlockAllocationMap) SetBlockAsAllocated(blockIndex uint32) error {
 	if blm.IsBlockAllocated(blockIndex) {
 		return fmt.Errorf("block number %v is allocated before", blockIndex)
 	}
+	// ToDO: make this operation atomic
 	blm.LastWrittenBlock = blockIndex
+	blm.mu.Lock()
 	blm.rMap.Add(blockIndex)
+	blm.mu.Unlock()
 	return nil
 }
 
 func (blm *BlockAllocationMap) UnsetBlockAsAllocated(blockIndex uint32) {
+	blm.mu.Lock()
+	defer blm.mu.Unlock()
 	blm.rMap.Remove(blockIndex)
 }
 
 func (blm *BlockAllocationMap) IsBlockAllocated(blockIndex uint32) bool {
+	blm.mu.Lock()
+	defer blm.mu.Unlock()
 	return blm.rMap.Contains(blockIndex)
 }
 
@@ -53,7 +63,6 @@ func (blm *BlockAllocationMap) FindNextFreeBlockAndAllocate() uint32 {
 		if !blm.IsBlockAllocated(freeIndex) {
 			return freeIndex
 		}
-
 		if freeIndex == blm.LastWrittenBlock {
 			blm.log.Warnv("There is no space", "freeIndex", freeIndex,
 				"LastWrittenBlock", blm.LastWrittenBlock)

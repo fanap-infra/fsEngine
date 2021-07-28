@@ -12,6 +12,9 @@ const EndOfFile = errPackage.Error("end of file")
 
 // returns int bytes of written data.
 func (v *VirtualFile) Write(data []byte) (int, error) {
+	if v.readOnly {
+		return 0, errors.New("this virtual file is opened in read mode, so you can not write to it")
+	}
 	if len(data) == 0 {
 		return 0, errors.New("data cannot be empty")
 	}
@@ -148,31 +151,37 @@ func (v *VirtualFile) ChangeSeekPointer(off int64) error {
 
 // Close
 func (v *VirtualFile) Close() error {
-	if uint32(len(v.bufTX)) > 0 {
-		_, err := v.fs.Write(v.bufTX, v.id)
-		if err != nil {
-			v.log.Errorv("can not write to file", "err", err.Error())
+	if !v.readOnly {
+		if uint32(len(v.bufTX)) > 0 {
+			_, err := v.fs.Write(v.bufTX, v.id)
+			if err != nil {
+				v.log.Errorv("can not write to file", "err", err.Error())
+			}
+			v.fileSize = v.fileSize + uint32(len(v.bufTX))
 		}
-		v.fileSize = v.fileSize + uint32(len(v.bufTX))
+		v.bufTX = v.bufTX[:0]
+		data, err := blockAllocationMap.Marshal(v.blockAllocationMap)
+		if err != nil {
+			v.log.Errorv("can not marshal bam", "err", err.Error())
+		}
+		err = v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize, data, v.optionalData)
+		if err != nil {
+			v.log.Errorv("can not update file indexes", "err", err.Error())
+		}
 	}
-	v.bufTX = v.bufTX[:0]
 	v.bufRX = v.bufRX[:0]
-	data, err := blockAllocationMap.Marshal(v.blockAllocationMap)
-	if err != nil {
-		v.log.Errorv("can not marshal bam", "err", err.Error())
-	}
-	err = v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize)
-	if err != nil {
-		v.log.Errorv("can not update file indexes", "err", err.Error())
-	}
-	err = v.fs.BAMUpdated(v.id, data)
-	if err != nil {
-		v.log.Errorv("can not update bam", "err", err.Error())
-	}
+
 	return v.fs.Closed(v.id)
 }
 
 func (v *VirtualFile) UpdateFileOptionalData(info []byte) error {
+	if v.readOnly {
+		return errors.New("this virtual file is opened in read mode, so you can not update any thing")
+	}
 	v.optionalData = info
-	return v.fs.UpdateFileOptionalData(v.id, info)
+	data, err := blockAllocationMap.Marshal(v.blockAllocationMap)
+	if err != nil {
+		v.log.Errorv("can not marshal bam", "err", err.Error())
+	}
+	return v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize, data, v.optionalData)
 }
