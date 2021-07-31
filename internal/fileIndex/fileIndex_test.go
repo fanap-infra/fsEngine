@@ -12,14 +12,14 @@ import (
 func TestFileIndex_CRUDFileIndex(t *testing.T) {
 	fi := NewFileIndex()
 
-	testFiles := make([]File, TestSize)
+	testFiles := make([]*File, TestSize)
 	for i := 0; i < TestSize; i++ {
 		testBytes := make([]byte, TestByteSize)
 		n, err := rand.Read(testBytes)
 		assert.Equal(t, TestByteSize, n)
 		assert.Equal(t, nil, err)
 
-		file := File{
+		file := &File{
 			Name:      "test" + strconv.Itoa(i),
 			LastBlock: uint32(rand.Intn(MaxSize)), FirstBlock: uint32(rand.Intn(MaxSize)), Id: uint32(rand.Intn(MaxSize)),
 			RMapBlocks: testBytes,
