@@ -13,7 +13,7 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err er
 
 	n, err = fse.file.WriteAt(data, int64(blockIndex)*int64(fse.blockSize))
 	if err != nil {
-		fse.log.Infov("Error Writing to file", "err", err.Error(),
+		fse.log.Errorv("Error Writing to file", "err", err.Error(),
 			"file", fse.file.Name(), "blockIndex", blockIndex)
 	}
 
