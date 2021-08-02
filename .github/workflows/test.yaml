@@ -27,6 +27,8 @@ jobs:
         run: make test
       - name: lint
         uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.29
         run: make lint-test
       - name: unit-test
         run: make unit-test
