@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fanap-infra/fsEngine/internal/constants"
+
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
 	"github.com/fanap-infra/log"
@@ -17,11 +19,11 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 		return nil, errors.New("path cannot be empty")
 	}
 
-	if blockSize < HeaderByteSize {
+	if blockSize < constants.HeaderByteSize {
 		return nil, fmt.Errorf("Block size must be greater than %v", blockSize)
 	}
-	filePath := path + "/" + fsPath
-	headerPath := path + "/" + headerPath
+	filePath := path + "/" + constants.FsPath
+	headerPath := path + "/" + constants.HeaderPath
 	if utils.FileExists(path) {
 		return nil, errors.New("file already exists")
 	}
@@ -59,10 +61,10 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 	fs := &FSEngine{
 		file:              file,
 		size:              int64(uint32(size/int64(blockSize)) * blockSize),
-		version:           FileSystemVersion,
+		version:           constants.FileSystemVersion,
 		maxNumberOfBlocks: uint32(size / int64(blockSize)),
 		blockSize:         blockSize,
-		blockSizeUsable:   blockSize - BlockHeaderSize,
+		blockSizeUsable:   blockSize - constants.BlockHeaderSize,
 		openFiles:         make(map[uint32]*VFInfo),
 		eventsHandler:     eventsHandler,
 		log:               log,
@@ -70,7 +72,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 
 	// fileName := filepath.Base(path)
 	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
-	headerFS, err := Header_.CreateHeaderFS(headerPath, size, blockSize, log, fs)
+	headerFS, err := Header_.CreateHeaderFS(path, size, blockSize, log, fs)
 	if err != nil {
 		log.Errorv("Can not create header file ", "err", err.Error())
 		return nil, err
@@ -86,8 +88,7 @@ func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEng
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
-	filePath := path + "/" + fsPath
-	headerPath := path + "/" + headerPath
+	filePath := path + "/" + constants.FsPath
 	size, err := utils.FileSize(filePath)
 	if err != nil {
 		return nil, err
@@ -107,14 +108,14 @@ func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEng
 
 	// fileName := filepath.Base(path)
 	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
-	hfs, err := Header_.ParseHeaderFS(headerPath, log, fs)
+	hfs, err := Header_.ParseHeaderFS(path, log, fs)
 	if err != nil {
 		return nil, err
 	}
 
 	fs.header = hfs
 	fs.blockSize = hfs.GetBlockSize()
-	fs.blockSizeUsable = fs.blockSize - BlockHeaderSize
+	fs.blockSizeUsable = fs.blockSize - constants.BlockHeaderSize
 	fs.maxNumberOfBlocks = hfs.GetBlocksNumber()
 
 	return fs, nil

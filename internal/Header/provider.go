@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fanap-infra/fsEngine/internal/constants"
+
 	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/fsEngine/internal/fileIndex"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
@@ -13,16 +15,17 @@ import (
 	"github.com/fanap-infra/log"
 )
 
-func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, eventHandler blockAllocationMap.Events) (*HFileSystem, error) {
+func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger,
+	eventHandler blockAllocationMap.Events) (*HFileSystem, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
-
+	headerPath := path + "/" + constants.HeaderPath
 	if blockSize < HeaderByteSize {
 		return nil, fmt.Errorf("block size must be greater than %v", blockSize)
 	}
 
-	if utils.FileExists(path) {
+	if utils.FileExists(headerPath) {
 		return nil, errors.New("file already exists")
 	}
 	if size%int64(blockSize) != 0 {
@@ -32,7 +35,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 		return nil, fmt.Errorf("file size is too small, Minimum size is %v", blockSize*60)
 	}
 
-	file, err := utils.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o777)
+	file, err := utils.OpenFile(headerPath, os.O_CREATE|os.O_RDWR, 0o777)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +46,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 	if err != nil {
 		log.Errorv("generate rand token ", "err", err.Error())
 	}
-	n, err := file.WriteAt(token, HeaderByteSize+FileIndexMaxByteSize+BlockAllocationMaxByteSize)
+	n, err := file.WriteAt(token, HashByteIndex)
 	if err != nil {
 		log.Warnv("write token ", "err", err.Error())
 	}
@@ -61,6 +64,7 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 		blockAllocationMap: blockAllocationMap.New(log, eventHandler, uint32(size/int64(blockSize))),
 		log:                log,
 		eventHandler:       eventHandler,
+		path:               path,
 	}
 
 	loadConf(fs)
@@ -80,6 +84,11 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger, 
 		return nil, err
 	}
 
+	err = fs.updateHash()
+	if err != nil {
+		return nil, err
+	}
+
 	return fs, nil
 }
 
@@ -87,20 +96,21 @@ func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
-	size, err := utils.FileSize(path)
+	headerPath := path + "/" + constants.HeaderPath
+	size, err := utils.FileSize(headerPath)
 	if err != nil {
 		return nil, err
 	}
-	file, err := utils.OpenFile(path, os.O_RDWR, 0o777)
+	file, err := utils.OpenFile(headerPath, os.O_RDWR, 0o777)
 	if err != nil {
 		return nil, err
 	}
 
 	hfs := &HFileSystem{
-		file:      file,
-		size:      size,
-		fileIndex: fileIndex.NewFileIndex(),
-		// openFiles: make(map[uint32]*virtualFile.VirtualFile),
+		file:         file,
+		size:         size,
+		fileIndex:    fileIndex.NewFileIndex(),
+		path:         path,
 		log:          log,
 		eventHandler: eventHandler,
 	}
@@ -120,5 +130,8 @@ func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap
 		return hfs, err
 	}
 
+	if !hfs.checkHash() {
+		hfs.log.Warn("hash value of header file is not correct")
+	}
 	return hfs, nil
 }
