@@ -2,13 +2,15 @@ package fsEngine
 
 import (
 	"fmt"
+
+	"github.com/fanap-infra/fsEngine/internal/constants"
 )
 
 func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err error) {
 	// fse.log.Infov("FSEngine write in block", "blockIndex", blockIndex,
 	//	"maxNumberOfBlocks", fse.maxNumberOfBlocks, "len(data)", len(data))
 	if blockIndex >= fse.maxNumberOfBlocks {
-		return 0, ErrBlockIndexOutOFRange
+		return 0, constants.ErrBlockIndexOutOFRange
 	}
 
 	n, err = fse.file.WriteAt(data, int64(blockIndex)*int64(fse.blockSize))
@@ -23,7 +25,7 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err er
 func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
 	// fse.log.Infov("FSEngine read in block", "blockIndex", blockIndex)
 	if blockIndex >= fse.maxNumberOfBlocks {
-		return nil, ErrBlockIndexOutOFRange
+		return nil, constants.ErrBlockIndexOutOFRange
 	}
 
 	var err error
@@ -33,7 +35,7 @@ func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
 		return nil, err
 	}
 	if n != int(fse.blockSize) {
-		return buf, ErrDataBlockMismatch
+		return buf, constants.ErrDataBlockMismatch
 	}
 	data, err := fse.parseBlock(buf)
 	if err != nil {
@@ -50,12 +52,6 @@ func (fse *FSEngine) ReadAt(data []byte, off int64, fileID uint32) (int, error) 
 }
 
 func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
-	//fse.rIBlockMux.Lock()
-	//defer fse.rIBlockMux.Unlock()
-	//vf, ok := fse.openFiles[fileID]
-	//if !ok {
-	//	return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
-	//}
 	return 0, fmt.Errorf("please impkement me")
 }
 
@@ -63,9 +59,6 @@ func (fse *FSEngine) WriteAt(b []byte, off int64, fileID uint32) (n int, err err
 	// ToDo: complete it
 	n, err = fse.file.WriteAt(b, off)
 
-	//if arc.LastFiletime.IsZero() && off >= int64(arc.conf.DataStartBlock) {
-	//	arc.LastFiletime = time.Now()
-	//}
 	return
 }
 
@@ -119,7 +112,7 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 		if m != len(d) {
 			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", m, len(d))
 		}
-		n = m - BlockHeaderSize + n
+		n = m - constants.BlockHeaderSize + n
 	}
 }
 
@@ -131,6 +124,7 @@ func (fse *FSEngine) Closed(fileID uint32) error {
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())
 	}
+
 	vfInfo, ok := fse.openFiles[fileID]
 	if !ok {
 		return fmt.Errorf("this file ID: %v did not opened", fileID)

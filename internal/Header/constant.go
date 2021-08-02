@@ -23,9 +23,8 @@ const (
 	BlockAllocationMapByteIndex = FileIndexByteIndex + FileIndexMaxByteSize // BackUp Size - 1 - FileIndexBlockSize - AllocationMapBlockSize
 	BlockAllocationMaxByteSize  = 100000
 
-	//MaxArchiverTime     = 3600 * time.Second
-	//ArchiverCheckerIter = 60 * time.Second
-	//// ArchiverIdentifier is added to the beginning of archiver to identify it as such.
+	HashByteIndex = HeaderByteSize + FileIndexMaxByteSize + BlockAllocationMaxByteSize
+	HashSize      = 32
 
 	ErrBlockUnallocated     = err.Error("block is unallocated")
 	ErrBlockIndexOutOFRange = err.Error("block index is out of range")

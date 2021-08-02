@@ -3,6 +3,8 @@ package fsEngine
 import (
 	"fmt"
 
+	"github.com/fanap-infra/fsEngine/internal/constants"
+
 	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
 	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 )
@@ -16,8 +18,8 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	}
 	blm := blockAllocationMap.New(fse.log, fse, fse.maxNumberOfBlocks)
 
-	vf := virtualFile.NewVirtualFile(fileName, id, fse.blockSize-BlockHeaderSize, fse, blm,
-		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
+	vf := virtualFile.NewVirtualFile(fileName, id, fse.blockSize-constants.BlockHeaderSize, fse, blm,
+		int(fse.blockSize-constants.BlockHeaderSize)*constants.VirtualFileBufferBlockNumber, fse.log)
 	err := fse.header.AddVirtualFile(id, fileName)
 	if err != nil {
 		return nil, err
@@ -26,6 +28,12 @@ func (fse *FSEngine) NewVirtualFile(id uint32, fileName string) (*virtualFile.Vi
 	vfInfo := &VFInfo{id: id, blm: blm, numberOfOpened: 1}
 	vfInfo.vfs = append(vfInfo.vfs, vf)
 	fse.openFiles[id] = vfInfo
+
+	err = fse.header.UpdateFSHeader()
+	if err != nil {
+		fse.log.Warnv("Can not updateHeader", "err", err.Error())
+		return nil, err
+	}
 	return vf, nil
 }
 
@@ -39,8 +47,8 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 		if err != nil {
 			return nil, err
 		}
-		vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-BlockHeaderSize, fse, vfInfo.blm,
-			int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
+		vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-constants.BlockHeaderSize, fse, vfInfo.blm,
+			int(fse.blockSize-constants.BlockHeaderSize)*constants.VirtualFileBufferBlockNumber, fse.log)
 		vfInfo.numberOfOpened = vfInfo.numberOfOpened + 1
 		return vf, nil
 	}
@@ -54,8 +62,8 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	if err != nil {
 		return nil, err
 	}
-	vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-BlockHeaderSize, fse, blm,
-		int(fse.blockSize-BlockHeaderSize)*VirtualFileBufferBlockNumber, fse.log)
+	vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-constants.BlockHeaderSize, fse, blm,
+		int(fse.blockSize-constants.BlockHeaderSize)*constants.VirtualFileBufferBlockNumber, fse.log)
 
 	vfInfo = &VFInfo{id: id, blm: blm, numberOfOpened: 1}
 	vfInfo.vfs = append(vfInfo.vfs, vf)

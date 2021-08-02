@@ -24,16 +24,10 @@ type HFileSystem struct {
 	fileIndex     *fileIndex.FileIndex
 	fileIndexSize uint32
 	blmSize       uint32
-	// WMux               sync.Mutex
-	// RMux               sync.Mutex
-	log *log.Logger
-	// fiMux              sync.RWMutex
-	fiChecksum uint32
-	// bamChecksum uint32
-	// fsMux              sync.Mutex
-	// rIBlockMux         sync.Mutex
-	// Cache              *lru.Cache
-	// fileIndexIsFlip    bool
+	path          string
+	log           *log.Logger
+	fiChecksum    uint32
+
 	conf         configs
 	eventHandler blockAllocationMap.Events
 }
@@ -50,6 +44,21 @@ func (hfs *HFileSystem) UpdateFSHeader() error {
 	}
 
 	err = hfs.updateHeader()
+	if err != nil {
+		return err
+	}
+
+	err = hfs.file.Sync()
+	if err != nil {
+		hfs.log.Warnv("Can not sync file", "err", err.Error())
+	}
+
+	err = hfs.updateHash()
+	if err != nil {
+		return err
+	}
+
+	err = hfs.backUp()
 	if err != nil {
 		return err
 	}

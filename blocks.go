@@ -74,6 +74,11 @@ func (fse *FSEngine) UpdateFileIndexes(fileID uint32, firstBlock uint32, lastBlo
 func (fse *FSEngine) UpdateFileOptionalData(fileId uint32, info []byte) error {
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
+	err := fse.header.UpdateFSHeader()
+	if err != nil {
+		fse.log.Warnv("Can not updateHeader", "err", err.Error())
+		return err
+	}
 	return fse.header.UpdateFileOptionalData(fileId, info)
 }
 
