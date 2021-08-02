@@ -120,7 +120,7 @@ func (v *VirtualFile) ReadAt(data []byte, off int64) (int, error) {
 		return 0, err
 	}
 	v.seekPointer = int(off)
-
+	v.nextBlockIndex = blockIndex + 1
 	return v.Read(data)
 }
 
