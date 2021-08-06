@@ -1,6 +1,6 @@
 package Header_
 
-import "github.com/fanap-infra/fsEngine/pkg/err"
+import "github.com/fanap-infra/fsEngine/pkg/errstring"
 
 // Storage Shape
 //	+---------+---------------+---------+--------------+
@@ -26,12 +26,12 @@ const (
 	HashByteIndex = HeaderByteSize + FileIndexMaxByteSize + BlockAllocationMaxByteSize
 	HashSize      = 32
 
-	ErrBlockUnallocated     = err.Error("block is unallocated")
-	ErrBlockIndexOutOFRange = err.Error("block index is out of range")
-	ErrDataBlockMismatch    = err.Error("block data-size mismatch")
-	ErrFileExists           = err.Error("file already exist")
-	ErrArchiverIdentifier   = err.Error("ArchiverIdentifier is not detected")
-	ErrArchiverVersion      = err.Error("Archiver Version is not correct")
+	ErrBlockUnallocated     = errstring.Error("block is unallocated")
+	ErrBlockIndexOutOFRange = errstring.Error("block index is out of range")
+	ErrDataBlockMismatch    = errstring.Error("block data-size mismatch")
+	ErrFileExists           = errstring.Error("file already exist")
+	ErrArchiverIdentifier   = errstring.Error("ArchiverIdentifier is not detected")
+	ErrArchiverVersion      = errstring.Error("Archiver Version is not correct")
 	//BYTE                   = 1
 	//KILOBYTE               = BYTE * 1024
 	//MEGABYTE               = KILOBYTE * 1024

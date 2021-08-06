@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
-	errPackage "github.com/fanap-infra/fsEngine/pkg/err"
+	errPackage "github.com/fanap-infra/fsEngine/pkg/errstring"
 )
 
 const EndOfFile = errPackage.Error("end of file")

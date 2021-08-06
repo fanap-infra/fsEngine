@@ -3,6 +3,8 @@ package fsEngine
 import (
 	"fmt"
 
+	"github.com/fanap-infra/log"
+
 	"github.com/fanap-infra/fsEngine/internal/constants"
 
 	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
@@ -87,7 +89,9 @@ func (fse *FSEngine) RemoveVirtualFile(id uint32) error {
 	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
 		fileInfo.GetRMapBlocks())
 	if err != nil {
-		return err
+		log.Errorv("can not parse block allocation map", "id", id,
+			"len(fileInfo.GetRMapBlocks()) ", len(fileInfo.GetRMapBlocks()), "err", err.Error())
+		return fse.header.RemoveVirtualFile(id)
 	}
 	blocks := blm.ToArray()
 	// fse.log.Infov("blm length",
