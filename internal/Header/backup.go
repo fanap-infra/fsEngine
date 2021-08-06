@@ -12,6 +12,8 @@ import (
 	"github.com/fanap-infra/fsEngine/internal/constants"
 )
 
+const readSegmentSize = int64(100 * 1024 * 1024)
+
 func (hfs *HFileSystem) backUp() error {
 	backUpPath := hfs.path + "/" + constants.HeaderBackUpPath
 	out, err := utils.OpenFile(backUpPath, os.O_CREATE|os.O_RDWR, 0o777)
@@ -53,10 +55,9 @@ func (hfs *HFileSystem) loadBackUp() error {
 func (hfs *HFileSystem) updateHash() error {
 	hashMaker := sha256.New()
 	counter := int64(0)
-	segmentSize := int64(2 * 1024 * 1024)
-	b := make([]byte, segmentSize)
+	b := make([]byte, readSegmentSize)
 	for {
-		if segmentSize+counter >= HashByteIndex {
+		if readSegmentSize+counter >= HashByteIndex {
 			b = make([]byte, HashByteIndex-counter)
 		}
 
@@ -118,10 +119,9 @@ func (hfs *HFileSystem) updateHash() error {
 func (hfs *HFileSystem) checkHash() bool {
 	hashMaker := sha256.New()
 	counter := int64(0)
-	segmentSize := int64(2 * 1024 * 1024)
-	b := make([]byte, segmentSize)
+	b := make([]byte, readSegmentSize)
 	for {
-		if segmentSize+counter >= HashByteIndex {
+		if readSegmentSize+counter >= HashByteIndex {
 			b = make([]byte, HashByteIndex-counter)
 		}
 
