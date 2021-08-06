@@ -84,10 +84,10 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger,
 		return nil, err
 	}
 
-	err = fs.updateHash()
-	if err != nil {
-		return nil, err
-	}
+	//err = fs.updateHash()
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return fs, nil
 }
@@ -130,8 +130,8 @@ func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap
 		return hfs, err
 	}
 
-	if !hfs.checkHash() {
-		hfs.log.Warn("hash value of header file is not correct")
-	}
+	//if !hfs.checkHash() {
+	//	hfs.log.Warn("hash value of header file is not correct")
+	//}
 	return hfs, nil
 }

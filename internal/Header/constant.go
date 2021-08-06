@@ -18,10 +18,10 @@ const (
 	HeaderByteSize   = 44
 
 	FileIndexByteIndex   = 50 // BackUp Size - 1 - FileIndexBlockSize
-	FileIndexMaxByteSize = 1000000000
+	FileIndexMaxByteSize = 100000000
 
 	BlockAllocationMapByteIndex = FileIndexByteIndex + FileIndexMaxByteSize // BackUp Size - 1 - FileIndexBlockSize - AllocationMapBlockSize
-	BlockAllocationMaxByteSize  = 100000000
+	BlockAllocationMaxByteSize  = 10000000
 
 	HashByteIndex = HeaderByteSize + FileIndexMaxByteSize + BlockAllocationMaxByteSize
 	HashSize      = 32

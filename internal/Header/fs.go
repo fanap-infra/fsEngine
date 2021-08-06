@@ -53,14 +53,14 @@ func (hfs *HFileSystem) UpdateFSHeader() error {
 		hfs.log.Warnv("Can not sync file", "err", err.Error())
 	}
 
-	err = hfs.updateHash()
-	if err != nil {
-		return err
-	}
+	//err = hfs.updateHash()
+	//if err != nil {
+	//	return err
+	//}
 
-	err = hfs.backUp()
-	if err != nil {
-		return err
-	}
+	//err = hfs.backUp()
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }
