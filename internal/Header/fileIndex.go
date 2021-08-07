@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"hash/crc32"
 
-	"github.com/fanap-infra/fsEngine/internal/fileIndex"
+	"github.com/fanap-infra/fsEngine/pkg/fileIndex"
 )
 
 func (hfs *HFileSystem) generateFileIndex() ([]byte, error) {
@@ -125,6 +125,10 @@ func (hfs *HFileSystem) FindOldestFile() (*fileIndex.File, error) {
 
 func (hfs *HFileSystem) UpdateFileOptionalData(fileId uint32, info []byte) error {
 	return hfs.fileIndex.UpdateFileOptionalData(fileId, info)
+}
+
+func (hfs *HFileSystem) GetFilesList() []*fileIndex.File {
+	return hfs.fileIndex.GetFilesList()
 }
 
 //func (hfs *HFileSystem) GetFileOptionalData(fileId uint32) ([]byte, error) {
