@@ -7,7 +7,7 @@ import (
 
 	"github.com/fanap-infra/fsEngine/internal/constants"
 
-	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
 	"github.com/fanap-infra/fsEngine/pkg/virtualFile"
 )
 

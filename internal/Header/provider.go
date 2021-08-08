@@ -8,8 +8,8 @@ import (
 
 	"github.com/fanap-infra/fsEngine/internal/constants"
 
-	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
-	"github.com/fanap-infra/fsEngine/internal/fileIndex"
+	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/pkg/fileIndex"
 	"github.com/fanap-infra/fsEngine/pkg/utils"
 
 	"github.com/fanap-infra/log"

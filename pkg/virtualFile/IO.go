@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fanap-infra/fsEngine/internal/blockAllocationMap"
+	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
 	errPackage "github.com/fanap-infra/fsEngine/pkg/errstring"
 )
 

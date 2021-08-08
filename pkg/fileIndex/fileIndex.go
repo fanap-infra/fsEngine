@@ -148,6 +148,16 @@ func (i *FileIndex) UpdateFileOptionalData(fileId uint32, info []byte) error {
 	return nil
 }
 
+func (i *FileIndex) GetFilesList() []*File {
+	i.rwMux.Lock()
+	defer i.rwMux.Unlock()
+	var files []*File
+	for _, f := range i.table.Files {
+		files = append(files, f)
+	}
+	return files
+}
+
 //func (i *FileIndex) GetFileOptionalData(fileId uint32) ([]byte, error) {
 //	i.rwMux.Lock()
 //	defer i.rwMux.Unlock()
