@@ -58,10 +58,10 @@ func (fsMock *FSMock) Write(data []byte, fileID uint32) (int, error) {
 	}
 }
 
-func (fsMock *FSMock) WriteAt(data []byte, off int64, fileID uint32) (int, error) {
-	fsMock.vBuf = append(fsMock.vBuf, data...)
-	return len(data), nil
-}
+//func (fsMock *FSMock) WriteAt(data []byte, off int64, fileID uint32) (int, error) {
+//	fsMock.vBuf = append(fsMock.vBuf, data...)
+//	return len(data), nil
+//}
 
 func (fsMock *FSMock) Read(data []byte, fileID uint32) (int, error) {
 	data = fsMock.vBuf[fsMock.seekPointer : fsMock.seekPointer+len(data)]
@@ -73,7 +73,7 @@ func (fsMock *FSMock) ReadAt(data []byte, off int64, fileID uint32) (int, error)
 	return len(data), nil
 }
 
-func (fsMock *FSMock) ReadBlock(blockIndex uint32) ([]byte, error) {
+func (fsMock *FSMock) ReadBlock(blockIndex uint32, fileID uint32) ([]byte, error) {
 	return fsMock.vBufBlocks[blockIndex], nil
 }
 

@@ -48,12 +48,20 @@ func (fse *FSEngine) prepareBlock(data []byte, fileID uint32, previousBlock uint
 	return dataTmp, nil
 }
 
-func (fse *FSEngine) parseBlock(data []byte) ([]byte, error) {
+func (fse *FSEngine) parseBlock(data []byte, blockID uint32, fileID uint32) ([]byte, error) {
+	pBlockID := binary.BigEndian.Uint32(data[0:4])
+	pFileID := binary.BigEndian.Uint32(data[4:8])
 	dataSize := binary.BigEndian.Uint32(data[12:16])
 	if dataSize > fse.blockSize-16 {
-		return nil, fmt.Errorf("blockd ata size is too large, dataSize: %v", dataSize)
+		return nil, fmt.Errorf("blockd data size is too large, dataSize: %v", dataSize)
 	}
 
+	if pBlockID != blockID {
+		return nil, fmt.Errorf("blockd id is wrong, pBlockID: %v, blockID: %v ", pBlockID, blockID)
+	}
+	if pFileID != fileID {
+		return nil, fmt.Errorf("file id is wrong, pFileID: %v, fileID: %v ", pBlockID, blockID)
+	}
 	return data[16 : dataSize+16], nil
 }
 

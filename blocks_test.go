@@ -49,7 +49,7 @@ func TestPrepareAndParseBlock(t *testing.T) {
 		assert.Equal(t, nil, err)
 		buf, err := fse.prepareBlock(token, uint32(fileIdTest), uint32(previousBlock), uint32(blockID))
 		assert.Equal(t, nil, err)
-		buf2, err := fse.parseBlock(buf)
+		buf2, err := fse.parseBlock(buf, uint32(blockID), uint32(fileIdTest))
 		assert.Equal(t, nil, err)
 		assert.Equal(t, buf2, token)
 
