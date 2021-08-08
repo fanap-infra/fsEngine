@@ -6,23 +6,28 @@ import (
 	"github.com/fanap-infra/fsEngine/internal/constants"
 )
 
-func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (n int, err error) {
+func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (int, error) {
 	// fse.log.Infov("FSEngine write in block", "blockIndex", blockIndex,
 	//	"maxNumberOfBlocks", fse.maxNumberOfBlocks, "len(data)", len(data))
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return 0, constants.ErrBlockIndexOutOFRange
 	}
+	if uint32(len(data)) > fse.blockSize {
+		return 0, fmt.Errorf("size of data is larger than block size, size of data: %v,"+
+			" but size of block is %v", len(data), fse.blockSize)
+	}
 
-	n, err = fse.file.WriteAt(data, int64(blockIndex)*int64(fse.blockSize))
+	n, err := fse.file.WriteAt(data, int64(blockIndex)*int64(fse.blockSize))
 	if err != nil {
 		fse.log.Errorv("Error Writing to file", "err", err.Error(),
 			"file", fse.file.Name(), "blockIndex", blockIndex)
+		return n, err
 	}
 
-	return
+	return n, nil
 }
 
-func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
+func (fse *FSEngine) ReadBlock(blockIndex uint32, fileID uint32) ([]byte, error) {
 	// fse.log.Infov("FSEngine read in block", "blockIndex", blockIndex)
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return nil, constants.ErrBlockIndexOutOFRange
@@ -37,7 +42,7 @@ func (fse *FSEngine) ReadBlock(blockIndex uint32) ([]byte, error) {
 	if n != int(fse.blockSize) {
 		return buf, constants.ErrDataBlockMismatch
 	}
-	data, err := fse.parseBlock(buf)
+	data, err := fse.parseBlock(buf, blockIndex, fileID)
 	if err != nil {
 		return nil, err
 	}
@@ -55,12 +60,12 @@ func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
 	return 0, fmt.Errorf("please impkement me")
 }
 
-func (fse *FSEngine) WriteAt(b []byte, off int64, fileID uint32) (n int, err error) {
-	// ToDo: complete it
-	n, err = fse.file.WriteAt(b, off)
-
-	return
-}
+//func (fse *FSEngine) WriteAt(b []byte, off int64, fileID uint32) (n int, err error) {
+//	// ToDo: complete it
+//	n, err = fse.file.WriteAt(b, off)
+//
+//	return
+//}
 
 func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 	fse.rIBlockMux.Lock()

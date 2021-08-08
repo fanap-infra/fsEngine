@@ -83,7 +83,7 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 }
 
 func (v *VirtualFile) readBlock(blockIndex uint32) (int, error) {
-	buf, err := v.fs.ReadBlock(blockIndex)
+	buf, err := v.fs.ReadBlock(blockIndex, v.id)
 	if err != nil {
 		return 0, err
 	}
