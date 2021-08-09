@@ -58,6 +58,9 @@ func (v *VirtualFile) Read(data []byte) (int, error) {
 			}
 			_, err := v.readBlock(blocks[v.nextBlockIndex])
 			if err != nil {
+				v.log.Warnv("can not read block", "v.nextBlockIndex", v.nextBlockIndex,
+					"blocks[v.nextBlockIndex]", blocks[v.nextBlockIndex], "v.bufStart", v.bufStart,
+					"v.seekPointer", v.seekPointer, "v.bufEnd", v.bufEnd, "err", err.Error())
 				return 0, err
 			}
 			v.nextBlockIndex = v.nextBlockIndex + 1
@@ -117,6 +120,9 @@ func (v *VirtualFile) ReadAt(data []byte, off int64) (int, error) {
 	v.bufEnd = int(blockIndex * v.blockSize)
 	_, err := v.readBlock(blocks[blockIndex])
 	if err != nil {
+		v.log.Warnv("can not read block", "v.nextBlockIndex", v.nextBlockIndex,
+			"blocks[v.nextBlockIndex]", blocks[v.nextBlockIndex], "v.bufStart", v.bufStart,
+			"v.seekPointer", v.seekPointer, "v.bufEnd", v.bufEnd, "err", err.Error())
 		return 0, err
 	}
 	v.seekPointer = int(off)
@@ -142,8 +148,15 @@ func (v *VirtualFile) ChangeSeekPointer(off int64) error {
 	v.bufEnd = int(blockIndex * v.blockSize)
 	_, err := v.readBlock(blocks[blockIndex])
 	if err != nil {
+		v.log.Warnv("can not read block", "v.nextBlockIndex", v.nextBlockIndex,
+			"blocks[v.nextBlockIndex]", blocks[v.nextBlockIndex], "v.bufStart", v.bufStart,
+			"v.seekPointer", v.seekPointer, "v.bufEnd", v.bufEnd, "err", err.Error())
+		v.bufStart = 0
+		v.bufEnd = 0
+		v.seekPointer = 0
 		return err
 	}
+
 	v.seekPointer = int(off)
 	v.nextBlockIndex = blockIndex + 1
 	return nil
