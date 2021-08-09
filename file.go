@@ -28,7 +28,7 @@ type FSEngine struct {
 	RMux              sync.Mutex
 	log               *log.Logger
 
-	rIBlockMux    sync.Mutex
+	// rIBlockMux    sync.Mutex
 	crudMutex     sync.Mutex
 	Cache         *lru.Cache
 	eventsHandler Events

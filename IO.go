@@ -9,6 +9,8 @@ import (
 func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (int, error) {
 	// fse.log.Infov("FSEngine write in block", "blockIndex", blockIndex,
 	//	"maxNumberOfBlocks", fse.maxNumberOfBlocks, "len(data)", len(data))
+	// fse.WMux.Lock()
+	// defer fse.WMux.Unlock()
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return 0, constants.ErrBlockIndexOutOFRange
 	}
@@ -28,6 +30,8 @@ func (fse *FSEngine) writeInBlock(data []byte, blockIndex uint32) (int, error) {
 }
 
 func (fse *FSEngine) ReadBlock(blockIndex uint32, fileID uint32) ([]byte, error) {
+	fse.RMux.Lock()
+	defer fse.RMux.Unlock()
 	// fse.log.Infov("FSEngine read in block", "blockIndex", blockIndex)
 	if blockIndex >= fse.maxNumberOfBlocks {
 		return nil, constants.ErrBlockIndexOutOFRange
@@ -50,8 +54,8 @@ func (fse *FSEngine) ReadBlock(blockIndex uint32, fileID uint32) ([]byte, error)
 }
 
 func (fse *FSEngine) ReadAt(data []byte, off int64, fileID uint32) (int, error) {
-	fse.rIBlockMux.Lock()
-	defer fse.rIBlockMux.Unlock()
+	// fse.rIBlockMux.Lock()
+	// defer fse.rIBlockMux.Unlock()
 	// ToDo: implement it
 	return 0, nil
 }
@@ -68,8 +72,8 @@ func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
 //}
 
 func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
-	fse.rIBlockMux.Lock()
-	defer fse.rIBlockMux.Unlock()
+	fse.WMux.Lock()
+	defer fse.WMux.Unlock()
 	dataSize := len(data)
 	if dataSize == 0 {
 		return 0, fmt.Errorf("data siz is zero, file ID: %v ", fileID)
@@ -123,8 +127,10 @@ func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
 
 // It is event handler
 func (fse *FSEngine) Closed(fileID uint32) error {
-	fse.rIBlockMux.Lock()
-	defer fse.rIBlockMux.Unlock()
+	fse.WMux.Lock()
+	defer fse.WMux.Unlock()
+	fse.RMux.Lock()
+	defer fse.RMux.Unlock()
 	err := fse.header.UpdateFSHeader()
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())
@@ -135,6 +141,7 @@ func (fse *FSEngine) Closed(fileID uint32) error {
 		return fmt.Errorf("this file ID: %v did not opened", fileID)
 	}
 	vfInfo.numberOfOpened = vfInfo.numberOfOpened - 1
+	fse.log.Infov("file closed", "fileID", fileID, "numberOfOpened", vfInfo.numberOfOpened)
 	if vfInfo.numberOfOpened == 0 {
 		delete(fse.openFiles, fileID)
 	}

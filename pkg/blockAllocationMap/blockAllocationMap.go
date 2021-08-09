@@ -29,8 +29,8 @@ func (blm *BlockAllocationMap) SetBlockAsAllocated(blockIndex uint32) error {
 		return fmt.Errorf("block number %v is allocated before", blockIndex)
 	}
 	// ToDO: make this operation atomic
-	blm.LastWrittenBlock = blockIndex
 	blm.mu.Lock()
+	blm.LastWrittenBlock = blockIndex
 	blm.rMap.Add(blockIndex)
 	blm.mu.Unlock()
 	return nil
