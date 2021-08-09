@@ -49,7 +49,12 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 		if err != nil {
 			return nil, err
 		}
-		vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-constants.BlockHeaderSize, fse, vfInfo.blm,
+		blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
+			fileInfo.GetRMapBlocks())
+		if err != nil {
+			return nil, err
+		}
+		vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-constants.BlockHeaderSize, fse, blm,
 			int(fse.blockSize-constants.BlockHeaderSize)*constants.VirtualFileBufferBlockNumber, fse.log)
 		vfInfo.numberOfOpened = vfInfo.numberOfOpened + 1
 		return vf, nil

@@ -36,6 +36,8 @@ func Open(log *log.Logger, listener Events, maxNumberOfBlocks uint32, lastWritte
 }
 
 func Marshal(bAllocationMap *BlockAllocationMap) ([]byte, error) {
+	bAllocationMap.mu.Lock()
+	defer bAllocationMap.mu.Unlock()
 	bAllocationMap.rMap.RunOptimize()
 	byteArray := bytes.Buffer{}
 	_, err := bAllocationMap.rMap.WriteTo(&byteArray)

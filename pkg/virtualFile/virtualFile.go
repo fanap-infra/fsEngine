@@ -1,6 +1,8 @@
 package virtualFile
 
 import (
+	"sync"
+
 	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
 
 	"github.com/fanap-infra/log"
@@ -20,13 +22,13 @@ type VirtualFile struct {
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap
 	blockSize          uint32
 	nextBlockIndex     uint32
-
-	allocatedBlock []uint32
-	readOnly       bool
-	fileSize       uint32
-	seekPointer    int
-	bufStart       int
-	bufEnd         int
+	WMux               sync.Mutex
+	allocatedBlock     []uint32
+	readOnly           bool
+	fileSize           uint32
+	seekPointer        int
+	bufStart           int
+	bufEnd             int
 
 	fs  FS
 	log *log.Logger

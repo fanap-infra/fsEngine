@@ -12,6 +12,8 @@ const EndOfFile = errPackage.Error("end of file")
 
 // returns int bytes of written data.
 func (v *VirtualFile) Write(data []byte) (int, error) {
+	v.WMux.Lock()
+	defer v.WMux.Unlock()
 	if v.readOnly {
 		return 0, errors.New("this virtual file is opened in read mode, so you can not write to it")
 	}
@@ -165,6 +167,8 @@ func (v *VirtualFile) ChangeSeekPointer(off int64) error {
 // Close
 func (v *VirtualFile) Close() error {
 	if !v.readOnly {
+		v.WMux.Lock()
+		defer v.WMux.Unlock()
 		if uint32(len(v.bufTX)) > 0 {
 			_, err := v.fs.Write(v.bufTX, v.id)
 			if err != nil {
@@ -188,6 +192,8 @@ func (v *VirtualFile) Close() error {
 }
 
 func (v *VirtualFile) UpdateFileOptionalData(info []byte) error {
+	v.WMux.Lock()
+	defer v.WMux.Unlock()
 	if v.readOnly {
 		return errors.New("this virtual file is opened in read mode, so you can not update any thing")
 	}

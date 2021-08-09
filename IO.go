@@ -141,6 +141,7 @@ func (fse *FSEngine) Closed(fileID uint32) error {
 		return fmt.Errorf("this file ID: %v did not opened", fileID)
 	}
 	vfInfo.numberOfOpened = vfInfo.numberOfOpened - 1
+	fse.log.Infov("file closed", "fileID", fileID, "numberOfOpened", vfInfo.numberOfOpened)
 	if vfInfo.numberOfOpened == 0 {
 		delete(fse.openFiles, fileID)
 	}
