@@ -5,12 +5,23 @@ import (
 )
 
 func (hfs *HFileSystem) writeAt(b []byte, off int64) (n int, err error) {
+	hfs.wMux.Lock()
+	defer hfs.wMux.Unlock()
 	n, err = hfs.file.WriteAt(b, off)
+	return
+}
+
+func (hfs *HFileSystem) readAt(b []byte, off int64) (n int, err error) {
+	hfs.wMux.Lock()
+	defer hfs.wMux.Unlock()
+	n, err = hfs.file.ReadAt(b, off)
 	return
 }
 
 // Close ...
 func (hfs *HFileSystem) Close() error {
+	hfs.mu.Lock()
+	defer hfs.mu.Unlock()
 	defer func() {
 		err := hfs.file.Close()
 		if err != nil {
@@ -49,5 +60,5 @@ func (hfs *HFileSystem) Close() error {
 func (hfs *HFileSystem) writeEOPart(off int64) (n int, err error) {
 	buf := make([]byte, 4)
 	binary.BigEndian.PutUint32(buf, EOPart)
-	return hfs.file.WriteAt(buf, off)
+	return hfs.writeAt(buf, off)
 }

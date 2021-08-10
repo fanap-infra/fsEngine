@@ -49,13 +49,15 @@ func (hfs *HFileSystem) updateFileIndex() error {
 			hfs.fileIndexSize, FileIndexMaxByteSize)
 	}
 
-	n, err := hfs.file.WriteAt(fi, FileIndexByteIndex)
+	// n, err := hfs.file.WriteAt(fi, FileIndexByteIndex)
+	n, err := hfs.writeAt(fi, HeaderBlockIndex)
 	if err != nil {
 		return err
 	}
 	if n != len(fi) {
 		return fmt.Errorf("fileIndex did not write complete, header size: %v, written size: %v", len(fi), n)
 	}
+
 	n, err = hfs.writeEOPart(int64(FileIndexByteIndex + n))
 	if err != nil {
 		return err
@@ -74,7 +76,7 @@ func (hfs *HFileSystem) parseFileIndex() error {
 		hfs.log.Warnv("file index size is zero", "fileIndexSize", hfs.fileIndexSize)
 		return nil
 	}
-	n, err := hfs.file.ReadAt(buf, FileIndexByteIndex)
+	n, err := hfs.readAt(buf, FileIndexByteIndex)
 	if err != nil {
 		return err
 	}

@@ -49,6 +49,10 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 		if err != nil {
 			return nil, err
 		}
+		if len(fileInfo.GetRMapBlocks()) == 0 {
+			log.Warnv("can not open virtual file, roaring byte array length is zero", "id", id)
+			return nil, fmt.Errorf("virtual file is empty, id: %v", id)
+		}
 		blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
 			fileInfo.GetRMapBlocks())
 		if err != nil {
@@ -63,6 +67,10 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	fileInfo, err := fse.header.GetFileData(id)
 	if err != nil {
 		return nil, err
+	}
+	if len(fileInfo.GetRMapBlocks()) == 0 {
+		log.Warnv("can not open virtual file, roaring byte array length is zero", "id", id)
+		return nil, fmt.Errorf("virtual file is empty, id: %v", id)
 	}
 	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
 		fileInfo.GetRMapBlocks())
@@ -90,6 +98,10 @@ func (fse *FSEngine) RemoveVirtualFile(id uint32) error {
 	fileInfo, err := fse.header.GetFileData(id)
 	if err != nil {
 		return err
+	}
+	if len(fileInfo.GetRMapBlocks()) == 0 {
+		log.Warnv("can not remove virtual files block, roaring byte array length is zero", "id", id)
+		return fse.header.RemoveVirtualFile(id)
 	}
 	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
 		fileInfo.GetRMapBlocks())

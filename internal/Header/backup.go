@@ -61,7 +61,7 @@ func (hfs *HFileSystem) updateHash() error {
 			b = make([]byte, HashByteIndex-counter)
 		}
 
-		n, err := hfs.file.ReadAt(b, counter)
+		n, err := hfs.readAt(b, counter)
 		if err != nil {
 			hfs.log.Errorv("can not read file to hash",
 				"n", n, "err", err.Error())
@@ -102,7 +102,7 @@ func (hfs *HFileSystem) updateHash() error {
 	//	return fmt.Errorf("can not write completely to hash writer")
 	//}
 	hash := hashMaker.Sum(nil)
-	n, err := hfs.file.WriteAt(hash, HashByteIndex)
+	n, err := hfs.writeAt(hash, HashByteIndex)
 	if err != nil {
 		hfs.log.Errorv("can not write to file",
 			"n", n, "err", err.Error())
@@ -125,7 +125,7 @@ func (hfs *HFileSystem) checkHash() bool {
 			b = make([]byte, HashByteIndex-counter)
 		}
 
-		n, err := hfs.file.ReadAt(b, counter)
+		n, err := hfs.readAt(b, counter)
 		if err != nil {
 			hfs.log.Errorv("can not read file to hash",
 				"n", n, "err", err.Error())
@@ -150,7 +150,7 @@ func (hfs *HFileSystem) checkHash() bool {
 	hash := hashMaker.Sum(nil)
 
 	hashValue := make([]byte, HashSize)
-	n, err := hfs.file.ReadAt(hashValue, HashByteIndex)
+	n, err := hfs.readAt(hashValue, HashByteIndex)
 	if err != nil {
 		hfs.log.Errorv("can not read hash value",
 			"n", n, "err", err.Error())

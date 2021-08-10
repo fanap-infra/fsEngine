@@ -15,5 +15,7 @@ func (i *FileIndex) GenerateBinary() (data []byte, err error) {
 }
 
 func (i *FileIndex) InitFromBinary(data []byte) error {
+	i.rwMux.Lock()
+	defer i.rwMux.Unlock()
 	return proto.Unmarshal(data, i.table)
 }

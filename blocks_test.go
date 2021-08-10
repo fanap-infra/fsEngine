@@ -57,6 +57,38 @@ func TestPrepareAndParseBlock(t *testing.T) {
 	}
 }
 
+func TestPrepareAndParseBlockManually(t *testing.T) {
+	homePath, err := os.UserHomeDir()
+	assert.Equal(t, nil, err)
+	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
+	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
+	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
+	eventListener := EventsListener{t: t}
+	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	assert.Equal(t, nil, err)
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
+	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
+
+	blockID := 8201
+	fileIdTest := 2100
+	previousBlock := 0
+	// for i := 0; i < numberOfTests; i++ {
+	token := make([]byte, uint32(rand.Intn(blockSizeTest)))
+	_, err = rand.Read(token)
+	assert.Equal(t, nil, err)
+	buf, err := fse.prepareBlock(token, uint32(fileIdTest), uint32(previousBlock), uint32(blockID))
+	assert.Equal(t, nil, err)
+	buf2, err := fse.parseBlock(buf, uint32(blockID), uint32(fileIdTest))
+	assert.Equal(t, nil, err)
+	assert.Equal(t, buf2, token)
+
+	err = fse.Close()
+	assert.Equal(t, nil, err)
+	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
+	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
+	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
+}
+
 func TestFSEngine_NoSpace(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
