@@ -201,6 +201,7 @@ func (v *VirtualFile) UpdateFileOptionalData(info []byte) error {
 	data, err := blockAllocationMap.Marshal(v.blockAllocationMap)
 	if err != nil {
 		v.log.Errorv("can not marshal bam", "err", err.Error())
+		return err
 	}
 	return v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize, data, v.optionalData)
 }

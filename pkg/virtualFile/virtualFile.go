@@ -38,6 +38,10 @@ func (v *VirtualFile) GetFileName() string {
 	return v.name
 }
 
+func (v *VirtualFile) GetFileID() uint32 {
+	return v.id
+}
+
 func (v *VirtualFile) GetSeek() int {
 	return v.seekPointer
 }

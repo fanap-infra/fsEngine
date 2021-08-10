@@ -17,7 +17,7 @@ func (hfs *HFileSystem) updateBLM() error {
 		return fmt.Errorf("blm size %v is too large, Max valid size: %v", hfs.blmSize, BlockAllocationMaxByteSize)
 	}
 
-	n, err := hfs.file.WriteAt(data, BlockAllocationMapByteIndex)
+	n, err := hfs.writeAt(data, BlockAllocationMapByteIndex)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func (hfs *HFileSystem) updateBLM() error {
 func (hfs *HFileSystem) parseBLM() error {
 	buf := make([]byte, hfs.blmSize)
 
-	n, err := hfs.file.ReadAt(buf, BlockAllocationMapByteIndex)
+	n, err := hfs.readAt(buf, BlockAllocationMapByteIndex)
 	if err != nil {
 		return err
 	}

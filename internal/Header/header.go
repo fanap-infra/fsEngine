@@ -85,7 +85,7 @@ func (hfs *HFileSystem) updateHeader() error {
 func (hfs *HFileSystem) parseHeader() error {
 	buf := make([]byte, HeaderByteSize)
 
-	n, err := hfs.file.ReadAt(buf, HeaderBlockIndex)
+	n, err := hfs.readAt(buf, HeaderBlockIndex)
 	if err != nil {
 		return err
 	}

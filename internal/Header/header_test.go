@@ -42,7 +42,7 @@ func TestStoreHeader(t *testing.T) {
 
 	buf := make([]byte, fs.blmSize)
 
-	m, err := fs.file.ReadAt(buf, BlockAllocationMapByteIndex)
+	m, err := fs.readAt(buf, BlockAllocationMapByteIndex)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, fs.blmSize, uint32(m))
 

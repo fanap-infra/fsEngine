@@ -2,6 +2,7 @@ package Header_
 
 import (
 	"os"
+	"sync"
 	"time"
 
 	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
@@ -12,6 +13,7 @@ import (
 
 type HFileSystem struct {
 	file               *os.File // file handle instance
+	wMux               sync.Mutex
 	version            uint32
 	size               int64
 	CurrentFile        string                                 // name of the latest file to be created
@@ -27,12 +29,15 @@ type HFileSystem struct {
 	path          string
 	log           *log.Logger
 	fiChecksum    uint32
-
-	conf         configs
-	eventHandler blockAllocationMap.Events
+	mu            sync.Mutex
+	conf          configs
+	eventHandler  blockAllocationMap.Events
 }
 
 func (hfs *HFileSystem) UpdateFSHeader() error {
+	hfs.mu.Lock()
+	defer hfs.mu.Unlock()
+
 	err := hfs.updateFileIndex()
 	if err != nil {
 		return err
@@ -48,10 +53,10 @@ func (hfs *HFileSystem) UpdateFSHeader() error {
 		return err
 	}
 
-	err = hfs.file.Sync()
-	if err != nil {
-		hfs.log.Warnv("Can not sync file", "err", err.Error())
-	}
+	//err = hfs.file.Sync()
+	//if err != nil {
+	//	hfs.log.Warnv("Can not sync file", "err", err.Error())
+	//}
 
 	//err = hfs.updateHash()
 	//if err != nil {

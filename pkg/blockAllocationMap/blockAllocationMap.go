@@ -50,7 +50,9 @@ func (blm *BlockAllocationMap) IsBlockAllocated(blockIndex uint32) bool {
 
 func (blm *BlockAllocationMap) FindNextFreeBlockAndAllocate() uint32 {
 	// first block is one, last block that written is zero
+	// blm.mu.Lock()
 	freeIndex := blm.LastWrittenBlock + 1
+	//blm.mu.Unlock()
 	//counter := 0
 	//defer func() {
 	//	blm.log.Infov("number of running in loop", "counter", counter)
