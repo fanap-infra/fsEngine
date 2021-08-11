@@ -39,7 +39,7 @@ func (fse *FSEngine) ReadBlock(blockIndex uint32, fileID uint32) ([]byte, error)
 
 	var err error
 	buf := make([]byte, fse.blockSize)
-	n, err := fse.file.ReadAt(buf, int64(blockIndex*fse.blockSize))
+	n, err := fse.file.ReadAt(buf, int64(blockIndex)*int64(fse.blockSize))
 	if err != nil {
 		return nil, err
 	}

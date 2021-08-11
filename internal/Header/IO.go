@@ -47,12 +47,12 @@ func (hfs *HFileSystem) Close() error {
 	}
 
 	// ToDo:update file system
-	//err = hfs.file.Sync()
-	//if err != nil {
-	//	hfs.log.Warnv("Can not sync file", "err", err.Error())
-	//	// ToDo: remove it
-	//	return err
-	//}
+	err = hfs.file.Sync()
+	if err != nil {
+		hfs.log.Warnv("Can not sync file", "err", err.Error())
+		// ToDo: remove it
+		return err
+	}
 
 	return nil
 }
