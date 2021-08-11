@@ -2,7 +2,6 @@ package Header_
 
 import (
 	"fmt"
-	"hash/crc32"
 
 	"github.com/fanap-infra/fsEngine/pkg/fileIndex"
 )
@@ -32,21 +31,21 @@ func (hfs *HFileSystem) updateFileIndex() error {
 	if err != nil {
 		return err
 	}
-	hfs.fileIndexSize = uint32(len(fi))
-	checkSum := crc32.ChecksumIEEE(fi)
-	if hfs.fiChecksum == checkSum {
-		return nil
+	if len(fi) > FileIndexMaxByteSize {
+		return fmt.Errorf("fileIndex size %v is too large, Max valid size: %v",
+			len(fi), FileIndexMaxByteSize)
 	}
-	hfs.fiChecksum = checkSum
+	hfs.fileIndexSize = uint32(len(fi))
+	//checkSum := crc32.ChecksumIEEE(fi)
+	//if hfs.fiChecksum == checkSum {
+	//	return nil
+	//}
+	//hfs.fiChecksum = checkSum
 
 	if hfs.fileIndexSize == 0 {
 		hfs.log.Warn("file indexes size is zero")
 		// return fmt.Errorf("fileIndex size %v is Zero",
 		//	hfs.fileIndexSize)
-	}
-	if hfs.fileIndexSize > FileIndexMaxByteSize {
-		return fmt.Errorf("fileIndex size %v is too large, Max valid size: %v",
-			hfs.fileIndexSize, FileIndexMaxByteSize)
 	}
 
 	// n, err := hfs.file.WriteAt(fi, FileIndexByteIndex)

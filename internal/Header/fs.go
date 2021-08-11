@@ -28,10 +28,10 @@ type HFileSystem struct {
 	blmSize       uint32
 	path          string
 	log           *log.Logger
-	fiChecksum    uint32
-	mu            sync.Mutex
-	conf          configs
-	eventHandler  blockAllocationMap.Events
+	// fiChecksum    uint32
+	mu           sync.Mutex
+	conf         configs
+	eventHandler blockAllocationMap.Events
 }
 
 func (hfs *HFileSystem) UpdateFSHeader() error {
@@ -53,10 +53,10 @@ func (hfs *HFileSystem) UpdateFSHeader() error {
 		return err
 	}
 
-	//err = hfs.file.Sync()
-	//if err != nil {
-	//	hfs.log.Warnv("Can not sync file", "err", err.Error())
-	//}
+	err = hfs.file.Sync()
+	if err != nil {
+		hfs.log.Warnv("Can not sync file", "err", err.Error())
+	}
 
 	//err = hfs.updateHash()
 	//if err != nil {
