@@ -133,7 +133,7 @@ func TestFSEngine_NoSpace(t *testing.T) {
 	for j, vf := range virtualFiles {
 		size := 0
 		for {
-			token := make([]byte, uint32(rand.Intn(MaxByteArraySize)))
+			token := make([]byte, uint32(1+rand.Intn(MaxByteArraySize)))
 			m, err := rand.Read(token)
 			assert.Equal(t, nil, err)
 			bytes[j] = append(bytes[j], token)
