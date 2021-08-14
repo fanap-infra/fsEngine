@@ -7,11 +7,13 @@ import (
 
 	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
 	"github.com/fanap-infra/fsEngine/pkg/fileIndex"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/fanap-infra/log"
 )
 
 type HFileSystem struct {
+	id                 uint32
 	file               *os.File // file handle instance
 	wMux               sync.Mutex
 	version            uint32
@@ -22,23 +24,23 @@ type HFileSystem struct {
 	blockSize          uint32                                 // in bytes, size of each block
 	lastWrittenBlock   uint32                                 // the last block that has been written into
 	blockAllocationMap *blockAllocationMap.BlockAllocationMap // BAM data in memory coded with roaring, to be synced later on to Disk.
-	// openFiles          map[uint32]*virtualFile.VirtualFile
-	fileIndex     *fileIndex.FileIndex
-	fileIndexSize uint32
-	blmSize       uint32
-	path          string
-	log           *log.Logger
-	// fiChecksum    uint32
-	mu           sync.Mutex
-	conf         configs
-	eventHandler blockAllocationMap.Events
+	fileIndexes        []*fileIndex.FileIndex
+	fileIndexSize      uint32
+	blmSize            uint32
+	path               string
+	log                *log.Logger
+	mu                 sync.Mutex
+	conf               configs
+	eventHandler       blockAllocationMap.Events
+	storeInRedis       bool
+	redisClient        *redis.Client
 }
 
 func (hfs *HFileSystem) UpdateFSHeader() error {
 	hfs.mu.Lock()
 	defer hfs.mu.Unlock()
 
-	err := hfs.updateFileIndex()
+	err := hfs.updateAllFileIndex()
 	if err != nil {
 		return err
 	}
@@ -53,10 +55,10 @@ func (hfs *HFileSystem) UpdateFSHeader() error {
 		return err
 	}
 
-	err = hfs.file.Sync()
-	if err != nil {
-		hfs.log.Warnv("Can not sync file", "err", err.Error())
-	}
+	//err = hfs.file.Sync()
+	//if err != nil {
+	//	hfs.log.Warnv("Can not sync file", "err", err.Error())
+	//}
 
 	//err = hfs.updateHash()
 	//if err != nil {

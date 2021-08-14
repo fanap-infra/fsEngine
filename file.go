@@ -14,6 +14,7 @@ import (
 
 // File
 type FSEngine struct {
+	id                uint32
 	file              *os.File // file handle instance
 	header            *Header_.HFileSystem
 	version           uint32
@@ -27,12 +28,10 @@ type FSEngine struct {
 	WMux              sync.Mutex
 	RMux              sync.Mutex
 	log               *log.Logger
-
-	// rIBlockMux    sync.Mutex
-	crudMutex     sync.Mutex
-	Cache         *lru.Cache
-	eventsHandler Events
-	Quit          chan struct{}
+	crudMutex         sync.Mutex
+	Cache             *lru.Cache
+	eventsHandler     Events
+	Quit              chan struct{}
 }
 
 // Close ...

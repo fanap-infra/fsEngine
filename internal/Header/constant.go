@@ -65,5 +65,5 @@ const (
 	//FileIndexReservedSizeBlocks = (FileIndexReservedSize / BLOCKSIZEUSABLE) * 2
 
 	// DataStartBlock = (BlockAllocationMapSize / BLOCKSIZEUSABLE) + FileIndexReservedSizeBlocks + 1
-
+	numberOfFileIndexes = 20
 )

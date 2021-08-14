@@ -17,6 +17,14 @@ func (hfs *HFileSystem) updateBLM() error {
 		return fmt.Errorf("blm size %v is too large, Max valid size: %v", hfs.blmSize, BlockAllocationMaxByteSize)
 	}
 
+	if hfs.storeInRedis {
+		err := hfs.setRedisKeyValue("arch"+fmt.Sprint(hfs.id)+"_BLM", data)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
 	n, err := hfs.writeAt(data, BlockAllocationMapByteIndex)
 	if err != nil {
 		return err
@@ -37,15 +45,26 @@ func (hfs *HFileSystem) updateBLM() error {
 }
 
 func (hfs *HFileSystem) parseBLM() error {
-	buf := make([]byte, hfs.blmSize)
+	var buf []byte
+	var err error
+	if hfs.storeInRedis {
+		buf, err = hfs.getRedisValue("arch" + fmt.Sprint(hfs.id) + "_BLM")
+		if err != nil {
+			hfs.log.Errorv("can get value from redis", "key", "arch"+fmt.Sprint(hfs.id)+"_BLM",
+				"err", err.Error())
+			return err
+		}
+	} else {
+		buf = make([]byte, hfs.blmSize)
 
-	n, err := hfs.readAt(buf, BlockAllocationMapByteIndex)
-	if err != nil {
-		return err
-	}
+		n, err := hfs.readAt(buf, BlockAllocationMapByteIndex)
+		if err != nil {
+			return err
+		}
 
-	if n != int(hfs.blmSize) {
-		return ErrDataBlockMismatch
+		if n != int(hfs.blmSize) {
+			return ErrDataBlockMismatch
+		}
 	}
 
 	blm, err := blockAllocationMap.Open(hfs.log, hfs.eventHandler, hfs.maxNumberOfBlocks, hfs.lastWrittenBlock, buf)

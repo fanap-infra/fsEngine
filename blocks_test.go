@@ -33,7 +33,7 @@ func TestPrepareAndParseBlock(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -64,7 +64,7 @@ func TestPrepareAndParseBlockManually(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -96,7 +96,7 @@ func TestFSEngine_NoSpace(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))

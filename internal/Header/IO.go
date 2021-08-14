@@ -29,7 +29,7 @@ func (hfs *HFileSystem) Close() error {
 		}
 	}()
 
-	err := hfs.updateFileIndex()
+	err := hfs.updateAllFileIndex()
 	if err != nil {
 		return err
 	}

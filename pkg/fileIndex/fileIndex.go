@@ -5,9 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fanap-infra/log"
-
-	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -25,10 +23,8 @@ func (i *FileIndex) AddFile(fileId uint32, name string) error {
 	if i.checkFileExist(fileId) {
 		return fmt.Errorf("file id %v has been added before", fileId)
 	}
-	createdTime, err := ptypes.TimestampProto(time.Now().Local())
-	if err != nil {
-		return err
-	}
+	createdTime := timestamppb.New(time.Now().Local())
+
 	i.table.NumberFiles++
 	i.table.Files[fileId] = &File{
 		Id: fileId, FirstBlock: 0, LastBlock: 0,
@@ -48,12 +44,13 @@ func (i *FileIndex) FindOldestFile() (*File, error) {
 		return nil, fmt.Errorf("there is no file")
 	}
 	for _, file := range i.table.Files {
-		createdTime, err := ptypes.Timestamp(file.CreatedTime)
-		if err != nil {
-			log.Errorv("can not parse file created time", "id", file.Id,
-				"err", err.Error())
-			continue
-		}
+		// createdTime, err := ptypes.Timestamp(file.CreatedTime)
+		createdTime := file.CreatedTime.AsTime()
+		//if err != nil {
+		//	log.Errorv("can not parse file created time", "id", file.Id,
+		//		"err", err.Error())
+		//	continue
+		//}
 		if oldestTime.After(createdTime) {
 			foundedFile = file
 			oldestTime = createdTime

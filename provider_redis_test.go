@@ -4,22 +4,21 @@ import (
 	"os"
 	"testing"
 
+	"github.com/fanap-infra/fsEngine/pkg/redisClient"
+
 	"github.com/fanap-infra/fsEngine/internal/constants"
-
 	"github.com/fanap-infra/fsEngine/pkg/utils"
-
 	"github.com/fanap-infra/log"
-
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	blockSizeTest = 5120
-	fileSizeTest  = blockSizeTest * 128
-	fsID          = 11
-)
+var redisOptions = &redisClient.RedisOptions{
+	Addr:     "127.0.0.1:6379",
+	Password: "",
+	DB:       0,
+}
 
-func TestCreateFS(t *testing.T) {
+func TestCreateFS_Redis(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
@@ -27,7 +26,7 @@ func TestCreateFS(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
 	_, err = CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest,
-		&eventListener, log.GetScope("test"), nil)
+		&eventListener, log.GetScope("test"), redisOptions)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -40,7 +39,7 @@ func TestCreateFS(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 }
 
-func TestParseFS(t *testing.T) {
+func TestParseFS_Redis(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
@@ -48,9 +47,9 @@ func TestParseFS(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
 	_, err = CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest,
-		&eventListener, log.GetScope("test"), nil)
+		&eventListener, log.GetScope("test"), redisOptions)
 	assert.Equal(t, nil, err)
-	fs, err := ParseFileSystem(fsID, homePath, &eventListener, log.GetScope("test"), nil)
+	fs, err := ParseFileSystem(fsID, homePath, &eventListener, log.GetScope("test"), redisOptions)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, fs.blockSize, uint32(blockSizeTest))
 	assert.Equal(t, fs.maxNumberOfBlocks, uint32(fileSizeTest/blockSizeTest))

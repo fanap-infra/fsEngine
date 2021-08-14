@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fanap-infra/fsEngine/pkg/redisClient"
+
 	"github.com/fanap-infra/fsEngine/internal/constants"
 
 	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
@@ -15,8 +17,9 @@ import (
 	"github.com/fanap-infra/log"
 )
 
-func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger,
-	eventHandler blockAllocationMap.Events) (*HFileSystem, error) {
+// if redis options is nil, use file for storing data
+func CreateHeaderFS(id uint32, path string, size int64, blockSize uint32, log *log.Logger,
+	eventHandler blockAllocationMap.Events, options *redisClient.RedisOptions) (*HFileSystem, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -51,25 +54,41 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger,
 		log.Warnv("write token ", "err", err.Error())
 	}
 	if uint32(n) != blockSize {
-		log.Warnv("does not write completely ", "err", err.Error(), "n", n)
+		log.Warnv("does not write completely ", "n", n)
+	}
+
+	storeInRedis := false
+	if options != nil {
+		storeInRedis = true
 	}
 
 	fs := &HFileSystem{
+		id:                 id,
 		file:               file,
 		size:               size,
 		version:            FileSystemVersion,
 		maxNumberOfBlocks:  uint32(size / int64(blockSize)),
 		blockSize:          blockSize,
-		fileIndex:          fileIndex.NewFileIndex(),
 		blockAllocationMap: blockAllocationMap.New(log, eventHandler, uint32(size/int64(blockSize))),
 		log:                log,
 		eventHandler:       eventHandler,
 		path:               path,
+		storeInRedis:       storeInRedis,
+	}
+
+	if storeInRedis {
+		fs.redisClient = redisClient.Connect(options)
+		// ToDo: add numberOfFileIndexes to header
+		for i := 0; i < numberOfFileIndexes; i++ {
+			fs.fileIndexes = append(fs.fileIndexes, fileIndex.NewFileIndex())
+		}
+	} else {
+		fs.fileIndexes = append(fs.fileIndexes, fileIndex.NewFileIndex())
 	}
 
 	loadConf(fs)
 
-	err = fs.updateFileIndex()
+	err = fs.updateAllFileIndex()
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +111,8 @@ func CreateHeaderFS(path string, size int64, blockSize uint32, log *log.Logger,
 	return fs, nil
 }
 
-func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap.Events) (*HFileSystem, error) {
+func ParseHeaderFS(id uint32, path string, log *log.Logger, eventHandler blockAllocationMap.Events,
+	options *redisClient.RedisOptions) (*HFileSystem, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -105,14 +125,29 @@ func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap
 	if err != nil {
 		return nil, err
 	}
+	storeInRedis := false
+	if options != nil {
+		storeInRedis = true
+	}
 
 	hfs := &HFileSystem{
+		id:           id,
 		file:         file,
 		size:         size,
-		fileIndex:    fileIndex.NewFileIndex(),
 		path:         path,
 		log:          log,
 		eventHandler: eventHandler,
+		storeInRedis: storeInRedis,
+	}
+
+	if storeInRedis {
+		hfs.redisClient = redisClient.Connect(options)
+		// ToDo: add numberOfFileIndexes to header
+		for i := 0; i < numberOfFileIndexes; i++ {
+			hfs.fileIndexes = append(hfs.fileIndexes, fileIndex.NewFileIndex())
+		}
+	} else {
+		hfs.fileIndexes = append(hfs.fileIndexes, fileIndex.NewFileIndex())
 	}
 
 	err = hfs.parseHeader()
@@ -120,7 +155,7 @@ func ParseHeaderFS(path string, log *log.Logger, eventHandler blockAllocationMap
 		return hfs, err
 	}
 
-	err = hfs.parseFileIndex()
+	err = hfs.parseAllFileIndexes()
 	if err != nil {
 		return hfs, err
 	}

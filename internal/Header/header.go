@@ -6,14 +6,13 @@ import (
 )
 
 // generate Header
-// 	+------------+---------+-----------+------------+------------+---------------+
-//	| Identifier | Version | BLOCKSIZE | BLOCKCOUNT | LastWBlock | FileIndexSize |
-//	+============+=========+===========+============+============+===============+
-//	|   8 BYTES  | 4 BYTES |  8 BYTES  |   8 BYTES  |   8 BYTES  |     8 BYTES   |
-//	+------------+---------+-----------+------------+------------+---------------+
-//	|    CONST   |  uint32 |   uint64  |   uint64   |   uint64   |     uint64    |
-//	+------------+---------+-----------+------------+------------+---------------+
-//
+// 	+------------+---------+-----------+------------+------------+---------------+-----------+--------------+
+//	| Identifier | Version | BLOCKSIZE | BLOCKCOUNT | LastWBlock | FileIndexSize |  BLMSize   |     ID      |
+//	+============+=========+===========+============+============+===============+=========+================+
+//	|   8 BYTES  | 4 BYTES |  4 BYTES  |   4 BYTES  |  4 BYTES   |    4 BYTES    |  4 BYTES   |    4 BYTES  |
+//	+------------+---------+-----------+------------+------------+---------------+------------+-------------+
+//	|    CONST   |  uint32 |   uint32  |   uint32   |   uint32   |     uint32    |   uint32   |   uint32    |
+//	+------------+---------+-----------+------------+------------+---------------+------------+-------------+
 func (hfs *HFileSystem) generateHeader() (header []byte) {
 	header = make([]byte, 0)
 	tmp32 := make([]byte, 4)
@@ -45,18 +44,24 @@ func (hfs *HFileSystem) generateHeader() (header []byte) {
 	binary.BigEndian.PutUint32(tmp32, hfs.blmSize)
 	header = append(header, tmp32...)
 
-	//// *** why add this line ???
-	//dataTmp := make([]byte, fs.blockSize-uint32(len(header)))
-	//header = append(header, dataTmp...)
+	// id
+	binary.BigEndian.PutUint32(tmp32, hfs.id)
+	header = append(header, tmp32...)
+
 	return
 }
 
 func (hfs *HFileSystem) updateHeader() error {
 	header := hfs.generateHeader()
 	headerSize := len(header)
-	// dataTmp := make([]byte, uint32(headerSize))
-	// dataTmp = append(header, dataTmp...)
 
+	if hfs.storeInRedis {
+		err := hfs.setRedisKeyValue("arch"+fmt.Sprint(hfs.id)+"_header", header)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	n, err := hfs.writeAt(header, HeaderBlockIndex)
 	if err != nil {
 		return err
@@ -83,33 +88,44 @@ func (hfs *HFileSystem) updateHeader() error {
 }
 
 func (hfs *HFileSystem) parseHeader() error {
-	buf := make([]byte, HeaderByteSize)
+	var buf []byte
+	var err error
+	if hfs.storeInRedis {
+		buf, err = hfs.getRedisValue("arch" + fmt.Sprint(hfs.id) + "_header")
+		if err != nil {
+			hfs.log.Errorv("can get value from redis", "key", "arch"+fmt.Sprint(hfs.id)+"_header",
+				"err", err.Error())
+			return err
+		}
+	} else {
+		buf = make([]byte, HeaderByteSize)
+		n, err := hfs.readAt(buf, HeaderBlockIndex)
+		if err != nil {
+			return err
+		}
+		if n != HeaderByteSize {
+			return ErrDataBlockMismatch
+		}
+		// read header
+		if string(buf[:len(FileSystemIdentifier)]) != FileSystemIdentifier {
+			return ErrArchiverIdentifier
 
-	n, err := hfs.readAt(buf, HeaderBlockIndex)
-	if err != nil {
-		return err
+			//// read backup header
+			//fs.log.Warnv("First file header is corrupted", "byte array", buf)
+			//
+			//n, err := fs.file.ReadAt(buf, fs.size-HeaderByteSize)
+			//if err != nil {
+			//	return err
+			//}
+			//if n != HeaderByteSize {
+			//	return ErrDataBlockMismatch
+			//}
+			//if string(buf[:len(FileSystemIdentifier)]) != FileSystemIdentifier {
+			//	return ErrArchiverIdentifier
+			//}
+		}
 	}
-	if n != HeaderByteSize {
-		return ErrDataBlockMismatch
-	}
-	// read header
-	if string(buf[:len(FileSystemIdentifier)]) != FileSystemIdentifier {
-		return ErrArchiverIdentifier
 
-		//// read backup header
-		//fs.log.Warnv("First file header is corrupted", "byte array", buf)
-		//
-		//n, err := fs.file.ReadAt(buf, fs.size-HeaderByteSize)
-		//if err != nil {
-		//	return err
-		//}
-		//if n != HeaderByteSize {
-		//	return ErrDataBlockMismatch
-		//}
-		//if string(buf[:len(FileSystemIdentifier)]) != FileSystemIdentifier {
-		//	return ErrArchiverIdentifier
-		//}
-	}
 	// ToDO:make compatible for multiple versions
 
 	hfs.version = binary.BigEndian.Uint32(buf[8:12])
@@ -118,6 +134,7 @@ func (hfs *HFileSystem) parseHeader() error {
 	hfs.lastWrittenBlock = binary.BigEndian.Uint32(buf[20:24])
 	hfs.fileIndexSize = binary.BigEndian.Uint32(buf[24:28])
 	hfs.blmSize = binary.BigEndian.Uint32(buf[28:32])
+	hfs.id = binary.BigEndian.Uint32(buf[32:36])
 
 	hfs.size = int64(hfs.maxNumberOfBlocks * hfs.blockSize)
 	return nil

@@ -15,14 +15,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIO_OneVirtualFile(t *testing.T) {
+func TestIO_OneVirtualFile_Redis(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), redisOptions)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -78,14 +78,14 @@ func TestIO_OneVirtualFile(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 }
 
-func TestIO_MultipleVirtualFileConsecutively(t *testing.T) {
+func TestIO_MultipleVirtualFileConsecutively_Redis(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), redisOptions)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -161,14 +161,14 @@ func TestIO_MultipleVirtualFileConsecutively(t *testing.T) {
 }
 
 // ToDo: make it to write virtual file without any sort
-func TestIO_MultipleVirtualFile(t *testing.T) {
+func TestIO_MultipleVirtualFile_Redis(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), redisOptions)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -243,14 +243,14 @@ func TestIO_MultipleVirtualFile(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 }
 
-func TestIO_ChangeSeekPointer(t *testing.T) {
+func TestIO_ChangeSeekPointer_Redis(t *testing.T) {
 	homePath, err := os.UserHomeDir()
 	assert.Equal(t, nil, err)
 	_ = utils.DeleteFile(homePath + "/" + constants.FsPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), redisOptions)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
