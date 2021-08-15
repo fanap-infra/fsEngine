@@ -22,7 +22,7 @@ func TestIO_OneVirtualFile(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -85,7 +85,7 @@ func TestIO_MultipleVirtualFileConsecutively(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -168,7 +168,7 @@ func TestIO_MultipleVirtualFile(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -250,7 +250,7 @@ func TestIO_ChangeSeekPointer(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"))
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))

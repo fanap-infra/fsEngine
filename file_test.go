@@ -18,8 +18,8 @@ func TestFSEngine_GetFilePath(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fs, err := CreateFileSystem(homePath, fileSizeTest, blockSizeTest,
-		&eventListener, log.GetScope("test"))
+	fs, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest,
+		&eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, homePath+"/"+constants.FsPath, fs.GetFilePath())
 	err = fs.Close()

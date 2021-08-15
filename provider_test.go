@@ -16,6 +16,7 @@ import (
 const (
 	blockSizeTest = 5120
 	fileSizeTest  = blockSizeTest * 128
+	fsID          = 11
 )
 
 func TestCreateFS(t *testing.T) {
@@ -25,8 +26,8 @@ func TestCreateFS(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	_, err = CreateFileSystem(homePath, fileSizeTest, blockSizeTest,
-		&eventListener, log.GetScope("test"))
+	_, err = CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest,
+		&eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -46,10 +47,10 @@ func TestParseFS(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	_, err = CreateFileSystem(homePath, fileSizeTest, blockSizeTest,
-		&eventListener, log.GetScope("test"))
+	_, err = CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest,
+		&eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
-	fs, err := ParseFileSystem(homePath, &eventListener, log.GetScope("test"))
+	fs, err := ParseFileSystem(fsID, homePath, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, fs.blockSize, uint32(blockSizeTest))
 	assert.Equal(t, fs.maxNumberOfBlocks, uint32(fileSizeTest/blockSizeTest))

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fanap-infra/fsEngine/pkg/redisClient"
+
 	"github.com/fanap-infra/fsEngine/internal/constants"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
@@ -13,8 +15,8 @@ import (
 	"github.com/fanap-infra/log"
 )
 
-func CreateFileSystem(path string, size int64, blockSize uint32,
-	eventsHandler Events, log *log.Logger) (*FSEngine, error) {
+func CreateFileSystem(id uint32, path string, size int64, blockSize uint32,
+	eventsHandler Events, log *log.Logger, options *redisClient.RedisOptions) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -59,6 +61,7 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 	}
 
 	fs := &FSEngine{
+		id:                id,
 		file:              file,
 		size:              int64(uint32(size/int64(blockSize)) * blockSize),
 		version:           constants.FileSystemVersion,
@@ -70,21 +73,18 @@ func CreateFileSystem(path string, size int64, blockSize uint32,
 		log:               log,
 	}
 
-	// fileName := filepath.Base(path)
-	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
-	headerFS, err := Header_.CreateHeaderFS(path, size, blockSize, log, fs)
+	headerFS, err := Header_.CreateHeaderFS(id, path, size, blockSize, log, fs, options)
 	if err != nil {
 		log.Errorv("Can not create header file ", "err", err.Error())
 		return nil, err
 	}
 
-	// fs.blockAllocationMap = blockAllocationMap.New(log, fs, fs.maxNumberOfBlocks)
 	fs.header = headerFS
 
 	return fs, nil
 }
 
-func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEngine, error) {
+func ParseFileSystem(id uint32, path string, eventsHandler Events, log *log.Logger, options *redisClient.RedisOptions) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -99,6 +99,7 @@ func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEng
 	}
 
 	fs := &FSEngine{
+		id:            id,
 		file:          file,
 		size:          size,
 		openFiles:     make(map[uint32]*VFInfo),
@@ -108,7 +109,7 @@ func ParseFileSystem(path string, eventsHandler Events, log *log.Logger) (*FSEng
 
 	// fileName := filepath.Base(path)
 	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
-	hfs, err := Header_.ParseHeaderFS(path, log, fs)
+	hfs, err := Header_.ParseHeaderFS(id, path, log, fs, options)
 	if err != nil {
 		return nil, err
 	}
