@@ -99,6 +99,10 @@ func (hfs *HFileSystem) parseFileIndex(index uint32) error {
 		}
 	}
 
+	if len(buf) == 0 {
+		hfs.log.Warnv("parse file index, buf length is zero", "index", index, "id", hfs.id)
+		return nil
+	}
 	err = hfs.fileIndexes[index].InitFromBinary(buf)
 	if err != nil {
 		return err
