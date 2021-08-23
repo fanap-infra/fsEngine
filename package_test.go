@@ -1,5 +1,6 @@
 package fsEngine
 
+//
 //func TestIO_ConcurrentMultipleVirtualFile(t *testing.T) {
 //	homePath, err := os.UserHomeDir()
 //	assert.Equal(t, nil, err)
@@ -9,7 +10,7 @@ package fsEngine
 //	eventListener := EventsListener{t: t}
 //	blockSize := uint32(1 << 19)
 //	fileSize := int64(10000 * blockSize)
-//	fse, err := CreateFileSystem(homePath, fileSize, blockSize, &eventListener, log.GetScope("test"))
+//	fse, err := CreateFileSystem(fsID, homePath, fileSize, blockSize, &eventListener, log.GetScope("test"), nil)
 //	assert.Equal(t, nil, err)
 //	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 //	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -106,7 +107,7 @@ package fsEngine
 //	eventListener := EventsListener{t: t}
 //	blockSize := uint32(1 << 19)
 //	fileSize := int64(10000 * blockSize)
-//	fse, err := CreateFileSystem(homePath, fileSize, blockSize, &eventListener, log.GetScope("test"))
+//	fse, err := CreateFileSystem(fsID, homePath, fileSize, blockSize, &eventListener, log.GetScope("test"), nil)
 //	assert.Equal(t, nil, err)
 //	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 //	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
@@ -118,7 +119,7 @@ package fsEngine
 //
 //	virtualFiles := make([]*virtualFile.VirtualFile, 0)
 //	numberOfVFs := 25
-//	bytes := make([][][][]byte, numberOfVFs)
+//	bytes := make([][][][]byte, 0)
 //	vfIDs := make([]uint32, 0)
 //	var wg sync.WaitGroup
 //	for i := 0; i < numberOfVFs; i++ {

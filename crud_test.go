@@ -55,7 +55,7 @@ func TestVirtualFile_Remove(t *testing.T) {
 
 	// cna not remove opened virtual files
 	for i := 0; i < TestSize; i++ {
-		err := fse.RemoveVirtualFile(testIDs[i])
+		_, err := fse.RemoveVirtualFile(testIDs[i])
 		assert.NotEqual(t, nil, err)
 	}
 
@@ -66,14 +66,14 @@ func TestVirtualFile_Remove(t *testing.T) {
 
 	for i := 0; i < TestSize; i++ {
 		if i < TestSize/2 {
-			err := fse.RemoveVirtualFile(testIDs[i])
+			_, err := fse.RemoveVirtualFile(testIDs[i])
 			assert.Equal(t, nil, err)
 		} else {
-			err := fse.RemoveVirtualFile(testIDs[i])
+			_, err := fse.RemoveVirtualFile(testIDs[i])
 			assert.NotEqual(t, nil, err)
 			err = vfs[i].Close()
 			assert.Equal(t, nil, err)
-			err = fse.RemoveVirtualFile(testIDs[i])
+			_, err = fse.RemoveVirtualFile(testIDs[i])
 			assert.Equal(t, nil, err)
 		}
 	}
@@ -188,7 +188,7 @@ func TestVirtualFile_RemoveUnsetBlocks(t *testing.T) {
 	}
 
 	for i := 0; i < len(testIDs); i++ {
-		err := fse.RemoveVirtualFile(testIDs[i])
+		_, err := fse.RemoveVirtualFile(testIDs[i])
 		assert.Equal(t, nil, err)
 		for j := 0; j < len(blocksIndexes[i]); j++ {
 			assert.Equal(t, false, fse.header.IsBlockAllocated(blocksIndexes[i][j]))

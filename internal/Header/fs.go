@@ -7,8 +7,6 @@ import (
 
 	"github.com/fanap-infra/fsEngine/pkg/blockAllocationMap"
 	"github.com/fanap-infra/fsEngine/pkg/fileIndex"
-	"github.com/go-redis/redis/v8"
-
 	"github.com/fanap-infra/log"
 )
 
@@ -33,7 +31,7 @@ type HFileSystem struct {
 	conf               configs
 	eventHandler       blockAllocationMap.Events
 	storeInRedis       bool
-	redisClient        *redis.Client
+	redisClient        RedisDB
 }
 
 func (hfs *HFileSystem) UpdateFSHeader() error {

@@ -1,12 +1,16 @@
-package redisClient
+package redisConnection
 
 import "github.com/go-redis/redis/v8"
 
-func Connect(options *RedisOptions) *redis.Client {
+type RedisClient struct {
+	rdb *redis.Client
+}
+
+func Connect(options *RedisOptions) *RedisClient {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     options.Addr,
 		Password: options.Password,
 		DB:       options.DB,
 	})
-	return rdb
+	return &RedisClient{rdb: rdb}
 }
