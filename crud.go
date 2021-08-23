@@ -87,36 +87,36 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	return vf, nil
 }
 
-func (fse *FSEngine) RemoveVirtualFile(id uint32) error {
+func (fse *FSEngine) RemoveVirtualFile(id uint32) (int, error) {
 	fse.crudMutex.Lock()
 	defer fse.crudMutex.Unlock()
 	_, ok := fse.openFiles[id]
 	if ok {
-		return fmt.Errorf("virtual file id : %d is opened", id)
+		return 0, fmt.Errorf("virtual file id : %d is opened", id)
 	}
 
 	fileInfo, err := fse.header.GetFileData(id)
 	if err != nil {
-		return err
+		log.Warnv("can not remove virtual, because can not get file data", "id", id)
+		return 0, err
 	}
 	if len(fileInfo.GetRMapBlocks()) == 0 {
 		log.Warnv("can not remove virtual files block, roaring byte array length is zero", "id", id)
-		return fse.header.RemoveVirtualFile(id)
+		return 0, fse.header.RemoveVirtualFile(id)
 	}
 	blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
 		fileInfo.GetRMapBlocks())
 	if err != nil {
 		log.Errorv("can not parse block allocation map", "id", id,
 			"len(fileInfo.GetRMapBlocks()) ", len(fileInfo.GetRMapBlocks()), "err", err.Error())
-		return fse.header.RemoveVirtualFile(id)
+		return 0, fse.header.RemoveVirtualFile(id)
 	}
 	blocks := blm.ToArray()
-	// fse.log.Infov("blm length",
-	//	"fse blocks length", len(fse.header.GetBlocksNumber().ToArray()), "blocks length", len(blocks))
+
 	for _, bIndex := range blocks {
 		fse.header.UnsetBlockAsAllocated(bIndex)
 	}
 	// fse.log.Infov("blm length",
 	//	"fse blocks length", len(fse.blockAllocationMap.ToArray()))
-	return fse.header.RemoveVirtualFile(id)
+	return len(blocks), fse.header.RemoveVirtualFile(id)
 }

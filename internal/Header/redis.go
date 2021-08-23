@@ -7,7 +7,7 @@ import (
 func (hfs *HFileSystem) setRedisKeyValue(key string, value []byte) error {
 	ctx := context.Background()
 
-	err := hfs.redisClient.Set(ctx, key, value, 0).Err()
+	err := hfs.redisClient.Set(ctx, key, value, 0)
 	if err != nil {
 		hfs.log.Errorv("Can not Set value in redis", "err", err.Error())
 		return err
@@ -19,7 +19,7 @@ func (hfs *HFileSystem) setRedisKeyValue(key string, value []byte) error {
 func (hfs *HFileSystem) getRedisValue(key string) ([]byte, error) {
 	ctx := context.Background()
 
-	data, err := hfs.redisClient.Get(ctx, key).Bytes()
+	data, err := hfs.redisClient.Get(ctx, key)
 	if err != nil {
 		hfs.log.Errorv("Can not get value in redis", "err", err.Error())
 		return nil, err

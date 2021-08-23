@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fanap-infra/fsEngine/pkg/redisClient"
-
 	"github.com/fanap-infra/fsEngine/internal/constants"
 
 	Header_ "github.com/fanap-infra/fsEngine/internal/Header"
@@ -16,7 +14,7 @@ import (
 )
 
 func CreateFileSystem(id uint32, path string, size int64, blockSize uint32,
-	eventsHandler Events, log *log.Logger, options *redisClient.RedisOptions) (*FSEngine, error) {
+	eventsHandler Events, log *log.Logger, redisDB Header_.RedisDB) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -73,7 +71,7 @@ func CreateFileSystem(id uint32, path string, size int64, blockSize uint32,
 		log:               log,
 	}
 
-	headerFS, err := Header_.CreateHeaderFS(id, path, size, blockSize, log, fs, options)
+	headerFS, err := Header_.CreateHeaderFS(id, path, size, blockSize, log, fs, redisDB)
 	if err != nil {
 		log.Errorv("Can not create header file ", "err", err.Error())
 		return nil, err
@@ -84,7 +82,7 @@ func CreateFileSystem(id uint32, path string, size int64, blockSize uint32,
 	return fs, nil
 }
 
-func ParseFileSystem(id uint32, path string, eventsHandler Events, log *log.Logger, options *redisClient.RedisOptions) (*FSEngine, error) {
+func ParseFileSystem(id uint32, path string, eventsHandler Events, log *log.Logger, redisDB Header_.RedisDB) (*FSEngine, error) {
 	if path == "" {
 		return nil, errors.New("path cannot be empty")
 	}
@@ -109,7 +107,7 @@ func ParseFileSystem(id uint32, path string, eventsHandler Events, log *log.Logg
 
 	// fileName := filepath.Base(path)
 	// headerPath := strings.Replace(path, fileName, "Header.Beh", 1)
-	hfs, err := Header_.ParseHeaderFS(id, path, log, fs, options)
+	hfs, err := Header_.ParseHeaderFS(id, path, log, fs, redisDB)
 	if err != nil {
 		return nil, err
 	}
