@@ -48,10 +48,10 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 		if err != nil {
 			return nil, err
 		}
-		if len(fileInfo.GetRMapBlocks()) == 0 {
-			log.Warnv("can not open virtual file, roaring byte array length is zero", "id", id)
-			return nil, fmt.Errorf("virtual file is empty, id: %v", id)
-		}
+		//if len(fileInfo.GetRMapBlocks()) == 0 {
+		//	log.Warnv("can not open virtual file, roaring byte array length is zero", "id", id)
+		//	return nil, fmt.Errorf("virtual file is empty, id: %v", id)
+		//}
 		//blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
 		//	fileInfo.GetRMapBlocks())
 		//if err != nil {
