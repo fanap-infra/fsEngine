@@ -44,21 +44,20 @@ func (fse *FSEngine) OpenVirtualFile(id uint32) (*virtualFile.VirtualFile, error
 	defer fse.crudMutex.Unlock()
 	vfInfo, ok := fse.openFiles[id]
 	if ok {
-		// ToDo: make file info updatable
 		fileInfo, err := fse.header.GetFileData(id)
 		if err != nil {
 			return nil, err
 		}
-		if len(fileInfo.GetRMapBlocks()) == 0 {
-			log.Warnv("can not open virtual file, roaring byte array length is zero", "id", id)
-			return nil, fmt.Errorf("virtual file is empty, id: %v", id)
-		}
-		blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
-			fileInfo.GetRMapBlocks())
-		if err != nil {
-			return nil, err
-		}
-		vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-constants.BlockHeaderSize, fse, blm,
+		//if len(fileInfo.GetRMapBlocks()) == 0 {
+		//	log.Warnv("can not open virtual file, roaring byte array length is zero", "id", id)
+		//	return nil, fmt.Errorf("virtual file is empty, id: %v", id)
+		//}
+		//blm, err := blockAllocationMap.Open(fse.log, fse, fse.maxNumberOfBlocks, fileInfo.GetLastBlock(),
+		//	fileInfo.GetRMapBlocks())
+		//if err != nil {
+		//	return nil, err
+		//}
+		vf := virtualFile.OpenVirtualFile(&fileInfo, fse.blockSize-constants.BlockHeaderSize, fse, vfInfo.blm,
 			int(fse.blockSize-constants.BlockHeaderSize)*constants.VirtualFileBufferBlockNumber, fse.log)
 		vfInfo.numberOfOpened = vfInfo.numberOfOpened + 1
 		return vf, nil
