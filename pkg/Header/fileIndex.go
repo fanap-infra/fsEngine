@@ -100,11 +100,15 @@ func (hfs *HFileSystem) parseFileIndex(index uint32) error {
 	}
 
 	if len(buf) == 0 {
-		hfs.log.Warnv("parse file index, buf length is zero", "index", index, "id", hfs.id)
+		hfs.log.Warnv("parse file index, buf length is zero", "index", index, "id", hfs.id,
+			"redisKey", "arch"+fmt.Sprint(hfs.id)+"_fileIndex"+fmt.Sprint(int(index)%len(hfs.fileIndexes)))
 		return nil
 	}
 	err = hfs.fileIndexes[index].InitFromBinary(buf)
 	if err != nil {
+		hfs.log.Warnv("parse file index, can not init protobuf", "index", index, "id", hfs.id,
+			"redisKey", "arch"+fmt.Sprint(hfs.id)+"_fileIndex"+fmt.Sprint(int(index)%len(hfs.fileIndexes)),
+			"err", err.Error())
 		return err
 	}
 
