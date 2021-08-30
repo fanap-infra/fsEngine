@@ -1,6 +1,11 @@
 package fileIndex
 
-import "google.golang.org/protobuf/proto"
+import (
+	"fmt"
+
+	"github.com/fanap-infra/log"
+	"google.golang.org/protobuf/proto"
+)
 
 // NewFileIndex
 func NewFileIndex() (fi *FileIndex) {
@@ -17,5 +22,11 @@ func (i *FileIndex) GenerateBinary() (data []byte, err error) {
 func (i *FileIndex) InitFromBinary(data []byte) error {
 	i.rwMux.Lock()
 	defer i.rwMux.Unlock()
-	return proto.Unmarshal(data, i.table)
+	err := proto.Unmarshal(data, i.table)
+	if err == nil && i.table.Files == nil {
+		log.Errorv("it does not init fileIndex correctly by Protobuf binary", "len(data)", len(data))
+		i.table.Files = make(map[uint32]*File)
+		return fmt.Errorf("it does not init fileIndex correctly")
+	}
+	return err
 }
