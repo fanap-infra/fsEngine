@@ -159,3 +159,76 @@ func ParseHeaderFS(id uint32, path string, log *log.Logger, eventHandler blockAl
 	//}
 	return hfs, nil
 }
+
+func CreateHeaderFSForRecovering(id uint32, path string, size int64, blockSize uint32, log *log.Logger,
+	eventHandler blockAllocationMap.Events, redisDB RedisDB) (*HFileSystem, error) {
+	if path == "" {
+		return nil, errors.New("path cannot be empty")
+	}
+	headerPath := path + "/" + constants.HeaderPath
+	if blockSize < HeaderByteSize {
+		return nil, fmt.Errorf("block size must be greater than %v", blockSize)
+	}
+
+	if size%int64(blockSize) != 0 {
+		return nil, fmt.Errorf("file size must be divisible by %v", blockSize)
+	}
+	if size < int64(blockSize*60) {
+		return nil, fmt.Errorf("file size is too small, Minimum size is %v", blockSize*60)
+	}
+
+	var file *os.File
+	var err error
+	if utils.FileExists(headerPath) {
+		file, err := utils.OpenFile(headerPath, os.O_CREATE|os.O_RDWR, 0o777)
+		if err != nil {
+			return nil, err
+		}
+
+		// make file with size
+		token := make([]byte, blockSize)
+		_, err = rand.Read(token)
+		if err != nil {
+			log.Errorv("generate rand token ", "err", err.Error())
+		}
+		n, err := file.WriteAt(token, HashByteIndex)
+		if err != nil {
+			log.Warnv("write token ", "err", err.Error())
+		}
+		if uint32(n) != blockSize {
+			log.Warnv("does not write completely ", "n", n)
+		}
+	} else {
+		file, err = utils.OpenFile(headerPath, os.O_RDWR, 0o777)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	fs := &HFileSystem{
+		id:                 id,
+		file:               file,
+		size:               size,
+		version:            FileSystemVersion,
+		maxNumberOfBlocks:  uint32(size / int64(blockSize)),
+		blockSize:          blockSize,
+		blockAllocationMap: blockAllocationMap.New(log, eventHandler, uint32(size/int64(blockSize))),
+		log:                log,
+		eventHandler:       eventHandler,
+		path:               path,
+		storeInRedis:       redisDB != nil,
+	}
+
+	if redisDB != nil {
+		fs.redisClient = redisDB
+		for i := 0; i < numberOfFileIndexes; i++ {
+			fs.fileIndexes = append(fs.fileIndexes, fileIndex.NewFileIndex())
+		}
+	} else {
+		fs.fileIndexes = append(fs.fileIndexes, fileIndex.NewFileIndex())
+	}
+
+	loadConf(fs)
+
+	return fs, nil
+}
