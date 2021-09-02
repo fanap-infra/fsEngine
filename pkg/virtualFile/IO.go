@@ -205,3 +205,7 @@ func (v *VirtualFile) UpdateFileOptionalData(info []byte) error {
 	}
 	return v.fs.UpdateFileIndexes(v.id, v.firstBlockIndex, v.lastBlock, v.fileSize, data, v.optionalData)
 }
+
+func (v *VirtualFile) AddFileSize(size uint32) {
+	v.fileSize = v.fileSize + size
+}

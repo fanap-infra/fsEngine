@@ -32,9 +32,9 @@ func (hfs *HFileSystem) updateFileIndex(index uint32) error {
 	}
 	hfs.fileIndexSize = uint32(len(fi))
 
-	if hfs.fileIndexSize == 0 {
-		hfs.log.Warn("file indexes size is zero")
-	}
+	//if hfs.fileIndexSize == 0 {
+	//	hfs.log.Warn("file indexes size is zero")
+	//}
 
 	if hfs.storeInRedis {
 		err := hfs.setRedisKeyValue("arch"+fmt.Sprint(hfs.id)+"_fileIndex"+fmt.Sprint(int(index)%len(hfs.fileIndexes)), fi)
@@ -183,7 +183,11 @@ func (hfs *HFileSystem) UpdateFileOptionalData(fileID uint32, info []byte) error
 }
 
 func (hfs *HFileSystem) GetFilesList() []*fileIndex.File {
-	return hfs.fileIndexes[0].GetFilesList()
+	filesIndex := make([]*fileIndex.File, 0)
+	for _, fIndex := range hfs.fileIndexes {
+		filesIndex = append(filesIndex, fIndex.GetFilesList()...)
+	}
+	return filesIndex
 }
 
 //func (hfs *HFileSystem) GetFileOptionalData(fileId uint32) ([]byte, error) {

@@ -173,7 +173,6 @@ func RecoverHeaderFileSystem(id uint32, path string, blockSize uint32, eventsHan
 			continue
 		}
 		if n != int(fse.blockSize) {
-			fse.log.Warnv("can not read block completely", "n", n, "blockSize", fse.blockSize)
 			continue
 		}
 
@@ -185,29 +184,29 @@ func RecoverHeaderFileSystem(id uint32, path string, blockSize uint32, eventsHan
 			continue
 		}
 		if pBlockID != blockID {
-			fse.log.Warnv("blockd id is wrong,", "pBlockID", pBlockID, "blockID", blockID)
+			// fse.log.Warnv("blockd id is wrong,", "pBlockID", pBlockID, "blockID", blockID)
 			continue
 		}
-		if !hfs.CheckIDExist(pFileID) {
-			fse.log.Infov("find new virtual file", "pFileID", pFileID)
-			vf, err := fse.NewVirtualFile(pFileID, "test")
+
+		vf, isExist := vfs[pFileID]
+		if !isExist {
+			vf, err = fse.NewVirtualFile(pFileID, "test")
 			if err != nil {
 				fse.log.Warnv("can not add virtual file correctly,", "pFileID", pFileID, "err", err.Error())
 				continue
 			}
 			vfs[pFileID] = vf
 		}
-		vf, isExist := vfs[pFileID]
-		if !isExist {
-			fse.log.Warnv("virtual file does not added correctly", "pFileID", pFileID)
-			continue
-		}
+
 		err = vf.AddBlockID(blockID)
 		if err != nil {
 			fse.log.Warnv("can not add blockID to vf,", "pFileID", pFileID, "blockID", blockID,
 				"err", err.Error())
 			continue
 		}
+
+		vf.AddFileSize(dataSize)
+
 		err = fse.header.SetBlockAsAllocated(blockID)
 		if err != nil {
 			fse.log.Errorv("can not set block id in header",
@@ -216,13 +215,20 @@ func RecoverHeaderFileSystem(id uint32, path string, blockSize uint32, eventsHan
 		}
 	}
 
+	vfBlockCounter := uint32(0)
 	for i, vf := range vfs {
+		vfBlockCounter = vfBlockCounter + uint32(len(vf.GetBLMArray()))
 		err := vf.Close()
 		if err != nil {
 			fse.log.Errorv("can not close virtual file",
 				"i", i, "fileID", vf.GetFileID())
 		}
 	}
+
+	fileIndexes := fse.header.GetFilesList()
+	fse.log.Infov("recovery report",
+		"len(fileIndexes)", len(fileIndexes), "number of blocks", len(fse.header.GetBLMArray()),
+		"sum of vfsBlocks", vfBlockCounter)
 
 	err = hfs.UpdateFSHeader()
 	if err != nil {
