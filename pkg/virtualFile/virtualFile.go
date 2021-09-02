@@ -53,3 +53,7 @@ func (v *VirtualFile) GetFileSize() uint32 {
 func (v *VirtualFile) GetOptionalData() []byte {
 	return v.optionalData
 }
+
+func (v *VirtualFile) GetBLMArray() []uint32 {
+	return v.blockAllocationMap.ToArray()
+}
