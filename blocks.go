@@ -20,7 +20,7 @@ func (fse *FSEngine) NoSpace() uint32 {
 			continue
 		}
 		fse.eventsHandler.VirtualFileDeleted(fileIndex.Id, "file deleted due to space requirements")
-		if n < 50 {
+		if n < 20 {
 			fse.log.Warnv("virtual file is so small", "Id", fileIndex.Id,
 				"fileIndex.FirstBlock", fileIndex.FirstBlock, "n", n)
 			continue
