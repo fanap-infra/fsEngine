@@ -149,6 +149,17 @@ func (hfs *HFileSystem) FindOldestFile() (*fileIndex.File, error) {
 	return hfs.fileIndexes[0].FindOldestFile()
 }
 
+func (hfs *HFileSystem) FindOldestFiles() ([]*fileIndex.File, error) {
+	if hfs.storeInRedis {
+		return hfs.findOldestFilesIndexes()
+	}
+	file, err := hfs.fileIndexes[0].FindOldestFile()
+	if err != nil {
+		return []*fileIndex.File{}, err
+	}
+	return []*fileIndex.File{file}, nil
+}
+
 func (hfs *HFileSystem) findOldestBetweenFileIndexes() (*fileIndex.File, error) {
 	oldestTime := time.Now().Local()
 	var foundedFile *fileIndex.File
@@ -159,20 +170,41 @@ func (hfs *HFileSystem) findOldestBetweenFileIndexes() (*fileIndex.File, error) 
 				"err", err.Error())
 			continue
 		}
-		// timestamppb.New(oldestFile.CreatedTime)
-
 		createdTime := oldestFile.CreatedTime.AsTime()
-		//if err != nil {
-		//	log.Errorv("can not parse file created time", "i", i,
-		//		"err", err.Error())
-		//	continue
-		//}
+
 		if oldestTime.After(createdTime) {
 			foundedFile = oldestFile
 			oldestTime = createdTime
 		}
 	}
+
 	return foundedFile, nil
+}
+
+func (hfs *HFileSystem) findOldestFilesIndexes() ([]*fileIndex.File, error) {
+	oldestTime := time.Now().Local()
+	var foundedFile *fileIndex.File
+	var foundedFiles []*fileIndex.File
+	// founded, _ := lru.New(10)
+	for i, fIndex := range hfs.fileIndexes {
+		oldestFile, err := fIndex.FindOldestFile()
+		if err != nil {
+			log.Errorv("can not parse file created time", "i", i,
+				"err", err.Error())
+			continue
+		}
+		foundedFiles = append(foundedFiles, oldestFile)
+		createdTime := oldestFile.CreatedTime.AsTime()
+
+		if oldestTime.After(createdTime) {
+			foundedFile = oldestFile
+			oldestTime = createdTime
+		}
+	}
+	if len(foundedFiles) > 0 {
+		foundedFiles[0] = foundedFile
+	}
+	return foundedFiles, nil
 }
 
 func (hfs *HFileSystem) UpdateFileOptionalData(fileID uint32, info []byte) error {
