@@ -149,8 +149,9 @@ func (fse *FSEngine) RemoveVirtualFile(id uint32) (int, error) {
 			"len(fileInfo.GetRMapBlocks()) ", len(fileInfo.GetRMapBlocks()), "err", err.Error())
 		return 0, fse.header.RemoveVirtualFile(id)
 	}
-	blocks := blm.ToArray()
 
+	blocks := blm.ToArray()
+	log.Infov("remove virtual file", "len(blocks)", len(blocks), "id", id, "blocks", blocks)
 	for _, bIndex := range blocks {
 		fse.header.UnsetBlockAsAllocated(bIndex)
 	}

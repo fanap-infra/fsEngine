@@ -6,35 +6,28 @@ import (
 )
 
 func (fse *FSEngine) NoSpace() uint32 {
-	tryCounter := 0
-	for {
-		fileIndex, err := fse.header.FindOldestFile()
-		if err != nil {
-			fse.log.Errorv("can not find oldest file", "err", err.Error())
-			return 0
-		}
+	filesIndex, err := fse.header.FindOldestFiles()
+	if err != nil {
+		fse.log.Errorv("can not find oldest file", "err", err.Error())
+		return 0
+	}
+	for _, fileIndex := range filesIndex {
 		blockIndex := fileIndex.FirstBlock
 		n, err := fse.RemoveVirtualFile(fileIndex.Id)
 		if err != nil {
 			fse.log.Errorv("can not remove virtual file", "id", fileIndex.Id,
 				"err", err.Error())
-			return 0
+			continue
 		}
 		fse.eventsHandler.VirtualFileDeleted(fileIndex.Id, "file deleted due to space requirements")
-		if n == 0 {
-
-			if tryCounter > 1 {
-				fse.log.Warnv("can not make any block empty after multiple try", "Id", fileIndex.Id,
-					"fileIndex.FirstBlock", fileIndex.FirstBlock, "tryCounter", tryCounter)
-				return blockIndex
-			}
-			fse.log.Warnv("can not make any block empty, try again", "Id", fileIndex.Id,
-				"fileIndex.FirstBlock", fileIndex.FirstBlock)
-			tryCounter++
+		if n < 20 {
+			fse.log.Warnv("virtual file is so small", "Id", fileIndex.Id,
+				"fileIndex.FirstBlock", fileIndex.FirstBlock, "n", n)
 			continue
 		}
 		return blockIndex
 	}
+	return 0
 }
 
 // BlockStructure

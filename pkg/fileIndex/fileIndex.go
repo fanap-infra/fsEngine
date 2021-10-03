@@ -43,6 +43,7 @@ func (i *FileIndex) FindOldestFile() (*File, error) {
 	if len(i.table.Files) == 0 {
 		return nil, fmt.Errorf("there is no file")
 	}
+
 	for _, file := range i.table.Files {
 		// createdTime, err := ptypes.Timestamp(file.CreatedTime)
 		createdTime := file.CreatedTime.AsTime()
@@ -59,6 +60,28 @@ func (i *FileIndex) FindOldestFile() (*File, error) {
 
 	return foundedFile, nil
 }
+
+//func (i *FileIndex) FindLastOldestFile(number uint32) (*File, error) {
+//	i.rwMux.Lock()
+//	defer i.rwMux.Unlock()
+//	oldestTime := time.Now().Local()
+//	var foundedFile *File
+//	foundedFile = nil
+//	if len(i.table.Files) == 0 {
+//		return nil, fmt.Errorf("there is no file")
+//	}
+//
+//	for _, file := range i.table.Files {
+//		createdTime := file.CreatedTime.AsTime()
+//
+//		if oldestTime.After(createdTime) {
+//			foundedFile = file
+//			oldestTime = createdTime
+//		}
+//	}
+//
+//	return foundedFile, nil
+//}
 
 func (i *FileIndex) checkFileExist(fileId uint32) bool {
 	_, isExist := i.table.Files[fileId]
