@@ -24,6 +24,7 @@ func (i *FileIndex) InitFromBinary(data []byte) error {
 	defer i.rwMux.Unlock()
 	err := proto.Unmarshal(data, i.table)
 	if err == nil && i.table.Files == nil {
+		// ToDo: read from backups
 		log.Errorv("it does not init fileIndex correctly by Protobuf binary", "len(data)", len(data))
 		i.table.Files = make(map[uint32]*File)
 		return fmt.Errorf("it does not init fileIndex correctly")

@@ -109,7 +109,7 @@ func (hfs *HFileSystem) parseFileIndex(index uint32) error {
 		hfs.log.Warnv("parse file index, can not init protobuf", "index", index, "id", hfs.id,
 			"redisKey", "arch"+fmt.Sprint(hfs.id)+"_fileIndex"+fmt.Sprint(int(index)%len(hfs.fileIndexes)),
 			"err", err.Error())
-		return err
+		// return err
 	}
 
 	return nil
