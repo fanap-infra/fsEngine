@@ -24,36 +24,36 @@ type FSMock struct {
 	vBufBlocks  [][]byte
 	openFiles   map[uint32]*VirtualFile
 	tst         *testing.T
+	// blockCounter uint32
 }
 
-func (fsMock *FSMock) Write(data []byte, fileID uint32) (int, error) {
+func (fsMock *FSMock) Write(data []byte, fileID uint32, previousBlock uint32) (int, []uint32, error) {
 	fsMock.vBuf = append(fsMock.vBuf, data...)
 	counter := 0
+	var blocks []uint32
 	for {
 		if (len(data) - counter) < blockSizeTest {
 			// log.Infov("FSMock Write smaller than blockSizeTest",
 			//	"blockID", len(fsMock.vBufBlocks), "data size", len(data), "counter", counter)
-			err := fsMock.openFiles[uint32(fileID)].AddBlockID(uint32(len(fsMock.vBufBlocks)))
-			if err != nil {
-				return 0, err
-			}
+
+			// fsMock.blockCounter++
 			fsMock.vBufBlocks = append(fsMock.vBufBlocks, data[counter:])
+			blocks = append(blocks, uint32(len(fsMock.vBufBlocks))-1)
 			counter = len(data)
 		} else {
 			// log.Infov("FSMock Write greater than blockSizeTest",
 			//	"blockID", len(fsMock.vBufBlocks), "data size", len(data), "counter", counter)
-			err := fsMock.openFiles[uint32(fileID)].AddBlockID(uint32(len(fsMock.vBufBlocks)))
-			if err != nil {
-				return 0, err
-			}
+			// fsMock.blockCounter++
+
 			fsMock.vBufBlocks = append(fsMock.vBufBlocks, data[counter:blockSizeTest])
+			blocks = append(blocks, uint32(len(fsMock.vBufBlocks))-1)
 			counter = counter + blockSizeTest
 		}
 		if counter >= len(data) {
 			if counter != len(data) {
 				log.Warnv("counter greater than data", "counter", counter, "len(data)", len(data))
 			}
-			return len(data), nil
+			return len(data), blocks, nil
 		}
 	}
 }

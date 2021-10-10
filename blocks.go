@@ -6,28 +6,38 @@ import (
 )
 
 func (fse *FSEngine) NoSpace() uint32 {
-	filesIndex, err := fse.header.FindOldestFiles()
-	if err != nil {
-		fse.log.Errorv("can not find oldest file", "err", err.Error())
-		return 0
-	}
-	for _, fileIndex := range filesIndex {
-		blockIndex := fileIndex.FirstBlock
-		n, err := fse.RemoveVirtualFile(fileIndex.Id)
+	counter := 0
+	for {
+		filesIndex, err := fse.header.FindOldestFiles()
 		if err != nil {
-			fse.log.Errorv("can not remove virtual file", "id", fileIndex.Id,
-				"err", err.Error())
-			continue
+			fse.log.Errorv("can not find oldest file", "err", err.Error())
+			return 0
 		}
-		fse.eventsHandler.VirtualFileDeleted(fileIndex.Id, "file deleted due to space requirements")
-		if n < 20 {
-			fse.log.Warnv("virtual file is so small", "Id", fileIndex.Id,
-				"fileIndex.FirstBlock", fileIndex.FirstBlock, "n", n)
-			continue
+		numberOfBlocks := 0
+		blockIndex := uint32(1)
+		for _, fileIndex := range filesIndex {
+			blockIndex = fileIndex.FirstBlock
+			n, err := fse.RemoveVirtualFile(fileIndex.Id)
+			if err != nil {
+				fse.log.Warnv("can not remove virtual file", "id", fileIndex.Id,
+					"err", err.Error())
+				continue
+			}
+			numberOfBlocks = numberOfBlocks + n
+			fse.eventsHandler.VirtualFileDeleted(fileIndex.Id, "file deleted due to space requirements")
 		}
-		return blockIndex
+		if numberOfBlocks > 40 {
+			return blockIndex
+		}
+		fse.log.Errorv("can not remove files for making space, try again", "numberOfBlocks", numberOfBlocks,
+			"blockIndex", blockIndex)
+		counter++
+		if counter > 2 {
+			fse.log.Errorv("can not remove files for making space", "numberOfBlocks", numberOfBlocks,
+				"blockIndex", blockIndex)
+			return 0
+		}
 	}
-	return 0
 }
 
 // BlockStructure

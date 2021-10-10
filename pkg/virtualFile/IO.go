@@ -23,10 +23,18 @@ func (v *VirtualFile) Write(data []byte) (int, error) {
 
 	v.bufTX = append(v.bufTX, data...)
 	if uint32(len(v.bufTX)) > v.blockSize {
-		m, err := v.fs.Write(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))], v.id)
+		m, blocksId, err := v.fs.Write(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))], v.id, v.GetLastBlock())
 		if err != nil {
 			return 0, err
 		}
+		for _, blockId := range blocksId {
+			err = v.AddBlockID(blockId)
+			if err != nil {
+				v.log.Errorv("can not add block to virtual file blocks",
+					"blockId", blockId, "err", err.Error())
+			}
+		}
+
 		v.fileSize = v.fileSize + uint32(len(v.bufTX[0:len(v.bufTX)-(len(v.bufTX)%int(v.blockSize))]))
 		if m != len(v.bufTX)-(len(v.bufTX)%int(v.blockSize)) {
 			v.log.Errorv("did not write data completely",
@@ -170,10 +178,18 @@ func (v *VirtualFile) Close() error {
 		v.WMux.Lock()
 		defer v.WMux.Unlock()
 		if uint32(len(v.bufTX)) > 0 {
-			_, err := v.fs.Write(v.bufTX, v.id)
+			_, blocksId, err := v.fs.Write(v.bufTX, v.id, v.GetLastBlock())
 			if err != nil {
 				v.log.Errorv("can not write to file", "err", err.Error())
 			}
+			for _, blockId := range blocksId {
+				err = v.AddBlockID(blockId)
+				if err != nil {
+					v.log.Errorv("can not add block to virtual file blocks",
+						"blockId", blockId, "err", err.Error())
+				}
+			}
+
 			v.fileSize = v.fileSize + uint32(len(v.bufTX))
 		}
 		v.bufTX = v.bufTX[:0]

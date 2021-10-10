@@ -71,71 +71,65 @@ func (fse *FSEngine) Read(data []byte, fileID uint32) (int, error) {
 //	return
 //}
 
-func (fse *FSEngine) Write(data []byte, fileID uint32) (int, error) {
+func (fse *FSEngine) Write(data []byte, fileID uint32, previousBlock uint32) (int, []uint32, error) {
 	fse.WMux.Lock()
 	defer fse.WMux.Unlock()
 	dataSize := len(data)
 	if dataSize == 0 {
-		return 0, fmt.Errorf("data siz is zero, file ID: %v ", fileID)
+		return 0, []uint32{}, fmt.Errorf("data siz is zero, file ID: %v ", fileID)
 	}
-	vfInfo, ok := fse.openFiles[fileID]
-	if !ok {
-		return 0, fmt.Errorf("this file ID: %v did not opened", fileID)
-	}
+	//vfInfo, ok := fse.openFiles[fileID]
+	//if !ok {
+	//	return 0, 0, fmt.Errorf("this file ID: %v did not opened", fileID)
+	//}
 	n := 0
 	var err error
+	var blocksID []uint32
 	for {
 		if n >= dataSize {
 			if n == dataSize {
-				return n, nil
+				return n, blocksID, nil
 			}
 			fse.log.Errorv("data is written more than dataSize", "dataSize", dataSize, "n", n)
-			return n, fmt.Errorf("it is wirtten more, dataSize: %v, n = %v", dataSize, n)
+			return n, []uint32{}, fmt.Errorf("it is wirtten more, dataSize: %v, n = %v", dataSize, n)
 		}
-		previousBlock := vfInfo.vfs[0].GetLastBlock()
+		// previousBlock := vfInfo.vfs[0].GetLastBlock()
 
 		blockID := fse.header.FindNextFreeBlockAndAllocate()
 		var d []byte
 		if dataSize >= n+int(fse.blockSizeUsable) {
 			d, err = fse.prepareBlock(data[n:n+int(fse.blockSizeUsable)], fileID, previousBlock, blockID)
 			if err != nil {
-				return 0, err
+				return 0, []uint32{}, err
 			}
 		} else {
 			d, err = fse.prepareBlock(data[n:], fileID, previousBlock, blockID)
 			if err != nil {
-				return 0, err
+				return 0, []uint32{}, err
 			}
 		}
 
 		m, err := fse.writeInBlock(d, blockID)
 		if err != nil {
-			return 0, err
+			return 0, []uint32{}, err
 		}
 
-		err = vfInfo.vfs[0].AddBlockID(blockID)
-		if err != nil {
-			fse.log.Errorv("can not add block to virtual file", "fileID", fileID,
-				"blockID", blockID, "err", err.Error())
-			return 0, err
-		}
-		//if len(vfInfo.vfs) > 1 {
-		//	fse.log.Infov("there is more than one virtual file opened",
-		//		"len(vfInfo.vfs)", len(vfInfo.vfs))
-		//	for _, vf := range vfInfo.vfs {
-		//		fse.log.Infov("virtual file", "id", vf.GetFileID())
-		//	}
+		//err = vfInfo.vfs[0].AddBlockID(blockID)
+		//if err != nil {
+		//	fse.log.Errorv("can not add block to virtual file", "fileID", fileID,
+		//		"blockID", blockID, "err", err.Error())
+		//	return 0, 0, err
 		//}
 
 		err = fse.header.SetBlockAsAllocated(blockID)
 		if err != nil {
 			fse.log.Errorv("can not set block id in header",
-				"len(vfInfo.vfs)", len(vfInfo.vfs), "blockID", blockID, "fileID", fileID)
-			return 0, err
+				"blockID", blockID, "fileID", fileID)
+			return 0, []uint32{}, err
 		}
-
+		blocksID = append(blocksID, blockID)
 		if m != len(d) {
-			return 0, fmt.Errorf("block with size: %v did not write correctly, n = %v", m, len(d))
+			return 0, blocksID, fmt.Errorf("block with size: %v did not write correctly, n = %v", m, len(d))
 		}
 		n = n + m - constants.BlockHeaderSize
 	}
@@ -147,6 +141,8 @@ func (fse *FSEngine) Closed(fileID uint32) error {
 	defer fse.WMux.Unlock()
 	fse.RMux.Lock()
 	defer fse.RMux.Unlock()
+	fse.crudMutex.Lock()
+	defer fse.crudMutex.Unlock()
 	err := fse.header.UpdateFSHeader()
 	if err != nil {
 		fse.log.Warnv("Can not updateHeader", "err", err.Error())

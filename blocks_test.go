@@ -96,7 +96,7 @@ func TestFSEngine_NoSpace(t *testing.T) {
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderPath)
 	_ = utils.DeleteFile(homePath + "/" + constants.HeaderBackUpPath)
 	eventListener := EventsListener{t: t}
-	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest, blockSizeTest, &eventListener, log.GetScope("test"), nil)
+	fse, err := CreateFileSystem(fsID, homePath, fileSizeTest*2, blockSizeTest, &eventListener, log.GetScope("test"), nil)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.FsPath))
 	assert.Equal(t, true, utils.FileExists(homePath+"/"+constants.HeaderPath))
