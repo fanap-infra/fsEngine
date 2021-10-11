@@ -3,13 +3,13 @@ package fsEngine
 import (
 	"encoding/binary"
 	"fmt"
-	"sync/atomic"
 )
 
 func (fse *FSEngine) NoSpace() uint32 {
-	defer func() {
-		atomic.StoreUint32(&fse.cleaning, 0)
-	}()
+	//ToDo: test seperatego routine
+	//defer func() {
+	//	atomic.StoreUint32(&fse.cleaning, 0)
+	//}()
 	counter := 0
 	for {
 		filesIndex, err := fse.header.FindOldestFiles()

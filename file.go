@@ -31,8 +31,8 @@ type FSEngine struct {
 	crudMutex         sync.Mutex
 	Cache             *lru.Cache
 	eventsHandler     Events
-	cleaning          uint32
-	Quit              chan struct{}
+	// cleaning          uint32
+	Quit chan struct{}
 }
 
 // Close ...
