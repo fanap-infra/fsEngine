@@ -42,6 +42,14 @@ func (blm *BlockAllocationMap) UnsetBlockAsAllocated(blockIndex uint32) {
 	blm.rMap.Remove(blockIndex)
 }
 
+func (blm *BlockAllocationMap) UnsetBlocksAsAllocated(blocksIndex []uint32) {
+	blm.mu.Lock()
+	defer blm.mu.Unlock()
+	for _, blockIndex := range blocksIndex {
+		blm.rMap.Remove(blockIndex)
+	}
+}
+
 func (blm *BlockAllocationMap) IsBlockAllocated(blockIndex uint32) bool {
 	blm.mu.Lock()
 	defer blm.mu.Unlock()
