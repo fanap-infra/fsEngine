@@ -88,6 +88,10 @@ func (hfs *HFileSystem) UnsetBlockAsAllocated(blockIndex uint32) {
 	hfs.blockAllocationMap.UnsetBlockAsAllocated(blockIndex)
 }
 
+func (hfs *HFileSystem) UnsetBlocksAsAllocated(blocksIndex []uint32) {
+	hfs.blockAllocationMap.UnsetBlocksAsAllocated(blocksIndex)
+}
+
 func (hfs *HFileSystem) GetBLMArray() []uint32 {
 	return hfs.blockAllocationMap.ToArray()
 }

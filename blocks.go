@@ -3,9 +3,13 @@ package fsEngine
 import (
 	"encoding/binary"
 	"fmt"
+	"sync/atomic"
 )
 
 func (fse *FSEngine) NoSpace() uint32 {
+	defer func() {
+		atomic.StoreUint32(&fse.cleaning, 0)
+	}()
 	counter := 0
 	for {
 		filesIndex, err := fse.header.FindOldestFiles()
@@ -16,17 +20,18 @@ func (fse *FSEngine) NoSpace() uint32 {
 		numberOfBlocks := 0
 		blockIndex := uint32(1)
 		for _, fileIndex := range filesIndex {
-			blockIndex = fileIndex.FirstBlock
 			n, err := fse.RemoveVirtualFile(fileIndex.Id)
 			if err != nil {
 				fse.log.Warnv("can not remove virtual file", "id", fileIndex.Id,
 					"err", err.Error())
 				continue
 			}
+			blockIndex = fileIndex.FirstBlock
 			numberOfBlocks = numberOfBlocks + n
 			fse.eventsHandler.VirtualFileDeleted(fileIndex.Id, "file deleted due to space requirements")
 		}
 		if numberOfBlocks > 40 {
+			fse.log.Infov("Virtual file deleted due to space requirement", "numberOfBlocks", numberOfBlocks)
 			return blockIndex
 		}
 		fse.log.Errorv("can not remove files for making space, try again", "numberOfBlocks", numberOfBlocks,

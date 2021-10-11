@@ -2,6 +2,7 @@ package fsEngine
 
 import (
 	"fmt"
+	"sync/atomic"
 
 	"github.com/fanap-infra/fsEngine/internal/constants"
 )
@@ -114,19 +115,22 @@ func (fse *FSEngine) Write(data []byte, fileID uint32, previousBlock uint32) (in
 			return 0, []uint32{}, err
 		}
 
-		//err = vfInfo.vfs[0].AddBlockID(blockID)
-		//if err != nil {
-		//	fse.log.Errorv("can not add block to virtual file", "fileID", fileID,
-		//		"blockID", blockID, "err", err.Error())
-		//	return 0, 0, err
-		//}
-
 		err = fse.header.SetBlockAsAllocated(blockID)
 		if err != nil {
 			fse.log.Errorv("can not set block id in header",
 				"blockID", blockID, "fileID", fileID)
 			return 0, []uint32{}, err
 		}
+		if fse.cleaning == 0 {
+			blmArrayLen := len(fse.header.GetBLMArray())
+			if blmArrayLen > int(float64(fse.maxNumberOfBlocks)*0.9) {
+				fse.log.Infov("Cleaning Begin due to Space requirement",
+					"blmArrayLen", blmArrayLen)
+				atomic.StoreUint32(&fse.cleaning, 1)
+				go fse.NoSpace()
+			}
+		}
+
 		blocksID = append(blocksID, blockID)
 		if m != len(d) {
 			return 0, blocksID, fmt.Errorf("block with size: %v did not write correctly, n = %v", m, len(d))
