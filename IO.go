@@ -85,6 +85,15 @@ func (fse *FSEngine) Write(data []byte, fileID uint32, previousBlock uint32) (in
 	n := 0
 	var err error
 	var blocksID []uint32
+	if fse.cleaning == 0 {
+		blmArrayLen := len(fse.header.GetBLMArray())
+		if blmArrayLen > int(float64(fse.maxNumberOfBlocks)*0.9) {
+			fse.log.Infov("Cleaning Begin due to Space requirement",
+				"blmArrayLen", blmArrayLen)
+			// atomic.StoreUint32(&fse.cleaning, 1)
+			fse.NoSpace()
+		}
+	}
 	for {
 		if n >= dataSize {
 			if n == dataSize {
@@ -120,16 +129,6 @@ func (fse *FSEngine) Write(data []byte, fileID uint32, previousBlock uint32) (in
 				"blockID", blockID, "fileID", fileID)
 			return 0, []uint32{}, err
 		}
-		// ToDo: test seperatego routine
-		//if fse.cleaning == 0 {
-		//	blmArrayLen := len(fse.header.GetBLMArray())
-		//	if blmArrayLen > int(float64(fse.maxNumberOfBlocks)*0.9) {
-		//		fse.log.Infov("Cleaning Begin due to Space requirement",
-		//			"blmArrayLen", blmArrayLen)
-		//		atomic.StoreUint32(&fse.cleaning, 1)
-		//		go fse.NoSpace()
-		//	}
-		//}
 
 		blocksID = append(blocksID, blockID)
 		if m != len(d) {

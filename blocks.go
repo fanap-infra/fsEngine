@@ -6,9 +6,12 @@ import (
 )
 
 func (fse *FSEngine) NoSpace() uint32 {
-	//ToDo: test seperatego routine
 	//defer func() {
 	//	atomic.StoreUint32(&fse.cleaning, 0)
+	//	err := fse.header.UpdateFSHeader()
+	//	if err != nil {
+	//		fse.log.Info("can not update fs header in no space")
+	//	}
 	//}()
 	counter := 0
 	for {
